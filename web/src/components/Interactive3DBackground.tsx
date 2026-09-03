@@ -22,10 +22,11 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
     const container = containerRef.current
     if (!container) return
 
-    // 1. Optimized Particle Waves Setup
-    const SEPARATION = 55       // Wider spacing = fewer particles needed
-    const AMOUNTX = 50          // Reduced from 65 → 50 (saves ~40% vertex work)
+    // 1. Optimized Particle Grid Setup
+    const SEPARATION = 55
+    const AMOUNTX = 50
     const AMOUNTY = 50
+    const numParticles = AMOUNTX * AMOUNTY
 
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(
@@ -37,54 +38,65 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
     camera.position.set(0, 480, 1100)
     camera.lookAt(0, 50, 0)
 
+    // 2. High-Efficiency WebGL Renderer
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
-      antialias: false,                   // GPU saving: AA not needed for point sprites
-      powerPreference: 'low-power',       // GPU saving: prefer integrated GPU
+      antialias: false,                   // GPU saving: AA unnecessary for point sprites
+      powerPreference: 'low-power',       // GPU saving: favor integrated low-power silicon
     })
     renderer.setSize(window.innerWidth, window.innerHeight)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))  // Cap at 1.5x (saves ~25% fill rate vs 2x)
+    // Low-power background sprites only need 1.0~1.25x pixel ratio
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25))
     renderer.setClearColor(0x000000, 0)
     container.appendChild(renderer.domElement)
 
-    // 2. Particle Grid (2,500 particles — down from 4,225)
-    const numParticles = AMOUNTX * AMOUNTY
+    // 3. Grid Coordinates & Radial Color Gradient Buffer
     const positions = new Float32Array(numParticles * 3)
     const colors = new Float32Array(numParticles * 3)
+    const gridIndices = new Float32Array(numParticles * 2) // [ix, iy] for GPU vertex calculation
 
     const cJade = new THREE.Color(0x10B981)
     const cPlatinum = new THREE.Color(0xD1D5DB)
 
-    let i = 0
+    let pIdx = 0
+    let gIdx = 0
     for (let ix = 0; ix < AMOUNTX; ix++) {
       for (let iy = 0; iy < AMOUNTY; iy++) {
-        positions[i] = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2
-        positions[i + 1] = 0
-        positions[i + 2] = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2
+        positions[pIdx] = ix * SEPARATION - (AMOUNTX * SEPARATION) / 2
+        positions[pIdx + 1] = 0.0 // Base height, computed on GPU
+        positions[pIdx + 2] = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2
 
-        const distNorm = Math.sqrt(
-          Math.pow(ix - AMOUNTX / 2, 2) + Math.pow(iy - AMOUNTY / 2, 2)
-        ) / (AMOUNTX * 0.5)
+        gridIndices[gIdx] = ix
+        gridIndices[gIdx + 1] = iy
 
-        const c = distNorm < 0.5
-          ? cJade.clone().lerp(cPlatinum, distNorm * 2.0)
-          : cPlatinum
+        const distNorm =
+          Math.sqrt(
+            Math.pow(ix - AMOUNTX / 2, 2) + Math.pow(iy - AMOUNTY / 2, 2)
+          ) /
+          (AMOUNTX * 0.5)
 
-        colors[i] = c.r
-        colors[i + 1] = c.g
-        colors[i + 2] = c.b
+        const c =
+          distNorm < 0.5
+            ? cJade.clone().lerp(cPlatinum, distNorm * 2.0)
+            : cPlatinum
 
-        i += 3
+        colors[pIdx] = c.r
+        colors[pIdx + 1] = c.g
+        colors[pIdx + 2] = c.b
+
+        pIdx += 3
+        gIdx += 2
       }
     }
 
     const geometry = new THREE.BufferGeometry()
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
+    geometry.setAttribute('aGrid', new THREE.BufferAttribute(gridIndices, 2))
 
-    // Smaller texture = less VRAM
+    // 4. Circular Particle Sprite Texture (Tiny 32x32 = 75% less texture memory)
     const canvas = document.createElement('canvas')
-    canvas.width = 32           // Reduced from 64 → 32 (75% less texture memory)
+    canvas.width = 32
     canvas.height = 32
     const ctx = canvas.getContext('2d')
     if (ctx) {
@@ -98,29 +110,60 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
     }
     const texture = new THREE.CanvasTexture(canvas)
 
-    const material = new THREE.PointsMaterial({
-      size: 7.5,
-      vertexColors: true,
-      map: texture,
+    // 5. Zero-CPU GPU Vertex Shader
+    const customShaderMaterial = new THREE.ShaderMaterial({
+      precision: 'mediump',
+      uniforms: {
+        uTime: { value: 0 },
+        uPointTexture: { value: texture },
+      },
+      vertexShader: `
+        precision mediump float;
+        attribute vec2 aGrid;
+        varying vec3 vColor;
+        uniform float uTime;
+
+        void main() {
+          vColor = color;
+          
+          // GPU-native dual sine wave modulation
+          float yOffset = sin((aGrid.x + uTime) * 0.3) * 60.0 + sin((aGrid.y + uTime) * 0.5) * 60.0;
+          vec3 transformed = vec3(position.x, position.y + yOffset, position.z);
+
+          vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);
+          gl_Position = projectionMatrix * mvPosition;
+
+          // Point attenuation
+          gl_PointSize = (260.0 / -mvPosition.z);
+        }
+      `,
+      fragmentShader: `
+        precision mediump float;
+        varying vec3 vColor;
+        uniform sampler2D uPointTexture;
+
+        void main() {
+          vec4 texColor = texture2D(uPointTexture, gl_PointCoord);
+          if (texColor.a < 0.05) discard;
+          gl_FragColor = vec4(vColor, texColor.a * 0.75);
+        }
+      `,
       transparent: true,
-      opacity: 0.75,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
+      vertexColors: true,
     })
 
-    const particles = new THREE.Points(geometry, material)
+    const particles = new THREE.Points(geometry, customShaderMaterial)
     particles.position.set(0, 0, -100)
     scene.add(particles)
 
-    // 3. User Mouse Interactivity
+    // 6. User Pointer Tracking & Reactive Loops
     let mouseX = 0
     let mouseY = 0
     let targetMouseX = 0
     let targetMouseY = 0
-    let count = 0
 
-    //    - Throttled to 30fps during movement, drops to 15fps when idle (>3s no mouse activity)
-    //    - Pauses entirely when tab is hidden (Page Visibility API)
     let animationFrameId: number
     let isVisible = true
     let lastFrameTime = 0
@@ -138,8 +181,8 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
 
     const onPointerMove = (event: MouseEvent) => {
       lastInteractionTime = performance.now()
-      targetMouseX = (event.clientX - window.innerWidth / 2)
-      targetMouseY = (event.clientY - window.innerHeight / 2)
+      targetMouseX = event.clientX - window.innerWidth / 2
+      targetMouseY = event.clientY - window.innerHeight / 2
 
       document.documentElement.style.setProperty('--mouse-x', `${event.clientX}px`)
       document.documentElement.style.setProperty('--mouse-y', `${event.clientY}px`)
@@ -154,14 +197,17 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
     window.addEventListener('pointermove', onPointerMove, { passive: true })
     window.addEventListener('resize', onResize)
 
+    // 7. Dynamic Power-Saver Animation Loop
+    let timeAccumulator = 0
+
     const animate = (now: number = 0) => {
-      if (!isVisible) return   // Stop rendering when tab is hidden
+      if (!isVisible) return
 
       animationFrameId = requestAnimationFrame(animate)
 
-      // Dynamic FPS: 30fps when active, 15fps when idle for > 3.5s
+      // Power Saver: Drop to 12fps when idle for >3.5s; 30fps when active
       const isIdle = now - lastInteractionTime > 3500
-      const currentInterval = isIdle ? 1000 / 15 : 1000 / 30
+      const currentInterval = isIdle ? 1000 / 12 : 1000 / 30
 
       const delta = now - lastFrameTime
       if (delta < currentInterval) return
@@ -188,23 +234,9 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
       camera.position.z += (targetCamZ - camera.position.z) * 0.05
       camera.lookAt(0, 40, 0)
 
-      // Canonical Double Sine Wave
-      const positionAttr = geometry.attributes.position as THREE.BufferAttribute
-      const posArray = positionAttr.array as Float32Array
-
-      let idx = 0
-      for (let ix = 0; ix < AMOUNTX; ix++) {
-        for (let iy = 0; iy < AMOUNTY; iy++) {
-          posArray[idx + 1] =
-            Math.sin((ix + count) * 0.3) * 60 +
-            Math.sin((iy + count) * 0.5) * 60
-
-          idx += 3
-        }
-      }
-
-      positionAttr.needsUpdate = true
-      count += 0.06
+      // Zero-CPU Sine calculation: offloaded entirely to GPU shader!
+      timeAccumulator += 0.06
+      customShaderMaterial.uniforms.uTime.value = timeAccumulator
 
       renderer.render(scene, camera)
     }
@@ -222,7 +254,7 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
       }
       renderer.dispose()
       geometry.dispose()
-      material.dispose()
+      customShaderMaterial.dispose()
       texture.dispose()
     }
   }, [])
