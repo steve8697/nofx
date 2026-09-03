@@ -965,8 +965,8 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
       {/* 🚀 Traders Grid List */}
       <div className="glass-card p-5 md:p-8 border border-white/5 relative overflow-hidden">
         {/* 背景裝飾 */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-white/3 to-transparent blur-[100px] pointer-events-none"></div>
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-white/3 to-transparent blur-[100px] pointer-events-none"></div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.03),transparent_70%)] pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-[radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.03),transparent_70%)] pointer-events-none"></div>
 
         <div className="flex items-center justify-between mb-6 md:mb-8 relative z-10">
           <h2
@@ -1027,7 +1027,7 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
             </div>
           ) : (
             /* 📟 Tactical Telemetry Radar List Mode */
-            <div className="relative overflow-x-auto rounded-xl border border-white/5 bg-black/35 backdrop-blur-md z-10 font-mono text-xs">
+            <div className="relative overflow-x-auto rounded-xl border border-white/5 bg-[#131418] z-10 font-mono text-xs">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="border-b border-white/5 bg-white/[0.02] text-gray-500 font-bold uppercase tracking-wider">
@@ -1295,7 +1295,7 @@ function SignalSourceModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
       <div
         className="rounded-xl p-6 w-full max-w-lg relative border border-white/10"
         style={{ background: '#161A1E' }}

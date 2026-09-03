@@ -627,7 +627,7 @@ function TraderDetailsPage({
         </div>
       )}
       {/* Luxury Editorial Minimal Telemetry Strip (Hairline Separators, Zero Thick Boxes) */}
-      <div className="border-y border-white/[0.08] bg-[#17181C]/40 backdrop-blur-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-10 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.08]">
+      <div className="border-y border-white/[0.08] bg-[#17181C]/90 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-10 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.08]">
         <StatCard
           title={t('totalEquity', language)}
           value={`${account?.total_equity?.toFixed(2) || '0.00'} USDT`}
@@ -955,7 +955,7 @@ function DecisionCard({
 
       {/* AI Core Thesis / Observation Reason Banner */}
       {isAllWait && (primaryReasoning || parsedDecisionList.length > 0) && (
-        <div className="mb-5 p-4 bg-white/[0.02] backdrop-blur-md border-l-2 border-white/20 border-t border-r border-b border-white/[0.06] space-y-2.5">
+        <div className="mb-5 p-4 bg-[#131418] border-l-2 border-white/20 border-t border-r border-b border-white/[0.06] space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-medium text-[#B4B0A5] tracking-[0.2em] uppercase font-mono">CURATED OBSERVATION DISCIPLINE</span>
             <span className="px-2 py-0.5 bg-white/[0.03] border border-white/10 text-[#9C9B96] text-[9px] font-mono tracking-wider">CAPITAL DISCIPLINE</span>
@@ -977,7 +977,7 @@ function DecisionCard({
 
       {/* Scanned Candidates Radar */}
       {decision.candidate_coins && decision.candidate_coins.length > 0 && (
-        <div className="mb-5 bg-white/[0.02] backdrop-blur-md border border-white/[0.06] p-4 font-mono">
+        <div className="mb-5 bg-[#131418] border border-white/[0.06] p-4 font-mono">
           <div className="flex items-center justify-between mb-3">
             <div className="text-[9px] text-[#5E5D58] uppercase tracking-[0.2em] flex items-center gap-2">
               <span className="text-[#ECEBE6] font-medium">SCANNED ASSETS SPECTRUM</span>

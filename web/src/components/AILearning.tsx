@@ -135,7 +135,7 @@ export default function AILearning({ traderId }: AILearningProps) {
       </div>
 
       {/* 核心指标 - Luxury Horizontal Minimal Strip */}
-      <div className="border-y border-white/[0.08] bg-[#17181C]/40 backdrop-blur-sm grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-white/[0.08]">
+      <div className="border-y border-white/[0.08] bg-[#17181C]/90 grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-white/[0.08]">
         {/* 总交易数 */}
         <div className="p-6">
           <div className="text-[10px] font-inter font-medium uppercase tracking-[0.28em] text-[#7C7A75] mb-2.5">
@@ -535,8 +535,7 @@ export default function AILearning({ traderId }: AILearningProps) {
                 <thead className="sticky top-0 z-10">
                   <tr
                     style={{
-                      background: 'rgba(15, 23, 42, 0.95)',
-                      backdropFilter: 'blur(10px)',
+                      background: '#0F172A',
                     }}
                   >
                     <th
@@ -676,7 +675,7 @@ export default function AILearning({ traderId }: AILearningProps) {
                   return (
                     <div
                       key={`${trade.symbol}-${trade.close_time || trade.open_time}-${idx}`}
-                      className="rounded-xl p-4 backdrop-blur-sm transition-all hover:scale-[1.02]"
+                      className="rounded-xl p-4 transition-all hover:scale-[1.02]"
                       style={{
                         background: isRecent
                           ? isProfitable

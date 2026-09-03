@@ -95,8 +95,8 @@ export function RegisterPage() {
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* 🌌 Premium 消光鈦灰背景裝飾球 */}
-      <div className="absolute top-1/4 left-1/4 w-[450px] h-[450px] rounded-full bg-gradient-to-tr from-white/4 to-transparent blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-[450px] h-[450px] rounded-full bg-gradient-to-br from-white/2 to-transparent blur-[120px] pointer-events-none"></div>
+      <div className="absolute top-1/4 left-1/4 w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.03),transparent_70%)] pointer-events-none"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.02),transparent_70%)] pointer-events-none"></div>
 
       <HeaderBar
         isLoggedIn={false}
@@ -119,7 +119,7 @@ export function RegisterPage() {
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="w-24 h-24 mx-auto mb-4 flex items-center justify-center p-4 rounded-3xl bg-black/45 border border-white/10 shadow-2xl backdrop-blur-md">
+            <div className="w-24 h-24 mx-auto mb-4 flex items-center justify-center p-4 rounded-3xl bg-[#131418] border border-white/10 shadow-2xl">
               <svg
                 className="w-full h-full text-white/70"
                 viewBox="0 0 100 100"

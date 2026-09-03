@@ -50,8 +50,8 @@ export function ResetPasswordPage() {
   return (
     <div className="min-h-screen relative overflow-hidden bg-transparent">
       {/* 🌌 Premium 消光鈦灰微光球 */}
-      <div className="absolute top-1/4 left-1/4 w-[450px] h-[450px] rounded-full bg-white/[0.02] blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-[450px] h-[450px] rounded-full bg-white/[0.02] blur-[120px] pointer-events-none"></div>
+      <div className="absolute top-1/4 left-1/4 w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.02),transparent_70%)] pointer-events-none"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-[450px] h-[450px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.02),transparent_70%)] pointer-events-none"></div>
 
       <Header simple />
 
@@ -76,7 +76,7 @@ export function ResetPasswordPage() {
           {/* Logo */}
           <div className="text-center mb-8">
             <div
-              className="w-20 h-20 mx-auto mb-4 flex items-center justify-center p-4 rounded-2xl bg-black/45 border border-white/5 shadow-2xl backdrop-blur-md"
+              className="w-20 h-20 mx-auto mb-4 flex items-center justify-center p-4 rounded-2xl bg-[#131418] border border-white/5 shadow-2xl"
             >
               <KeyRound className="w-10 h-10 text-white/80" />
             </div>

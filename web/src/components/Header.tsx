@@ -9,7 +9,7 @@ export function Header({ simple = false }: HeaderProps) {
   const { language, setLanguage } = useLanguage()
 
   return (
-    <header className="glass sticky top-0 z-50 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 bg-[#0B0E11]/95 border-b border-white/[0.08]">
       <div className="max-w-[1920px] mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Left - Logo and Title */}

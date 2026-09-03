@@ -244,7 +244,7 @@ export function ComparisonChart({ traders }: ComparisonChartProps) {
       return (
         <div
           className="glass-card p-3.5 shadow-2xl relative overflow-hidden min-w-[170px] border border-white/10"
-          style={{ background: 'rgba(10, 10, 12, 0.95)', backdropFilter: 'blur(12px)' }}
+          style={{ background: '#0e0f12' }}
         >
           <div className="text-[10px] font-bold font-mono text-gray-500 mb-2 uppercase tracking-wider">
             {data.time} - SYNC #{data.index}
