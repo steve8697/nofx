@@ -130,7 +130,7 @@ export default function AILearning({ traderId }: AILearningProps) {
           </p>
         </div>
         <div className="font-mono text-[9px] tracking-widest text-[#7C7A75] uppercase">
-          KRONOS TELEMETRY DECK
+          AETHERIS TELEMETRY DECK
         </div>
       </div>
 

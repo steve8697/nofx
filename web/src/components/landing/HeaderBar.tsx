@@ -103,7 +103,7 @@ export default function HeaderBar({
             <span
               className="text-xl font-extrabold tracking-wider text-white"
             >
-              KRONOS
+              AETHERIS
             </span>
             <span
               className="text-[10px] hidden sm:block px-2 py-0.5 rounded font-mono font-bold tracking-wider"

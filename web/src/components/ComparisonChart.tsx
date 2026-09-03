@@ -229,7 +229,7 @@ export function ComparisonChart({ traders }: ComparisonChartProps) {
     return [Math.floor(minVal - padding), Math.ceil(maxVal + padding)]
   }
 
-  // 使用 KRONOS QUANTUM v5.0 消光鈦金灰度色板（Stealth Monochromatic Palette）
+  // 使用 AETHERIS QUANTUM v5.0 消光鈦金灰度色板（Stealth Monochromatic Palette）
   const traderColor = (traderId: string) => {
     const index = traders.findIndex((t) => t.trader_id === traderId)
     // 高雅灰度序列：純白、鈦銀、月灰、消光灰、炭黑
@@ -305,7 +305,7 @@ export function ComparisonChart({ traders }: ComparisonChartProps) {
         {/* Tech Grid Backdrop */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.002)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.002)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none opacity-30"></div>
 
-        {/* KRONOS QUANTUM Watermark */}
+        {/* AETHERIS QUANTUM Watermark */}
         <div
           style={{
             position: 'absolute',
@@ -320,7 +320,7 @@ export function ComparisonChart({ traders }: ComparisonChartProps) {
             letterSpacing: '0.15em'
           }}
         >
-          KRONOS QUANTUM TELEMETRY
+          AETHERIS QUANTUM TELEMETRY
         </div>
         <ResponsiveContainer width="100%" height={520}>
           <LineChart

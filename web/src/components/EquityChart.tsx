@@ -348,7 +348,7 @@ export function EquityChart({ traderId }: EquityChartProps) {
         
         {/* Subtle holographic logo */}
         <div className="absolute top-4 right-4 text-[13px] font-black font-mono text-white/[0.03] select-none tracking-widest pointer-events-none">
-          KRONOS QUANTUM CORE
+          AETHERIS QUANTUM CORE
         </div>
 
         <ResponsiveContainer width="100%" height={280}>

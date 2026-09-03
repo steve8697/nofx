@@ -416,7 +416,7 @@ function App() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 max-w-6xl mx-auto border-b border-white/[0.03] pb-6 mb-6">
             <div className="flex items-center gap-2">
               <span className="inline-block w-2 h-2 rounded-full bg-white animate-pulse"></span>
-              <span className="text-white font-bold tracking-wider">KRONOS QUANTUM v5.0.0-STEALTH</span>
+              <span className="text-white font-bold tracking-wider">AETHERIS QUANTUM v5.0.0-STEALTH</span>
             </div>
             <div className="text-gray-500">
               COGNITIVE TRADING CORE: <span className="text-gray-400 font-bold">ONLINE</span> // STEALTH MATRIX ACTIVE

@@ -151,7 +151,7 @@ export function RegisterPage() {
             <h1
               className="text-2xl font-extrabold tracking-wider text-white"
             >
-              KRONOS QUANTUM
+              AETHERIS QUANTUM
             </h1>
             <p className="text-sm mt-2" style={{ color: '#848E9C' }}>
               {step === 'register' && t('registerTitle', language)}
