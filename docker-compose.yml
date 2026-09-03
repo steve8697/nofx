@@ -82,10 +82,10 @@ services:
       - .:/app
     working_dir: /app
     environment:
-      - NOFX_ADMIN_PASSWORD=${AETHERIS_ADMIN_PASSWORD:-${NOFX_ADMIN_PASSWORD}}
       - AETHERIS_ADMIN_PASSWORD=${AETHERIS_ADMIN_PASSWORD:-${NOFX_ADMIN_PASSWORD}}
-      - NOFX_API_URL=http://aetheris:3636
+      - NOFX_ADMIN_PASSWORD=${AETHERIS_ADMIN_PASSWORD:-${NOFX_ADMIN_PASSWORD}}
       - AETHERIS_API_URL=http://aetheris:3636
+      - NOFX_API_URL=http://aetheris:3636
     networks:
       - aetheris-network
     depends_on:
