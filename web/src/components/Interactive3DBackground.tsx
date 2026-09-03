@@ -45,8 +45,8 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
       powerPreference: 'low-power',       // GPU saving: favor integrated low-power silicon
     })
     renderer.setSize(window.innerWidth, window.innerHeight)
-    // Low-power background sprites only need 1.0~1.25x pixel ratio
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.25))
+    // Standard 1.0x pixel ratio saves ~50% GPU fill-rate on Retina / 4K displays
+    renderer.setPixelRatio(1.0)
     renderer.setClearColor(0x000000, 0)
     container.appendChild(renderer.domElement)
 
@@ -179,19 +179,25 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
     }
     document.addEventListener('visibilitychange', onVisibilityChange)
 
+    let lastStyleTime = 0
     const onPointerMove = (event: MouseEvent) => {
-      const wasAsleep = performance.now() - lastInteractionTime > 15000
-      lastInteractionTime = performance.now()
+      const now = performance.now()
+      const wasAsleep = now - lastInteractionTime > 10000
+      lastInteractionTime = now
       targetMouseX = event.clientX - window.innerWidth / 2
       targetMouseY = event.clientY - window.innerHeight / 2
 
       if (wasAsleep && isVisible) {
-        lastFrameTime = performance.now()
+        lastFrameTime = now
         animationFrameId = requestAnimationFrame(animate)
       }
 
-      document.documentElement.style.setProperty('--mouse-x', `${event.clientX}px`)
-      document.documentElement.style.setProperty('--mouse-y', `${event.clientY}px`)
+      // Throttle CSS variable updates to max 30 times per second
+      if (now - lastStyleTime > 33) {
+        lastStyleTime = now
+        document.documentElement.style.setProperty('--mouse-x', `${event.clientX}px`)
+        document.documentElement.style.setProperty('--mouse-y', `${event.clientY}px`)
+      }
     }
 
     const onResize = () => {
@@ -209,17 +215,17 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
     const animate = (now: number = 0) => {
       if (!isVisible) return
 
-      animationFrameId = requestAnimationFrame(animate)
-
       // Progressive Energy Tiers:
       // - Active user movement (<3s): 30 FPS
-      // - Soft Idle (3s ~ 15s): 8 FPS
-      // - Complete Sleep (>15s): 0 FPS (Renderer completely stops drawing until user moves mouse again)
+      // - Soft Idle (3s ~ 10s): 8 FPS
+      // - Complete Sleep (>10s): 0 FPS (Completely stop requesting animation frames)
       const idleTime = now - lastInteractionTime
-      if (idleTime > 15000) {
-        // Complete sleep: no render call, zero GPU execution!
+      if (idleTime > 10000) {
+        // Complete sleep: do NOT schedule next frame, zero rAF overhead!
         return
       }
+
+      animationFrameId = requestAnimationFrame(animate)
 
       const currentInterval = idleTime > 3000 ? 1000 / 8 : 1000 / 30
 
