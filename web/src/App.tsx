@@ -627,7 +627,7 @@ function TraderDetailsPage({
         </div>
       )}
       {/* Luxury Editorial Liquid Glass Telemetry Strip */}
-      <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-white/[0.06] via-[#141824]/40 to-white/[0.03] backdrop-blur-md shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.3),0_20px_40px_-15px_rgba(0,0,0,0.6)] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-10 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.08] overflow-hidden">
+      <div className="rounded-lg border border-white/10 bg-gradient-to-r from-white/[0.05] via-[#141824]/20 to-white/[0.02] backdrop-blur-sm shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.35),0_20px_40px_-15px_rgba(0,0,0,0.6)] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-10 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.08] overflow-hidden">
         <StatCard
           title={t('totalEquity', language)}
           value={`${account?.total_equity?.toFixed(2) || '0.00'} USDT`}

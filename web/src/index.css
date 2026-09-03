@@ -153,27 +153,27 @@ body::before {
   margin: 0 auto;
 }
 
-/* Sovereign Apple VisionOS Authentic Liquid Glass */
+/* Sovereign Apple VisionOS Authentic Liquid Glass - Precision 8px Refinement */
 .sharp-card, .glass-card {
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(18, 22, 32, 0.46) 32%,
-    rgba(10, 12, 18, 0.74) 100%
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(12, 15, 22, 0.20) 35%,
+    rgba(6, 8, 12, 0.32) 100%
   ) !important;
-  backdrop-filter: blur(16px) saturate(140%) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.35) !important; /* 頂部強受光水體折射切線 */
+  backdrop-filter: blur(3px) saturate(125%) !important;
+  -webkit-backdrop-filter: blur(3px) saturate(125%) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.38) !important; /* 頂部受光水體折射切線 */
   border-left: 1px solid rgba(255, 255, 255, 0.20) !important;
   border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-  border-radius: 16px !important; /* 水體表面張力流暢曲率 */
+  border-radius: 8px !important; /* 8px 精密俐落弧角，消除呆板感 */
   box-shadow: 
-    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.42),   /* 水晶頂部極致高光切邊 */
-    inset 0 0 24px 0 rgba(255, 255, 255, 0.03),      /* 玻璃內部水晶漫射光 */
-    inset 0 -1.5px 1px 0 rgba(0, 0, 0, 0.50),        /* 底部折射背光暗影 */
-    0 24px 50px -12px rgba(0, 0, 0, 0.75) !important; /* 深度懸浮投影 */
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    inset 0 1px 0.5px 0 rgba(255, 255, 255, 0.45),   /* 水晶頂部精緻高光切邊 */
+    inset 0 0 20px 0 rgba(255, 255, 255, 0.03),      /* 玻璃內部水晶漫射光 */
+    inset 0 -1px 0.5px 0 rgba(0, 0, 0, 0.45),        /* 底部折射背光暗影 */
+    0 20px 45px -12px rgba(0, 0, 0, 0.75) !important; /* 深度懸浮投影 */
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
   position: relative;
   overflow: hidden;
 }
@@ -607,27 +607,27 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Binance Card - Unified with VisionOS Liquid Glass */
+/* Binance Card - Unified with VisionOS Liquid Glass - Precision 8px Refinement */
 .binance-card, .binance-card-no-hover {
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(18, 22, 32, 0.46) 32%,
-    rgba(10, 12, 18, 0.74) 100%
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(12, 15, 22, 0.20) 35%,
+    rgba(6, 8, 12, 0.32) 100%
   ) !important;
-  backdrop-filter: blur(16px) saturate(140%) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(3px) saturate(125%) !important;
+  -webkit-backdrop-filter: blur(3px) saturate(125%) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.38) !important;
   border-left: 1px solid rgba(255, 255, 255, 0.20) !important;
   border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-  border-radius: 16px !important;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  border-radius: 8px !important;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
   box-shadow: 
-    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.42),
-    inset 0 0 24px 0 rgba(255, 255, 255, 0.03),
-    inset 0 -1.5px 1px 0 rgba(0, 0, 0, 0.50),
-    0 24px 50px -12px rgba(0, 0, 0, 0.75) !important;
+    inset 0 1px 0.5px 0 rgba(255, 255, 255, 0.45),
+    inset 0 0 20px 0 rgba(255, 255, 255, 0.03),
+    inset 0 -1px 0.5px 0 rgba(0, 0, 0, 0.45),
+    0 20px 45px -12px rgba(0, 0, 0, 0.75) !important;
   position: relative;
   overflow: hidden;
 }
