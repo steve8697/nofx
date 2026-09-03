@@ -40,7 +40,7 @@ func main() {
 	case "dryrun":
 		runDryRun(*dbPath)
 	default:
-		fmt.Print(`NOFX debug — 默认不实盘、不下单
+		fmt.Print(`AETHERIS debug — 默认不实盘、不下单
 
 用法:
   go run ./cmd/debug inspect [-n 50] [-dir decision_logs/...]

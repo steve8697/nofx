@@ -211,7 +211,7 @@ func RewriteLoopbackURL(raw string) string {
 }
 
 func runningInDocker() bool {
-	if os.Getenv("NOFX_IN_DOCKER") == "1" {
+	if os.Getenv("AETHERIS_IN_DOCKER") == "1" || os.Getenv("NOFX_IN_DOCKER") == "1" {
 		return true
 	}
 	if _, err := os.Stat("/.dockerenv"); err == nil {

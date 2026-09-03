@@ -17,7 +17,7 @@ func main() {
 	pingAI := flag.Bool("ai", false, "额外打一发极短的 AI 请求（会消耗 token）")
 	flag.Parse()
 
-	fmt.Println("NOFX preflight — 只读检查，不会下单、不会启动交易循环")
+	fmt.Println("AETHERIS preflight — 只读检查，不会下单、不会启动交易循环")
 	fmt.Println()
 
 	failed := 0
