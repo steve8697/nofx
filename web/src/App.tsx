@@ -407,7 +407,7 @@ function App() {
       {/* Footer */}
       <footer
         className="mt-20 border-t"
-        style={{ borderColor: 'rgba(255, 255, 255, 0.035)', background: 'rgba(10, 10, 12, 0.45)', backdropFilter: 'blur(8px)' }}
+        style={{ borderColor: 'rgba(255, 255, 255, 0.035)', background: 'rgba(10, 10, 12, 0.85)' }}
       >
         <div
           className="max-w-[1920px] mx-auto px-6 py-8 text-center text-xs font-mono"

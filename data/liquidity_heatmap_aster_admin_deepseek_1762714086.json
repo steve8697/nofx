@@ -2047,6 +2047,13 @@
       "type": "Long Liquidation",
       "timestamp": 1788476399999,
       "visited": true
+    },
+    {
+      "price": 0.08739,
+      "volume": 2596109.5,
+      "type": "Long Liquidation",
+      "timestamp": 1788477299999,
+      "visited": false
     }
   ],
   "ETHUSDT": [
@@ -3011,9 +3018,16 @@
     },
     {
       "price": 2495.9,
-      "volume": 1625.9740000000002,
+      "volume": 0,
       "type": "Long Liquidation",
       "timestamp": 1788476399999,
+      "visited": true
+    },
+    {
+      "price": 2494.14,
+      "volume": 1224.7337,
+      "type": "Long Liquidation",
+      "timestamp": 1788477299999,
       "visited": false
     }
   ],
@@ -3902,10 +3916,10 @@
     },
     {
       "price": 86.096,
-      "volume": 8819.649000000001,
+      "volume": 0,
       "type": "Short Liquidation",
       "timestamp": 1788476399999,
-      "visited": false
+      "visited": true
     }
   ],
   "LTCUSDT": [
@@ -4628,6 +4642,13 @@
       "volume": 1421.9269000000002,
       "type": "Short Liquidation",
       "timestamp": 1788476399999,
+      "visited": false
+    },
+    {
+      "price": 51.22,
+      "volume": 593.2659,
+      "type": "Long Liquidation",
+      "timestamp": 1788477299999,
       "visited": false
     }
   ],
@@ -7898,6 +7919,13 @@
       "volume": 849.46,
       "type": "Long Liquidation",
       "timestamp": 1788476399999,
+      "visited": false
+    },
+    {
+      "price": 5.85,
+      "volume": 2447.75,
+      "type": "Long Liquidation",
+      "timestamp": 1788477299999,
       "visited": false
     }
   ]

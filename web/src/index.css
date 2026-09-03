@@ -153,11 +153,9 @@ body::before {
   margin: 0 auto;
 }
 
-/* Sovereign Atelier Slate Architectural Geometry & Liquid Caustics Frosted Glass */
+/* Sovereign Atelier Slate Architectural Geometry & High-Performance Faux-Glass */
 .sharp-card, .glass-card {
-  background: rgba(18, 19, 23, 0.45) !important; /* 晶瑩且略微收斂不透明度 (45%) */
-  backdrop-filter: blur(6px) !important; /* 降為 6px，GPU 模糊卷積運算量降低 75% */
-  -webkit-backdrop-filter: blur(6px) !important;
+  background: rgba(14, 15, 18, 0.78) !important; /* 啞光純黑板岩透明底 (78% 深度，透出微弱粒子，零模糊卷積) */
   border-top: 1px solid rgba(255, 255, 255, 0.16) !important; /* 頂部受光折射高光邊 */
   border-left: 1px solid rgba(255, 255, 255, 0.10) !important;
   border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
@@ -165,7 +163,7 @@ body::before {
   border-radius: 0px !important; /* 純直角建築感 */
   box-shadow: 
     0 20px 50px -10px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important; /* 內層玻璃折射切邊光 */
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important; /* 內層玻璃折射切邊光 */
   transition: background 0.35s ease, border-color 0.35s ease !important;
   position: relative;
   overflow: hidden;
@@ -591,11 +589,9 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Binance Card - Unified with Translucent Frosted Liquid Glass */
+/* Binance Card - Unified with High-Performance Faux-Glass */
 .binance-card, .binance-card-no-hover {
-  background: rgba(18, 19, 23, 0.45) !important;
-  backdrop-filter: blur(6px) !important;
-  -webkit-backdrop-filter: blur(6px) !important;
+  background: rgba(14, 15, 18, 0.78) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.16) !important;
   border-left: 1px solid rgba(255, 255, 255, 0.10) !important;
   border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
@@ -604,7 +600,7 @@ button:disabled {
   transition: background 0.35s ease, border-color 0.35s ease !important;
   box-shadow: 
     0 20px 50px -10px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
   position: relative;
   overflow: hidden;
   transform: translateZ(0);

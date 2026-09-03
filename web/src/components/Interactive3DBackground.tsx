@@ -180,9 +180,15 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
     document.addEventListener('visibilitychange', onVisibilityChange)
 
     const onPointerMove = (event: MouseEvent) => {
+      const wasAsleep = performance.now() - lastInteractionTime > 15000
       lastInteractionTime = performance.now()
       targetMouseX = event.clientX - window.innerWidth / 2
       targetMouseY = event.clientY - window.innerHeight / 2
+
+      if (wasAsleep && isVisible) {
+        lastFrameTime = performance.now()
+        animationFrameId = requestAnimationFrame(animate)
+      }
 
       document.documentElement.style.setProperty('--mouse-x', `${event.clientX}px`)
       document.documentElement.style.setProperty('--mouse-y', `${event.clientY}px`)
@@ -207,15 +213,15 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
 
       // Progressive Energy Tiers:
       // - Active user movement (<3s): 30 FPS
-      // - Soft Idle (3s ~ 10s): 12 FPS
-      // - Deep Sleep (>10s): 6 FPS (ultra-low power, background wave still breathes without stressing GPU)
+      // - Soft Idle (3s ~ 15s): 8 FPS
+      // - Complete Sleep (>15s): 0 FPS (Renderer completely stops drawing until user moves mouse again)
       const idleTime = now - lastInteractionTime
-      let currentInterval = 1000 / 30
-      if (idleTime > 10000) {
-        currentInterval = 1000 / 6
-      } else if (idleTime > 3000) {
-        currentInterval = 1000 / 12
+      if (idleTime > 15000) {
+        // Complete sleep: no render call, zero GPU execution!
+        return
       }
+
+      const currentInterval = idleTime > 3000 ? 1000 / 8 : 1000 / 30
 
       const delta = now - lastFrameTime
       if (delta < currentInterval) return
