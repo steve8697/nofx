@@ -627,7 +627,7 @@ function TraderDetailsPage({
         </div>
       )}
       {/* Luxury Editorial Minimal Telemetry Strip (Hairline Separators, Zero Thick Boxes) */}
-      <div className="border-y border-white/[0.08] bg-[#17181C]/90 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-10 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.08]">
+      <div className="border-y border-white/[0.08] bg-[#141518]/65 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-10 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.08]">
         <StatCard
           title={t('totalEquity', language)}
           value={`${account?.total_equity?.toFixed(2) || '0.00'} USDT`}

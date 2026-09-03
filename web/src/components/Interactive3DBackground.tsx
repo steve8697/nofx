@@ -94,19 +94,19 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
     geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
     geometry.setAttribute('aGrid', new THREE.BufferAttribute(gridIndices, 2))
 
-    // 4. Circular Particle Sprite Texture (Tiny 32x32 = 75% less texture memory)
+    // 4. Circular Particle Sprite Texture (High-clarity round particle glow)
     const canvas = document.createElement('canvas')
-    canvas.width = 32
-    canvas.height = 32
+    canvas.width = 64
+    canvas.height = 64
     const ctx = canvas.getContext('2d')
     if (ctx) {
-      const grad = ctx.createRadialGradient(16, 16, 0, 16, 16, 16)
-      grad.addColorStop(0, 'rgba(255, 255, 255, 1)')
-      grad.addColorStop(0.35, 'rgba(255, 255, 255, 0.75)')
-      grad.addColorStop(0.7, 'rgba(255, 255, 255, 0.15)')
-      grad.addColorStop(1, 'rgba(255, 255, 255, 0)')
+      const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32)
+      grad.addColorStop(0, 'rgba(255, 255, 255, 1.0)')
+      grad.addColorStop(0.35, 'rgba(255, 255, 255, 0.85)')
+      grad.addColorStop(0.7, 'rgba(255, 255, 255, 0.25)')
+      grad.addColorStop(1.0, 'rgba(255, 255, 255, 0.0)')
       ctx.fillStyle = grad
-      ctx.fillRect(0, 0, 32, 32)
+      ctx.fillRect(0, 0, 64, 64)
     }
     const texture = new THREE.CanvasTexture(canvas)
 
@@ -127,14 +127,14 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
           vColor = color;
           
           // GPU-native dual sine wave modulation
-          float yOffset = sin((aGrid.x + uTime) * 0.3) * 60.0 + sin((aGrid.y + uTime) * 0.5) * 60.0;
+          float yOffset = sin((aGrid.x + uTime) * 0.3) * 65.0 + sin((aGrid.y + uTime) * 0.5) * 65.0;
           vec3 transformed = vec3(position.x, position.y + yOffset, position.z);
 
           vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);
           gl_Position = projectionMatrix * mvPosition;
 
-          // Point attenuation
-          gl_PointSize = (260.0 / -mvPosition.z);
+          // Point attenuation calibrated for clean, visible depth
+          gl_PointSize = clamp(5200.0 / -mvPosition.z, 3.2, 10.5);
         }
       `,
       fragmentShader: `
@@ -144,8 +144,8 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
 
         void main() {
           vec4 texColor = texture2D(uPointTexture, gl_PointCoord);
-          if (texColor.a < 0.05) discard;
-          gl_FragColor = vec4(vColor, texColor.a * 0.75);
+          if (texColor.a < 0.02) discard;
+          gl_FragColor = vec4(vColor * 1.25, texColor.a * 0.95);
         }
       `,
       transparent: true,
