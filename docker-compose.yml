@@ -1,3 +1,5 @@
+name: aetheris
+
 services:
   # Backend service (API and core logic)
   aetheris:
