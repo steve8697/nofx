@@ -72,16 +72,15 @@ export default function HeaderBar({
               xmlns="http://www.w3.org/2000/svg"
               style={{ transformOrigin: 'center' }}
             >
-              {/* Outer Quantum dashed rotating ring */}
+              {/* Outer Quantum dashed precision ring */}
               <circle 
                 cx="50" 
                 cy="50" 
                 r="42" 
                 stroke="currentColor" 
-                strokeWidth="2" 
-                strokeDasharray="12 18" 
-                className="animate-spin" 
-                style={{ animationDuration: '20s', transformOrigin: 'center' }}
+                strokeWidth="1.5" 
+                strokeDasharray="8 12" 
+                strokeOpacity="0.45"
               />
               {/* Inner gradient glowing solid ring */}
               <circle 

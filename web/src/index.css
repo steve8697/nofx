@@ -132,34 +132,20 @@ body {
   overflow-x: hidden;
 }
 
-/* 使用 GPU 渲染圖層提升背景格線動畫 */
+/* 靜態架構網格，零 GPU 重繪負擔 */
 body::before {
   content: '';
   position: fixed;
-  top: -36px;
-  left: -36px;
-  right: -36px;
-  bottom: -36px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-image: 
     linear-gradient(rgba(255, 255, 255, 0.008) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.008) 1px, transparent 1px);
   background-size: 40px 40px;
   z-index: -1;
   pointer-events: none;
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
-  backface-visibility: hidden;
-  perspective: 1000px;
-  animation: matrix-shift-optimized 90s linear infinite;
-}
-
-@keyframes matrix-shift-optimized {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-  100% {
-    transform: translate3d(40px, 40px, 0);
-  }
 }
 
 #root {
@@ -169,9 +155,9 @@ body::before {
 
 /* Sovereign Atelier Slate Architectural Geometry & Liquid Caustics Frosted Glass */
 .sharp-card, .glass-card {
-  background: rgba(18, 19, 23, 0.38) !important; /* 真正的薄透液態玻璃 (38% 不透明度) */
-  backdrop-filter: blur(12px) saturate(180%) !important; /* 晶瑩薄霧穿透，後方 3D 結構清晰可見 */
-  -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+  background: rgba(18, 19, 23, 0.45) !important; /* 晶瑩且略微收斂不透明度 (45%) */
+  backdrop-filter: blur(6px) !important; /* 降為 6px，GPU 模糊卷積運算量降低 75% */
+  -webkit-backdrop-filter: blur(6px) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.16) !important; /* 頂部受光折射高光邊 */
   border-left: 1px solid rgba(255, 255, 255, 0.10) !important;
   border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
@@ -180,11 +166,11 @@ body::before {
   box-shadow: 
     0 20px 50px -10px rgba(0, 0, 0, 0.6),
     inset 0 1px 0 rgba(255, 255, 255, 0.1) !important; /* 內層玻璃折射切邊光 */
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: background 0.35s ease, border-color 0.35s ease !important;
   position: relative;
   overflow: hidden;
   transform: translateZ(0); /* Promote to dedicated GPU compositor layer */
-  will-change: transform, background;
+  contain: paint; /* 限制重繪邊界，避免穿透重新合成整個視窗 */
 }
 
 /* 窗格上的液態水波微光 (Interactive Liquid Caustic Highlight) */
@@ -607,20 +593,22 @@ button:disabled {
 
 /* Binance Card - Unified with Translucent Frosted Liquid Glass */
 .binance-card, .binance-card-no-hover {
-  background: rgba(18, 19, 23, 0.38) !important;
-  backdrop-filter: blur(12px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+  background: rgba(18, 19, 23, 0.45) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
   border-top: 1px solid rgba(255, 255, 255, 0.16) !important;
   border-left: 1px solid rgba(255, 255, 255, 0.10) !important;
   border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
   border-radius: 0px !important;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  transition: background 0.35s ease, border-color 0.35s ease !important;
   box-shadow: 
     0 20px 50px -10px rgba(0, 0, 0, 0.6),
     inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
   position: relative;
   overflow: hidden;
+  transform: translateZ(0);
+  contain: paint;
 }
 
 .binance-card::before {

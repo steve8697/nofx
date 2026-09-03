@@ -197,7 +197,7 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
     window.addEventListener('pointermove', onPointerMove, { passive: true })
     window.addEventListener('resize', onResize)
 
-    // 7. Dynamic Power-Saver Animation Loop
+    // 7. Dynamic Progressive Power-Saver Loop
     let timeAccumulator = 0
 
     const animate = (now: number = 0) => {
@@ -205,9 +205,17 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
 
       animationFrameId = requestAnimationFrame(animate)
 
-      // Power Saver: Drop to 12fps when idle for >3.5s; 30fps when active
-      const isIdle = now - lastInteractionTime > 3500
-      const currentInterval = isIdle ? 1000 / 12 : 1000 / 30
+      // Progressive Energy Tiers:
+      // - Active user movement (<3s): 30 FPS
+      // - Soft Idle (3s ~ 10s): 12 FPS
+      // - Deep Sleep (>10s): 6 FPS (ultra-low power, background wave still breathes without stressing GPU)
+      const idleTime = now - lastInteractionTime
+      let currentInterval = 1000 / 30
+      if (idleTime > 10000) {
+        currentInterval = 1000 / 6
+      } else if (idleTime > 3000) {
+        currentInterval = 1000 / 12
+      }
 
       const delta = now - lastFrameTime
       if (delta < currentInterval) return
