@@ -180,14 +180,16 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
     document.addEventListener('visibilitychange', onVisibilityChange)
 
     let lastStyleTime = 0
+    let isRunning = true
+
     const onPointerMove = (event: MouseEvent) => {
       const now = performance.now()
-      const wasAsleep = now - lastInteractionTime > 10000
       lastInteractionTime = now
       targetMouseX = event.clientX - window.innerWidth / 2
       targetMouseY = event.clientY - window.innerHeight / 2
 
-      if (wasAsleep && isVisible) {
+      if (!isRunning && isVisible) {
+        isRunning = true
         lastFrameTime = now
         animationFrameId = requestAnimationFrame(animate)
       }
@@ -213,7 +215,10 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
     let timeAccumulator = 0
 
     const animate = (now: number = 0) => {
-      if (!isVisible) return
+      if (!isVisible) {
+        isRunning = false
+        return
+      }
 
       // Progressive Energy Tiers:
       // - Active user movement (<3s): 30 FPS
@@ -221,7 +226,7 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
       // - Complete Sleep (>10s): 0 FPS (Completely stop requesting animation frames)
       const idleTime = now - lastInteractionTime
       if (idleTime > 10000) {
-        // Complete sleep: do NOT schedule next frame, zero rAF overhead!
+        isRunning = false
         return
       }
 
