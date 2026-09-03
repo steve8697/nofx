@@ -1,4 +1,4 @@
-# NoFX Trading Bot - PM2 部署指南
+# AETHERIS Trading Bot - PM2 部署指南
 
 使用 PM2 进行本地开发和生产部署的完整指南。
 

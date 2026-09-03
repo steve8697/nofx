@@ -29,7 +29,7 @@ Default posture: **read only**. This skill inspects the system. It does not plac
 Container health:
 
 ```bash
-docker ps -a --filter name=nofx
+docker ps -a --filter name=aetheris
 ```
 
 Traders (flag vs process):
@@ -54,12 +54,12 @@ Optional LLM ping (consumes tokens): `go run ./cmd/preflight -ai`
 Live positions only if the backend is already running:
 
 ```bash
-docker logs nofx-trading --tail 50
+docker logs aetheris-trading --tail 50
 ```
 
 ## MCP (external operator tools)
 
-`nofx_mcp_server.py` is for an external agent to inspect status. The trading LLM does not use it.
+`aetheris_mcp_server.py` is for an external agent to inspect status. The trading LLM does not use it.
 
 | Tool | Safe default | Description |
 |------|----------------|-------------|

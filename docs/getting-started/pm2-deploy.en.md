@@ -1,4 +1,4 @@
-# NoFX Trading Bot - PM2 Deployment Guide
+# AETHERIS Trading Bot - PM2 Deployment Guide
 
 Complete guide for local development and production deployment using PM2.
 

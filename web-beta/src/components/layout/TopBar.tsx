@@ -18,7 +18,7 @@ export function TopBar({ currentView, onViewChange }: TopBarProps) {
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
           <Terminal size={18} className="text-[var(--accent)]" />
-          <span className="font-mono text-sm tracking-[2px] font-semibold text-[var(--text)]">NOFX</span>
+          <span className="font-mono text-sm tracking-[2px] font-semibold text-[var(--text)]">AETHERIS</span>
           <span className="text-[10px] px-1.5 py-px rounded bg-[var(--bg-subtle)] text-[var(--text-dim)] font-mono">BETA</span>
         </div>
       </div>

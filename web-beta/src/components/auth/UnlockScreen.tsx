@@ -334,7 +334,7 @@ export function UnlockScreen({ onUnlock }: UnlockScreenProps) {
 										量化交易控制台安全解鎖
 									</h1>
 									<p className="text-xs text-[var(--text-muted)] font-mono leading-relaxed mb-8 max-w-xs">
-										NOFX AI TRADING CORE • COGNITIVE RUNTIME
+										AETHERIS AI TRADING CORE • COGNITIVE RUNTIME
 										<br />
 										請輸入您的管理密碼以存取內部量化模組
 									</p>

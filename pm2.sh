@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# NoFX Trading Bot - PM2 管理脚本
+# AETHERIS Trading Bot - PM2 管理脚本
 # 用法: ./pm2.sh [start|stop|restart|status|logs|build]
 
 set -e
@@ -37,7 +37,7 @@ print_error() {
 
 print_header() {
     echo -e "${PURPLE}═══════════════════════════════════════${NC}"
-    echo -e "${PURPLE}  🤖 NoFX Trading Bot - PM2 Manager${NC}"
+    echo -e "${PURPLE}  🤖 AETHERIS Trading Bot - PM2 Manager${NC}"
     echo -e "${PURPLE}═══════════════════════════════════════${NC}"
     echo ""
 }

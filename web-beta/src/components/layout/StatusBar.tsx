@@ -51,7 +51,7 @@ export function StatusBar() {
   return (
     <div className="h-8 border-t border-[var(--border)] bg-[var(--bg-elev)] flex items-center px-4 text-[10px] font-mono text-[var(--text-dim)] justify-between select-none">
       <div className="flex items-center gap-4">
-        <span>NOFX web-beta (experimental, not in Docker)</span>
+        <span>AETHERIS web-beta (experimental, not in Docker)</span>
         <span className="text-[var(--border-subtle)]">|</span>
         <span>API /api → :3636</span>
         <span className="text-[var(--border-subtle)]">|</span>
