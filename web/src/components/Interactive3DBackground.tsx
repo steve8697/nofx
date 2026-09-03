@@ -221,18 +221,18 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
       }
 
       // Progressive Energy Tiers:
-      // - Active user movement (<3s): 30 FPS
-      // - Soft Idle (3s ~ 10s): 8 FPS
-      // - Complete Sleep (>10s): 0 FPS (Completely stop requesting animation frames)
+      // - Active user movement (<2s): 30 FPS
+      // - Soft Settle (2s ~ 4s): 12 FPS
+      // - Deep Sleep (>4s): 0 FPS (Completely stop requesting animation frames)
       const idleTime = now - lastInteractionTime
-      if (idleTime > 10000) {
+      if (idleTime > 4000) {
         isRunning = false
         return
       }
 
       animationFrameId = requestAnimationFrame(animate)
 
-      const currentInterval = idleTime > 3000 ? 1000 / 8 : 1000 / 30
+      const currentInterval = idleTime > 2000 ? 1000 / 12 : 1000 / 30
 
       const delta = now - lastFrameTime
       if (delta < currentInterval) return

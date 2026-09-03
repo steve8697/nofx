@@ -626,8 +626,8 @@ function TraderDetailsPage({
           </div>
         </div>
       )}
-      {/* Luxury Editorial Minimal Telemetry Strip (Hairline Separators, Zero Thick Boxes) */}
-      <div className="border-y border-white/[0.08] bg-[#141518]/65 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-10 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.08]">
+      {/* Luxury Editorial Liquid Glass Telemetry Strip */}
+      <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-white/[0.06] via-[#141824]/40 to-white/[0.03] backdrop-blur-md shadow-[inset_0_1.5px_1px_rgba(255,255,255,0.3),0_20px_40px_-15px_rgba(0,0,0,0.6)] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-10 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.08] overflow-hidden">
         <StatCard
           title={t('totalEquity', language)}
           value={`${account?.total_equity?.toFixed(2) || '0.00'} USDT`}
@@ -955,21 +955,21 @@ function DecisionCard({
 
       {/* AI Core Thesis / Observation Reason Banner */}
       {isAllWait && (primaryReasoning || parsedDecisionList.length > 0) && (
-        <div className="mb-5 p-4 bg-[#131418] border-l-2 border-white/20 border-t border-r border-b border-white/[0.06] space-y-2.5">
+        <div className="mb-5 p-4 rounded-xl bg-white/[0.03] backdrop-blur-md border-l-2 border-emerald-500/50 border-t border-r border-b border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] space-y-2.5">
           <div className="flex items-center justify-between">
             <span className="text-[10px] font-medium text-[#B4B0A5] tracking-[0.2em] uppercase font-mono">CURATED OBSERVATION DISCIPLINE</span>
-            <span className="px-2 py-0.5 bg-white/[0.03] border border-white/10 text-[#9C9B96] text-[9px] font-mono tracking-wider">CAPITAL DISCIPLINE</span>
+            <span className="px-2 py-0.5 bg-white/[0.03] border border-white/10 text-[#9C9B96] text-[9px] font-mono tracking-wider rounded-md">CAPITAL DISCIPLINE</span>
           </div>
           <div className="space-y-2 text-xs font-mono text-[#C5C4BE] leading-relaxed">
             {parsedDecisionList.length > 0 ? (
               parsedDecisionList.map((p: any, idx: number) => (
-                <div key={idx} className="flex items-start gap-2 bg-white/[0.02] p-2.5 border border-white/[0.06]">
+                <div key={idx} className="flex items-start gap-2 bg-white/[0.02] p-2.5 rounded-lg border border-white/[0.06]">
                   <span className="font-medium text-[#ECEBE6] shrink-0">[{p.symbol}]:</span>
                   <span className="text-[#C5C4BE]">{p.reasoning || '觀望等待確認信號'}</span>
                 </div>
               ))
             ) : (
-              <div className="bg-white/[0.02] p-2.5 border border-white/[0.06]">{primaryReasoning}</div>
+              <div className="bg-white/[0.02] p-2.5 rounded-lg border border-white/[0.06]">{primaryReasoning}</div>
             )}
           </div>
         </div>
@@ -977,7 +977,7 @@ function DecisionCard({
 
       {/* Scanned Candidates Radar */}
       {decision.candidate_coins && decision.candidate_coins.length > 0 && (
-        <div className="mb-5 bg-[#131418] border border-white/[0.06] p-4 font-mono">
+        <div className="mb-5 rounded-xl bg-white/[0.03] backdrop-blur-md border border-white/10 p-4 font-mono shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]">
           <div className="flex items-center justify-between mb-3">
             <div className="text-[9px] text-[#5E5D58] uppercase tracking-[0.2em] flex items-center gap-2">
               <span className="text-[#ECEBE6] font-medium">SCANNED ASSETS SPECTRUM</span>

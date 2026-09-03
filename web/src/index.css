@@ -153,25 +153,32 @@ body::before {
   margin: 0 auto;
 }
 
-/* Sovereign Atelier Slate Architectural Geometry & High-Performance Faux-Glass */
+/* Sovereign Apple VisionOS Authentic Liquid Glass */
 .sharp-card, .glass-card {
-  background: rgba(14, 15, 18, 0.78) !important; /* 啞光純黑板岩透明底 (78% 深度，透出微弱粒子，零模糊卷積) */
-  border-top: 1px solid rgba(255, 255, 255, 0.16) !important; /* 頂部受光折射高光邊 */
-  border-left: 1px solid rgba(255, 255, 255, 0.10) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
-  border-radius: 0px !important; /* 純直角建築感 */
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(18, 22, 32, 0.46) 32%,
+    rgba(10, 12, 18, 0.74) 100%
+  ) !important;
+  backdrop-filter: blur(16px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.35) !important; /* 頂部強受光水體折射切線 */
+  border-left: 1px solid rgba(255, 255, 255, 0.20) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 16px !important; /* 水體表面張力流暢曲率 */
   box-shadow: 
-    0 20px 50px -10px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important; /* 內層玻璃折射切邊光 */
-  transition: background 0.35s ease, border-color 0.35s ease !important;
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.42),   /* 水晶頂部極致高光切邊 */
+    inset 0 0 24px 0 rgba(255, 255, 255, 0.03),      /* 玻璃內部水晶漫射光 */
+    inset 0 -1.5px 1px 0 rgba(0, 0, 0, 0.50),        /* 底部折射背光暗影 */
+    0 24px 50px -12px rgba(0, 0, 0, 0.75) !important; /* 深度懸浮投影 */
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
   position: relative;
   overflow: hidden;
-  transform: translateZ(0); /* Promote to dedicated GPU compositor layer */
-  contain: paint; /* 限制重繪邊界，避免穿透重新合成整個視窗 */
 }
 
-/* 窗格上的液態水波微光 (Interactive Liquid Caustic Highlight) */
+/* 窗格上的液態焦散微稜鏡彩光 (Liquid Caustic Prismatic Sheen) */
 .sharp-card::before, .glass-card::before {
   content: '';
   position: absolute;
@@ -179,29 +186,40 @@ body::before {
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(
-    500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(255, 255, 255, 0.08),
-    rgba(197, 168, 128, 0.03) 35%,
-    transparent 65%
+  background: linear-gradient(
+    120deg,
+    transparent 15%,
+    rgba(255, 255, 255, 0.07) 38%,
+    rgba(16, 185, 129, 0.04) 48%,
+    rgba(212, 175, 55, 0.04) 56%,
+    transparent 72%
   );
   pointer-events: none;
   z-index: 1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  opacity: 0.65;
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 .sharp-card:hover::before, .glass-card:hover::before {
   opacity: 1;
+  transform: scale(1.02);
 }
 
 .sharp-card:hover, .glass-card:hover {
-  background: rgba(22, 23, 29, 0.48) !important;
-  border-top-color: rgba(255, 255, 255, 0.28) !important;
-  border-left-color: rgba(255, 255, 255, 0.18) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(24, 30, 44, 0.52) 32%,
+    rgba(12, 15, 22, 0.76) 100%
+  ) !important;
+  border-top-color: rgba(255, 255, 255, 0.55) !important;
+  border-left-color: rgba(255, 255, 255, 0.32) !important;
   box-shadow: 
-    0 24px 60px -12px rgba(0, 0, 0, 0.7),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.65),
+    inset 0 0 28px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1.5px 1px 0 rgba(0, 0, 0, 0.50),
+    0 30px 60px -15px rgba(0, 0, 0, 0.85) !important;
+  transform: translateY(-2px);
 }
 
 /* 直角按鈕與晶片 (黑灰階文青質感) */
@@ -589,22 +607,29 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Binance Card - Unified with High-Performance Faux-Glass */
+/* Binance Card - Unified with VisionOS Liquid Glass */
 .binance-card, .binance-card-no-hover {
-  background: rgba(14, 15, 18, 0.78) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.16) !important;
-  border-left: 1px solid rgba(255, 255, 255, 0.10) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
-  border-radius: 0px !important;
-  transition: background 0.35s ease, border-color 0.35s ease !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(18, 22, 32, 0.46) 32%,
+    rgba(10, 12, 18, 0.74) 100%
+  ) !important;
+  backdrop-filter: blur(16px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.35) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.20) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 16px !important;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
   box-shadow: 
-    0 20px 50px -10px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.42),
+    inset 0 0 24px 0 rgba(255, 255, 255, 0.03),
+    inset 0 -1.5px 1px 0 rgba(0, 0, 0, 0.50),
+    0 24px 50px -12px rgba(0, 0, 0, 0.75) !important;
   position: relative;
   overflow: hidden;
-  transform: translateZ(0);
-  contain: paint;
 }
 
 .binance-card::before {
@@ -614,29 +639,40 @@ button:disabled {
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(
-    500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    rgba(255, 255, 255, 0.08),
-    rgba(197, 168, 128, 0.03) 35%,
-    transparent 65%
+  background: linear-gradient(
+    120deg,
+    transparent 15%,
+    rgba(255, 255, 255, 0.07) 38%,
+    rgba(16, 185, 129, 0.04) 48%,
+    rgba(212, 175, 55, 0.04) 56%,
+    transparent 72%
   );
   pointer-events: none;
   z-index: 1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  opacity: 0.65;
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 .binance-card:hover::before {
   opacity: 1;
+  transform: scale(1.02);
 }
 
 .binance-card:hover {
-  background: rgba(22, 23, 29, 0.48) !important;
-  border-top-color: rgba(255, 255, 255, 0.28) !important;
-  border-left-color: rgba(255, 255, 255, 0.18) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(24, 30, 44, 0.52) 32%,
+    rgba(12, 15, 22, 0.76) 100%
+  ) !important;
+  border-top-color: rgba(255, 255, 255, 0.55) !important;
+  border-left-color: rgba(255, 255, 255, 0.32) !important;
   box-shadow: 
-    0 24px 60px -12px rgba(0, 0, 0, 0.7),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+    inset 0 1.5px 1.5px 0 rgba(255, 255, 255, 0.65),
+    inset 0 0 28px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1.5px 1px 0 rgba(0, 0, 0, 0.50),
+    0 30px 60px -15px rgba(0, 0, 0, 0.85) !important;
+  transform: translateY(-2px);
 }
 
 /* Binance gradient backgrounds */
