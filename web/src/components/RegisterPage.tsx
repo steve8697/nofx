@@ -93,7 +93,11 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--brand-black)' }}>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* 🌌 Premium 消光鈦灰背景裝飾球 */}
+      <div className="absolute top-1/4 left-1/4 w-[450px] h-[450px] rounded-full bg-gradient-to-tr from-white/4 to-transparent blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-[450px] h-[450px] rounded-full bg-gradient-to-br from-white/2 to-transparent blur-[120px] pointer-events-none"></div>
+
       <HeaderBar
         isLoggedIn={false}
         isHomePage={false}
@@ -115,15 +119,39 @@ export function RegisterPage() {
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-              <img
-                src="/icons/nofx.svg"
-                alt="NoFx Logo"
-                className="w-16 h-16 object-contain"
-              />
+            <div className="w-24 h-24 mx-auto mb-4 flex items-center justify-center p-4 rounded-3xl bg-black/45 border border-white/10 shadow-2xl backdrop-blur-md">
+              <svg
+                className="w-full h-full text-white/70"
+                viewBox="0 0 100 100"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Dashed outer orbit ring */}
+                <circle 
+                  cx="50" 
+                  cy="50" 
+                  r="42" 
+                  stroke="currentColor" 
+                  strokeWidth="1.5" 
+                  strokeDasharray="10 15" 
+                  className="animate-spin" 
+                  style={{ animationDuration: '15s', transformOrigin: 'center' }}
+                />
+                {/* Inner glowing ring */}
+                <circle 
+                  cx="50" 
+                  cy="50" 
+                  r="28" 
+                  stroke="rgba(255, 255, 255, 0.25)" 
+                  strokeWidth="2.5" 
+                />
+                <circle cx="50" cy="50" r="6" fill="#ffffff" className="animate-pulse" />
+              </svg>
             </div>
-            <h1 className="text-2xl font-bold" style={{ color: '#EAECEF' }}>
-              {t('appTitle', language)}
+            <h1
+              className="text-2xl font-extrabold tracking-wider text-white"
+            >
+              KRONOS QUANTUM
             </h1>
             <p className="text-sm mt-2" style={{ color: '#848E9C' }}>
               {step === 'register' && t('registerTitle', language)}
@@ -133,13 +161,9 @@ export function RegisterPage() {
           </div>
 
           {/* Registration Form */}
-          <div
-            className="rounded-lg p-6"
-            style={{
-              background: 'var(--panel-bg)',
-              border: '1px solid var(--panel-border)',
-            }}
-          >
+          <div className="glass-card p-8 shadow-2xl relative overflow-hidden">
+            {/* 卡片裝飾條 */}
+            <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/15 to-transparent"></div>
             {step === 'register' && (
               <form onSubmit={handleRegister} className="space-y-4">
                 <div>
@@ -153,12 +177,7 @@ export function RegisterPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 rounded"
-                    style={{
-                      background: 'var(--brand-black)',
-                      border: '1px solid var(--panel-border)',
-                      color: 'var(--brand-light-gray)',
-                    }}
+                    className="w-full px-4 py-2.5 rounded-lg bg-black/40 border border-white/5 focus:border-white/40 focus:ring-1 focus:ring-white/40 focus:outline-none transition-all duration-200 text-[#eaecef] text-sm"
                     placeholder={t('emailPlaceholder', language)}
                     required
                   />
@@ -175,12 +194,7 @@ export function RegisterPage() {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-3 py-2 rounded"
-                    style={{
-                      background: 'var(--brand-black)',
-                      border: '1px solid var(--panel-border)',
-                      color: 'var(--brand-light-gray)',
-                    }}
+                    className="w-full px-4 py-2.5 rounded-lg bg-black/40 border border-white/5 focus:border-white/40 focus:ring-1 focus:ring-white/40 focus:outline-none transition-all duration-200 text-[#eaecef] text-sm"
                     placeholder={t('passwordPlaceholder', language)}
                     required
                   />
@@ -197,12 +211,7 @@ export function RegisterPage() {
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-3 py-2 rounded"
-                    style={{
-                      background: 'var(--brand-black)',
-                      border: '1px solid var(--panel-border)',
-                      color: 'var(--brand-light-gray)',
-                    }}
+                    className="w-full px-4 py-2.5 rounded-lg bg-black/40 border border-white/5 focus:border-white/40 focus:ring-1 focus:ring-white/40 focus:outline-none transition-all duration-200 text-[#eaecef] text-sm"
                     placeholder={t('confirmPasswordPlaceholder', language)}
                     required
                   />
@@ -226,12 +235,7 @@ export function RegisterPage() {
                             .toLowerCase()
                         )
                       }
-                      className="w-full px-3 py-2 rounded font-mono"
-                      style={{
-                        background: '#0B0E11',
-                        border: '1px solid #2B3139',
-                        color: '#EAECEF',
-                      }}
+                      className="w-full px-4 py-2.5 rounded-lg bg-black/40 border border-white/5 focus:border-white/40 focus:ring-1 focus:ring-white/40 focus:outline-none transition-all duration-200 text-[#eaecef] text-sm font-mono"
                       placeholder="请输入6位内测码"
                       maxLength={6}
                       required={betaMode}
@@ -257,11 +261,7 @@ export function RegisterPage() {
                 <button
                   type="submit"
                   disabled={loading || (betaMode && !betaCode.trim())}
-                  className="w-full px-4 py-2 rounded text-sm font-semibold transition-all hover:scale-105 disabled:opacity-50"
-                  style={{
-                    background: 'var(--brand-yellow)',
-                    color: 'var(--brand-black)',
-                  }}
+                  className="w-full py-3 rounded-lg text-sm font-semibold transition-all glow-button-gold disabled:opacity-50"
                 >
                   {loading
                     ? t('loading', language)
@@ -286,13 +286,7 @@ export function RegisterPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <div
-                    className="p-3 rounded"
-                    style={{
-                      background: 'var(--brand-black)',
-                      border: '1px solid var(--panel-border)',
-                    }}
-                  >
+                  <div className="p-3.5 rounded-lg bg-black/40 border border-white/5">
                     <p
                       className="text-sm font-semibold mb-2"
                       style={{ color: 'var(--brand-light-gray)' }}
@@ -307,13 +301,7 @@ export function RegisterPage() {
                     </p>
                   </div>
 
-                  <div
-                    className="p-3 rounded"
-                    style={{
-                      background: 'var(--brand-black)',
-                      border: '1px solid var(--panel-border)',
-                    }}
-                  >
+                  <div className="p-3.5 rounded-lg bg-black/40 border border-white/5">
                     <p
                       className="text-sm font-semibold mb-2"
                       style={{ color: 'var(--brand-light-gray)' }}
@@ -348,21 +336,13 @@ export function RegisterPage() {
                       </p>
                       <div className="flex items-center gap-2">
                         <code
-                          className="flex-1 px-2 py-1 text-xs rounded font-mono"
-                          style={{
-                            background: 'var(--panel-bg-hover)',
-                            color: 'var(--brand-light-gray)',
-                          }}
+                          className="flex-1 px-2.5 py-1 text-xs rounded font-mono bg-black/50 text-white border border-white/5"
                         >
                           {otpSecret}
                         </code>
                         <button
                           onClick={() => copyToClipboard(otpSecret)}
-                          className="px-2 py-1 text-xs rounded"
-                          style={{
-                            background: 'var(--brand-yellow)',
-                            color: 'var(--brand-black)',
-                          }}
+                          className="px-2.5 py-1 text-xs rounded-md font-semibold transition-all duration-200 bg-white/5 hover:bg-white/10 text-gray-200 border border-white/10 hover:border-white/20"
                         >
                           {t('copy', language)}
                         </button>
@@ -370,13 +350,7 @@ export function RegisterPage() {
                     </div>
                   </div>
 
-                  <div
-                    className="p-3 rounded"
-                    style={{
-                      background: 'var(--brand-black)',
-                      border: '1px solid var(--panel-border)',
-                    }}
-                  >
+                  <div className="p-3.5 rounded-lg bg-black/40 border border-white/5">
                     <p
                       className="text-sm font-semibold mb-2"
                       style={{ color: 'var(--brand-light-gray)' }}
@@ -394,8 +368,7 @@ export function RegisterPage() {
 
                 <button
                   onClick={handleSetupComplete}
-                  className="w-full px-4 py-2 rounded text-sm font-semibold transition-all hover:scale-105"
-                  style={{ background: '#F0B90B', color: '#000' }}
+                  className="w-full py-3 rounded-lg text-sm font-semibold transition-all glow-button-gold"
                 >
                   {t('setupCompleteContinue', language)}
                 </button>
@@ -426,12 +399,7 @@ export function RegisterPage() {
                     onChange={(e) =>
                       setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))
                     }
-                    className="w-full px-3 py-2 rounded text-center text-2xl font-mono"
-                    style={{
-                      background: 'var(--brand-black)',
-                      border: '1px solid var(--panel-border)',
-                      color: 'var(--brand-light-gray)',
-                    }}
+                    className="w-full px-4 py-3 rounded-lg bg-black/40 border border-white/5 focus:border-white/40 focus:ring-1 focus:ring-white/40 focus:outline-none transition-all duration-200 text-[#eaecef] text-center text-2xl font-mono"
                     placeholder={t('otpPlaceholder', language)}
                     maxLength={6}
                     required
@@ -454,19 +422,14 @@ export function RegisterPage() {
                   <button
                     type="button"
                     onClick={() => setStep('setup-otp')}
-                    className="flex-1 px-4 py-2 rounded text-sm font-semibold"
-                    style={{
-                      background: 'var(--panel-bg-hover)',
-                      color: 'var(--text-secondary)',
-                    }}
+                    className="flex-1 py-3 rounded-lg text-sm font-semibold bg-white/5 hover:bg-white/10 border border-white/5 transition-colors text-gray-400"
                   >
                     {t('back', language)}
                   </button>
                   <button
                     type="submit"
                     disabled={loading || otpCode.length !== 6}
-                    className="flex-1 px-4 py-2 rounded text-sm font-semibold transition-all hover:scale-105 disabled:opacity-50"
-                    style={{ background: '#F0B90B', color: '#000' }}
+                    className="flex-1 py-3 rounded-lg text-sm font-semibold transition-all glow-button-gold disabled:opacity-50"
                   >
                     {loading
                       ? t('loading', language)
@@ -480,15 +443,14 @@ export function RegisterPage() {
           {/* Login Link */}
           {step === 'register' && (
             <div className="text-center mt-6">
-              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+              <p className="text-sm text-gray-500">
                 已有账户？{' '}
                 <button
                   onClick={() => {
                     window.history.pushState({}, '', '/login')
                     window.dispatchEvent(new PopStateEvent('popstate'))
                   }}
-                  className="font-semibold hover:underline transition-colors"
-                  style={{ color: 'var(--brand-yellow)' }}
+                  className="font-semibold text-gray-300 hover:text-white hover:underline transition-colors"
                 >
                   立即登录
                 </button>

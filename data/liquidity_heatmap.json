@@ -1,0 +1,302 @@
+{
+  "ADAUSDT": [
+    {
+      "price": 0.2502,
+      "volume": 0,
+      "type": "Short Liquidation",
+      "timestamp": 1779267599999,
+      "visited": true
+    },
+    {
+      "price": 0.2502,
+      "volume": 0,
+      "type": "Short Liquidation",
+      "timestamp": 1779267599999,
+      "visited": true
+    },
+    {
+      "price": 0.2502,
+      "volume": 146564.30000000002,
+      "type": "Short Liquidation",
+      "timestamp": 1779268499999,
+      "visited": false
+    }
+  ],
+  "BTCUSDT": [
+    {
+      "price": 77245.1,
+      "volume": 115.6146,
+      "type": "Long Liquidation",
+      "timestamp": 1779266699999,
+      "visited": false
+    },
+    {
+      "price": 77461,
+      "volume": 125.61410000000001,
+      "type": "Short Liquidation",
+      "timestamp": 1779268499999,
+      "visited": false
+    }
+  ],
+  "DOGEUSDT": [
+    {
+      "price": 0.10346,
+      "volume": 0,
+      "type": "Long Liquidation",
+      "timestamp": 1779265799999,
+      "visited": true
+    },
+    {
+      "price": 0.10346,
+      "volume": 0,
+      "type": "Long Liquidation",
+      "timestamp": 1779265799999,
+      "visited": true
+    },
+    {
+      "price": 0.1034,
+      "volume": 1522399.8,
+      "type": "Long Liquidation",
+      "timestamp": 1779265799999,
+      "visited": false
+    },
+    {
+      "price": 0.10391,
+      "volume": 0,
+      "type": "Short Liquidation",
+      "timestamp": 1779267599999,
+      "visited": true
+    },
+    {
+      "price": 0.10391,
+      "volume": 464056.5,
+      "type": "Short Liquidation",
+      "timestamp": 1779267599999,
+      "visited": false
+    },
+    {
+      "price": 0.10376,
+      "volume": 1244031.3,
+      "type": "Short Liquidation",
+      "timestamp": 1779268499999,
+      "visited": false
+    }
+  ],
+  "ETHUSDT": [
+    {
+      "price": 2128.97,
+      "volume": 0,
+      "type": "Long Liquidation",
+      "timestamp": 1779265799999,
+      "visited": true
+    },
+    {
+      "price": 2128.97,
+      "volume": 0,
+      "type": "Long Liquidation",
+      "timestamp": 1779265799999,
+      "visited": true
+    },
+    {
+      "price": 2136.25,
+      "volume": 0,
+      "type": "Short Liquidation",
+      "timestamp": 1779267599999,
+      "visited": true
+    },
+    {
+      "price": 2136.25,
+      "volume": 1031.8426,
+      "type": "Short Liquidation",
+      "timestamp": 1779267599999,
+      "visited": false
+    },
+    {
+      "price": 2131.62,
+      "volume": 1640.4176,
+      "type": "Short Liquidation",
+      "timestamp": 1779268499999,
+      "visited": false
+    }
+  ],
+  "HYPEUSDT": [
+    {
+      "price": 48.505,
+      "volume": 0,
+      "type": "Long Liquidation",
+      "timestamp": 1779265799999,
+      "visited": true
+    },
+    {
+      "price": 48.505,
+      "volume": 0,
+      "type": "Long Liquidation",
+      "timestamp": 1779265799999,
+      "visited": true
+    },
+    {
+      "price": 48.57,
+      "volume": 0,
+      "type": "Long Liquidation",
+      "timestamp": 1779266699999,
+      "visited": true
+    }
+  ],
+  "LTCUSDT": [
+    {
+      "price": 54.11,
+      "volume": 0,
+      "type": "Short Liquidation",
+      "timestamp": 1779265799999,
+      "visited": true
+    },
+    {
+      "price": 54.09,
+      "volume": 0,
+      "type": "Long Liquidation",
+      "timestamp": 1779266699999,
+      "visited": true
+    },
+    {
+      "price": 54.22,
+      "volume": 0,
+      "type": "Short Liquidation",
+      "timestamp": 1779267599999,
+      "visited": true
+    },
+    {
+      "price": 54.22,
+      "volume": 289.5725,
+      "type": "Short Liquidation",
+      "timestamp": 1779267599999,
+      "visited": false
+    },
+    {
+      "price": 54.19,
+      "volume": 281.9272,
+      "type": "Short Liquidation",
+      "timestamp": 1779268499999,
+      "visited": false
+    }
+  ],
+  "SOLUSDT": [
+    {
+      "price": 84.76,
+      "volume": 0,
+      "type": "Long Liquidation",
+      "timestamp": 1779265799999,
+      "visited": true
+    },
+    {
+      "price": 84.76,
+      "volume": 0,
+      "type": "Long Liquidation",
+      "timestamp": 1779265799999,
+      "visited": true
+    },
+    {
+      "price": 85.04,
+      "volume": 0,
+      "type": "Short Liquidation",
+      "timestamp": 1779267599999,
+      "visited": true
+    },
+    {
+      "price": 85.04,
+      "volume": 2068.712,
+      "type": "Short Liquidation",
+      "timestamp": 1779267599999,
+      "visited": false
+    }
+  ],
+  "XPLUSDT": [
+    {
+      "price": 0.0832,
+      "volume": 0,
+      "type": "Short Liquidation",
+      "timestamp": 1779265799999,
+      "visited": true
+    },
+    {
+      "price": 0.0831,
+      "volume": 0,
+      "type": "Long Liquidation",
+      "timestamp": 1779266699999,
+      "visited": true
+    }
+  ],
+  "XRPUSDT": [
+    {
+      "price": 1.3674,
+      "volume": 231125.79,
+      "type": "Long Liquidation",
+      "timestamp": 1779266699999,
+      "visited": false
+    },
+    {
+      "price": 1.3706,
+      "volume": 0,
+      "type": "Short Liquidation",
+      "timestamp": 1779267599999,
+      "visited": true
+    },
+    {
+      "price": 1.3706,
+      "volume": 0,
+      "type": "Short Liquidation",
+      "timestamp": 1779267599999,
+      "visited": true
+    }
+  ],
+  "ZENUSDT": [
+    {
+      "price": 6.15,
+      "volume": 0,
+      "type": "Long Liquidation",
+      "timestamp": 1779265799999,
+      "visited": true
+    },
+    {
+      "price": 6.15,
+      "volume": 0,
+      "type": "Long Liquidation",
+      "timestamp": 1779265799999,
+      "visited": true
+    },
+    {
+      "price": 6.15,
+      "volume": 1265.75,
+      "type": "Long Liquidation",
+      "timestamp": 1779265799999,
+      "visited": false
+    },
+    {
+      "price": 6.175,
+      "volume": 0,
+      "type": "Long Liquidation",
+      "timestamp": 1779266699999,
+      "visited": true
+    },
+    {
+      "price": 6.203,
+      "volume": 0,
+      "type": "Short Liquidation",
+      "timestamp": 1779267599999,
+      "visited": true
+    },
+    {
+      "price": 6.203,
+      "volume": 317.92,
+      "type": "Short Liquidation",
+      "timestamp": 1779267599999,
+      "visited": false
+    },
+    {
+      "price": 6.199,
+      "volume": 1975.76,
+      "type": "Short Liquidation",
+      "timestamp": 1779268499999,
+      "visited": false
+    }
+  ]
+}

@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"nofx/api"
-	"nofx/auth"
-	"nofx/config"
-	"nofx/manager"
-	"nofx/market"
-	"nofx/pool"
+	"aetheris/api"
+	"aetheris/auth"
+	"aetheris/backtest"
+	"aetheris/config"
+	"aetheris/manager"
+	"aetheris/market"
+	"aetheris/pool"
 	"os"
 	"os/signal"
 	"strconv"
@@ -27,20 +28,21 @@ type LeverageConfig struct {
 
 // ConfigFile 配置文件结构，只包含需要同步到数据库的字段
 type ConfigFile struct {
-	AdminMode          bool              `json:"admin_mode"`
-	BetaMode           bool              `json:"beta_mode"`
-	APIServerPort      int               `json:"api_server_port"`
-	UseDefaultCoins    bool              `json:"use_default_coins"`
-	DefaultCoins       []string          `json:"default_coins"`
-	CoinPoolAPIURL     string            `json:"coin_pool_api_url"`
-	OITopAPIURL        string            `json:"oi_top_api_url"`
-	MaxDailyLoss       float64           `json:"max_daily_loss"`
-	MaxDrawdown        float64           `json:"max_drawdown"`
-	StopTradingMinutes int               `json:"stop_trading_minutes"`
-	Leverage           LeverageConfig    `json:"leverage"`
-	JWTSecret          string            `json:"jwt_secret"`
-	DataKLineTime      string            `json:"data_k_line_time"`
-	Log                *config.LogConfig `json:"log"` // 日志配置
+	AdminMode          bool                `json:"admin_mode"`
+	BetaMode           bool                `json:"beta_mode"`
+	APIServerPort      int                 `json:"api_server_port"`
+	UseDefaultCoins    bool                `json:"use_default_coins"`
+	DefaultCoins       []string            `json:"default_coins"`
+	CoinPoolAPIURL     string              `json:"coin_pool_api_url"`
+	OITopAPIURL        string              `json:"oi_top_api_url"`
+	MaxDailyLoss       float64             `json:"max_daily_loss"`
+	MaxDrawdown        float64             `json:"max_drawdown"`
+	StopTradingMinutes int                 `json:"stop_trading_minutes"`
+	Leverage           LeverageConfig      `json:"leverage"`
+	JWTSecret          string              `json:"jwt_secret"`
+	DataKLineTime      string              `json:"data_k_line_time"`
+	Log                *config.LogConfig   `json:"log"`          // 日志配置
+	PromptRules        *config.PromptRules `json:"prompt_rules"` // 提示词规则配置
 }
 
 // loadConfigFile 读取并解析config.json文件
@@ -204,25 +206,41 @@ func main() {
 	adminModeStr, _ := database.GetSystemConfig("admin_mode")
 	adminMode := adminModeStr != "false" // 默认为true
 
-	// 设置JWT密钥
-	jwtSecret, _ := database.GetSystemConfig("jwt_secret")
+	// 设置JWT密钥（优先从环境变量读取，本地部署可使用默认值）
+	jwtSecret := os.Getenv("AETHERIS_JWT_SECRET")
 	if jwtSecret == "" {
-		jwtSecret = "your-jwt-secret-key-change-in-production-make-it-long-and-random"
-		log.Printf("⚠️  使用默认JWT密钥，建议在生产环境中配置")
+		jwtSecret = os.Getenv("NOFX_JWT_SECRET")
+	}
+	if jwtSecret == "" {
+		jwtSecret, _ = database.GetSystemConfig("jwt_secret")
+	}
+	if jwtSecret == "" {
+		// 本地部署使用默认密钥即可
+		jwtSecret = "local-deployment-jwt-secret-aetheris"
 	}
 	auth.SetJWTSecret(jwtSecret)
 
 	// 管理员模式下需要管理员密码，缺失则退出
 	if adminMode {
-		adminPassword := os.Getenv("NOFX_ADMIN_PASSWORD")
+		adminPassword := os.Getenv("AETHERIS_ADMIN_PASSWORD")
 		if adminPassword == "" {
-			log.Fatalf("Admin mode is enabled but NOFX_ADMIN_PASSWORD is missing. Set NOFX_ADMIN_PASSWORD and restart.")
+			adminPassword = os.Getenv("NOFX_ADMIN_PASSWORD")
+		}
+		if adminPassword == "" {
+			log.Fatalf("Admin mode is enabled but AETHERIS_ADMIN_PASSWORD is missing. Set AETHERIS_ADMIN_PASSWORD and restart.")
 		}
 		if err := auth.SetAdminPasswordFromPlain(adminPassword); err != nil {
 			log.Fatalf("Failed to set admin password: %v", err)
 		}
 		auth.SetAdminMode(true)
 		log.Printf("✓ Admin mode enabled. All API endpoints require admin authentication.")
+
+		// ✅ 修正：確保管理員用戶存在
+		if err := database.EnsureAdminUser(); err != nil {
+			log.Printf("⚠️ 創建管理員用戶失敗: %v", err)
+		} else {
+			log.Printf("✅ 管理員用戶已確保存在")
+		}
 	}
 
 	log.Printf("✓ 配置数据库初始化成功")
@@ -266,8 +284,11 @@ func main() {
 		log.Printf("✓ 已配置OI Top API")
 	}
 
+	// 初始化WebSocket监控器
+	wsMonitor := market.NewWSMonitor(150)
+
 	// 创建TraderManager
-	traderManager := manager.NewTraderManager()
+	traderManager := manager.NewTraderManager(wsMonitor, configFile.PromptRules)
 
 	// 从数据库加载所有交易员到内存
 	err = traderManager.LoadTradersFromDatabase(database)
@@ -276,6 +297,20 @@ func main() {
 	}
 
 	// 获取数据库中的所有交易员配置（用于显示，使用default用户）
+	// 创建 AutoTrader
+	// Note: The 'config' variable here is assumed to be 'configFile' or a relevant part of it,
+	// as 'config' is not defined in this scope. Adjust as per actual 'trader.NewAutoTrader' signature.
+	// For now, using 'configFile.PromptRules' as a placeholder if it fits the expected type.
+	// If 'trader.NewAutoTrader' expects the full 'configFile', then 'configFile' should be used.
+	// For syntactic correctness, assuming 'configFile.PromptRules' is a valid argument type.
+	// If the intention was to create a single AutoTrader instance for a default user,
+	// the first argument would typically be a specific trader's configuration, not the global config file.
+	// This block is inserted as per user instruction, assuming its context is handled elsewhere.
+	// at, err := trader.NewAutoTrader(configFile.PromptRules, database, "default_user", wsMonitor, nil, nil)
+	// if err != nil {
+	// 	log.Fatalf("创建 AutoTrader 失败: %v", err)
+	// }
+
 	traders, err := database.GetTraders("default")
 	if err != nil {
 		log.Fatalf("❌ 获取交易员列表失败: %v", err)
@@ -312,15 +347,18 @@ func main() {
 	fmt.Println()
 
 	// 获取API服务器端口
-	apiPort := 8080 // 默认端口
+	apiPort := 3636 // 默认端口
 	if apiPortStr != "" {
 		if port, err := strconv.Atoi(apiPortStr); err == nil {
 			apiPort = port
 		}
 	}
 
+	// 初始化回测管理器
+	backtestManager := backtest.NewBacktestManager("data")
+
 	// 创建并启动API服务器
-	apiServer := api.NewServer(traderManager, database, apiPort)
+	apiServer := api.NewServer(traderManager, database, apiPort, backtestManager)
 	go func() {
 		if err := apiServer.Start(); err != nil {
 			log.Printf("❌ API服务器错误: %v", err)
@@ -328,20 +366,22 @@ func main() {
 	}()
 
 	// 启动流行情数据 - 默认使用所有交易员设置的币种 如果没有设置币种 则优先使用系统默认
-	go market.NewWSMonitor(150).Start(database.GetCustomCoins())
-	//go market.NewWSMonitor(150).Start([]string{}) //这里是一个使用方式 传入空的话 则使用market市场的所有币种
+	go wsMonitor.Start(database.GetCustomCoins())
+	//go wsMonitor.Start([]string{}) //这里是一个使用方式 传入空的话 则使用market市场的所有币种
 	// 设置优雅退出
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
-	// TODO: 启动数据库中配置为运行状态的交易员
-	// traderManager.StartAll()
+	// 只启动数据库中 is_running=1 的交易员；未标记的不会在开机时自动实盘
+	traderManager.StartAll()
 
-	// 等待退出信号
+	// 等待退出信号（Docker stop / 更新会发 SIGTERM）
 	<-sigChan
 	fmt.Println()
 	fmt.Println()
 	log.Println("📛 收到退出信号，正在停止所有trader...")
+	log.Println("ℹ️  不把 is_running 写成 0：这是进程被杀，不是用户在 UI 点停止。容器回来后按数据库标记恢复。")
+	wsMonitor.Close()
 	traderManager.StopAll()
 
 	fmt.Println()

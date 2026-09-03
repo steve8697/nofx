@@ -17,11 +17,34 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [adminPassword, setAdminPassword] = useState('')
   const [adminMode, setAdminMode] = useState<boolean | null>(null)
+  const [rememberAdmin, setRememberAdmin] = useState(true)
 
   useEffect(() => {
     getSystemConfig()
       .then((cfg) => {
-        setAdminMode(!!cfg.admin_mode)
+        const isAdm = !!cfg.admin_mode
+        setAdminMode(isAdm)
+        
+        if (isAdm) {
+          const savedPw = localStorage.getItem('saved_admin_pw')
+          if (savedPw) {
+            console.log('🔑 自部署助手：檢測到已儲存的管理員密碼，正在嘗試自動登入...')
+            setAdminPassword(savedPw)
+            setLoading(true)
+            loginAdmin(savedPw).then((res) => {
+              if (!res.success) {
+                console.warn('⚠️ 自動登入失敗，可能密碼已更改，請手動登入')
+                localStorage.removeItem('saved_admin_pw')
+                setAdminPassword('')
+              } else {
+                console.log('✅ 自動登入成功！')
+              }
+              setLoading(false)
+            }).catch(() => {
+              setLoading(false)
+            })
+          }
+        }
       })
       .catch(() => {
         setAdminMode(false)
@@ -33,7 +56,13 @@ export function LoginPage() {
     setError('')
     setLoading(true)
     const result = await loginAdmin(adminPassword)
-    if (!result.success) {
+    if (result.success) {
+      if (rememberAdmin) {
+        localStorage.setItem('saved_admin_pw', adminPassword)
+      } else {
+        localStorage.removeItem('saved_admin_pw')
+      }
+    } else {
       setError(result.message || t('loginFailed', language))
     }
     setLoading(false)
@@ -74,7 +103,11 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--brand-black)' }}>
+    <div className="min-h-screen relative overflow-hidden">
+      {/* 🌌 Premium 消光鈦灰背景裝飾球 */}
+      <div className="absolute top-1/4 left-1/4 w-[450px] h-[450px] rounded-full bg-gradient-to-tr from-white/4 to-transparent blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-[450px] h-[450px] rounded-full bg-gradient-to-br from-white/2 to-transparent blur-[120px] pointer-events-none"></div>
+
       <HeaderBar
         onLoginClick={() => {}}
         isLoggedIn={false}
@@ -91,68 +124,95 @@ export function LoginPage() {
       />
 
       <div
-        className="flex items-center justify-center pt-20"
+        className="flex items-center justify-center pt-24 relative z-10"
         style={{ minHeight: 'calc(100vh - 80px)' }}
       >
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md px-4">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-              <img
-                src="/icons/nofx.svg"
-                alt="NoFx Logo"
-                className="w-16 h-16 object-contain"
-              />
+            <div className="w-24 h-24 mx-auto mb-4 flex items-center justify-center p-4 rounded-3xl bg-black/45 border border-white/10 shadow-2xl backdrop-blur-md">
+              <svg
+                className="w-full h-full text-white/70"
+                viewBox="0 0 100 100"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Dashed outer orbit ring */}
+                <circle 
+                  cx="50" 
+                  cy="50" 
+                  r="42" 
+                  stroke="currentColor" 
+                  strokeWidth="1.5" 
+                  strokeDasharray="10 15" 
+                  className="animate-spin" 
+                  style={{ animationDuration: '15s', transformOrigin: 'center' }}
+                />
+                {/* Inner glowing ring */}
+                <circle 
+                  cx="50" 
+                  cy="50" 
+                  r="28" 
+                  stroke="rgba(255, 255, 255, 0.25)" 
+                  strokeWidth="2.5" 
+                />
+                <circle cx="50" cy="50" r="6" fill="#ffffff" className="animate-pulse" />
+              </svg>
             </div>
             <h1
-              className="text-2xl font-bold"
-              style={{ color: 'var(--brand-light-gray)' }}
+              className="text-2xl font-extrabold tracking-wider text-white"
             >
-              登录 NOFX
+              KRONOS QUANTUM
             </h1>
             <p
               className="text-sm mt-2"
               style={{ color: 'var(--text-secondary)' }}
             >
-              {step === 'login' ? '请输入您的邮箱和密码' : '请输入两步验证码'}
+              {step === 'login' ? '請輸入您的管理密碼' : '請輸入二步驟驗證碼'}
             </p>
           </div>
 
           {/* Login Form */}
-          <div
-            className="rounded-lg p-6"
-            style={{
-              background: 'var(--panel-bg)',
-              border: '1px solid var(--panel-border)',
-            }}
-          >
+          <div className="glass-card p-8 shadow-2xl relative overflow-hidden">
+            {/* 卡片裝飾條 */}
+            <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/15 to-transparent"></div>
+
             {adminMode ? (
-              <form onSubmit={handleAdminLogin} className="space-y-4">
+              <form onSubmit={handleAdminLogin} className="space-y-5">
                 <div>
                   <label
                     className="block text-sm font-semibold mb-2"
                     style={{ color: 'var(--brand-light-gray)' }}
                   >
-                    管理员密码
+                    管理員密碼
                   </label>
                   <input
                     type="password"
                     value={adminPassword}
                     onChange={(e) => setAdminPassword(e.target.value)}
-                    className="w-full px-3 py-2 rounded"
-                    style={{
-                      background: 'var(--brand-black)',
-                      border: '1px solid var(--panel-border)',
-                      color: 'var(--brand-light-gray)',
-                    }}
-                    placeholder="请输入管理员密码"
+                    className="w-full px-4 py-2.5 rounded-lg bg-black/40 border border-white/5 focus:border-white/40 focus:ring-1 focus:ring-white/40 focus:outline-none transition-all duration-200 text-[#eaecef] text-sm"
+                    placeholder="請輸入管理密碼"
                     required
                   />
                 </div>
 
+                <div className="flex items-center gap-2.5 py-1">
+                  <input
+                    type="checkbox"
+                    id="rememberAdmin"
+                    checked={rememberAdmin}
+                    onChange={(e) => setRememberAdmin(e.target.checked)}
+                    className="w-4 h-4 rounded cursor-pointer accent-white bg-[#000]"
+                    style={{ border: '1px solid var(--panel-border)' }}
+                  />
+                  <label htmlFor="rememberAdmin" className="text-xs cursor-pointer select-none" style={{ color: 'var(--text-secondary)' }}>
+                    在本機記住密碼，下次打開自動登入
+                  </label>
+                </div>
+
                 {error && (
                   <div
-                    className="text-sm px-3 py-2 rounded"
+                    className="text-sm px-3 py-2 rounded-lg border border-red-500/20"
                     style={{
                       background: 'var(--binance-red-bg)',
                       color: 'var(--binance-red)',
@@ -165,17 +225,13 @@ export function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full px-4 py-2 rounded text-sm font-semibold transition-all hover:scale-105 disabled:opacity-50"
-                  style={{
-                    background: 'var(--brand-yellow)',
-                    color: 'var(--brand-black)',
-                  }}
+                  className="w-full py-3 rounded-lg text-sm font-semibold transition-all glow-button-gold"
                 >
-                  {loading ? t('loading', language) : '登录'}
+                  {loading ? t('loading', language) : '登入'}
                 </button>
               </form>
             ) : step === 'login' ? (
-              <form onSubmit={handleLogin} className="space-y-4">
+              <form onSubmit={handleLogin} className="space-y-5">
                 <div>
                   <label
                     className="block text-sm font-semibold mb-2"
@@ -187,12 +243,7 @@ export function LoginPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 rounded"
-                    style={{
-                      background: 'var(--brand-black)',
-                      border: '1px solid var(--panel-border)',
-                      color: 'var(--brand-light-gray)',
-                    }}
+                    className="w-full px-4 py-2.5 rounded-lg bg-black/40 border border-white/5 focus:border-white/40 focus:ring-1 focus:ring-white/40 focus:outline-none transition-all duration-200 text-[#eaecef] text-sm"
                     placeholder={t('emailPlaceholder', language)}
                     required
                   />
@@ -209,12 +260,7 @@ export function LoginPage() {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-3 py-2 rounded"
-                    style={{
-                      background: 'var(--brand-black)',
-                      border: '1px solid var(--panel-border)',
-                      color: 'var(--brand-light-gray)',
-                    }}
+                    className="w-full px-4 py-2.5 rounded-lg bg-black/40 border border-white/5 focus:border-white/40 focus:ring-1 focus:ring-white/40 focus:outline-none transition-all duration-200 text-[#eaecef] text-sm"
                     placeholder={t('passwordPlaceholder', language)}
                     required
                   />
@@ -225,8 +271,7 @@ export function LoginPage() {
                         window.history.pushState({}, '', '/reset-password')
                         window.dispatchEvent(new PopStateEvent('popstate'))
                       }}
-                      className="text-xs hover:underline"
-                      style={{ color: '#F0B90B' }}
+                      className="text-xs hover:text-white text-gray-400 hover:underline transition-colors font-semibold"
                     >
                       {t('forgotPassword', language)}
                     </button>
@@ -235,7 +280,7 @@ export function LoginPage() {
 
                 {error && (
                   <div
-                    className="text-sm px-3 py-2 rounded"
+                    className="text-sm px-3 py-2 rounded-lg border border-red-500/20"
                     style={{
                       background: 'var(--binance-red-bg)',
                       color: 'var(--binance-red)',
@@ -248,11 +293,7 @@ export function LoginPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full px-4 py-2 rounded text-sm font-semibold transition-all hover:scale-105 disabled:opacity-50"
-                  style={{
-                    background: 'var(--brand-yellow)',
-                    color: 'var(--brand-black)',
-                  }}
+                  className="w-full py-3 rounded-lg text-sm font-semibold transition-all glow-button-gold"
                 >
                   {loading
                     ? t('loading', language)
@@ -260,7 +301,7 @@ export function LoginPage() {
                 </button>
               </form>
             ) : (
-              <form onSubmit={handleOTPVerify} className="space-y-4">
+              <form onSubmit={handleOTPVerify} className="space-y-5">
                 <div className="text-center mb-4">
                   <div className="text-4xl mb-2">📱</div>
                   <p className="text-sm" style={{ color: '#848E9C' }}>
@@ -283,12 +324,7 @@ export function LoginPage() {
                     onChange={(e) =>
                       setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))
                     }
-                    className="w-full px-3 py-2 rounded text-center text-2xl font-mono"
-                    style={{
-                      background: 'var(--brand-black)',
-                      border: '1px solid var(--panel-border)',
-                      color: 'var(--brand-light-gray)',
-                    }}
+                    className="w-full px-4 py-3 rounded-lg bg-black/40 border border-white/5 focus:border-white/40 focus:ring-1 focus:ring-white/40 focus:outline-none transition-all duration-200 text-[#eaecef] text-center text-2xl font-mono"
                     placeholder={t('otpPlaceholder', language)}
                     maxLength={6}
                     required
@@ -297,7 +333,7 @@ export function LoginPage() {
 
                 {error && (
                   <div
-                    className="text-sm px-3 py-2 rounded"
+                    className="text-sm px-3 py-2 rounded-lg border border-red-500/20"
                     style={{
                       background: 'var(--binance-red-bg)',
                       color: 'var(--binance-red)',
@@ -311,19 +347,14 @@ export function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setStep('login')}
-                    className="flex-1 px-4 py-2 rounded text-sm font-semibold"
-                    style={{
-                      background: 'var(--panel-bg-hover)',
-                      color: 'var(--text-secondary)',
-                    }}
+                    className="flex-1 py-3 rounded-lg text-sm font-semibold bg-white/5 hover:bg-white/10 border border-white/5 transition-colors text-gray-400"
                   >
                     {t('back', language)}
                   </button>
                   <button
                     type="submit"
                     disabled={loading || otpCode.length !== 6}
-                    className="flex-1 px-4 py-2 rounded text-sm font-semibold transition-all hover:scale-105 disabled:opacity-50"
-                    style={{ background: '#F0B90B', color: '#000' }}
+                    className="flex-1 py-3 rounded-lg text-sm font-semibold transition-all glow-button-gold"
                   >
                     {loading
                       ? t('loading', language)
@@ -337,15 +368,14 @@ export function LoginPage() {
           {/* Register Link */}
           {!adminMode && (
             <div className="text-center mt-6">
-              <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+              <p className="text-sm text-gray-500">
                 还没有账户？{' '}
                 <button
                   onClick={() => {
                     window.history.pushState({}, '', '/register')
                     window.dispatchEvent(new PopStateEvent('popstate'))
                   }}
-                  className="font-semibold hover:underline transition-colors"
-                  style={{ color: 'var(--brand-yellow)' }}
+                  className="font-semibold text-gray-300 hover:text-white hover:underline transition-colors"
                 >
                   立即注册
                 </button>

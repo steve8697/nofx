@@ -8,7 +8,7 @@
 
 ## 🛡️ Security Overview
 
-NOFX is an AI-powered trading system that handles real funds and API credentials. We take security seriously and appreciate the security community's efforts to responsibly disclose vulnerabilities.
+AETHERIS is an AI-powered trading system that handles real funds and API credentials. We take security seriously and appreciate the security community's efforts to responsibly disclose vulnerabilities.
 
 **Critical Areas:**
 - 🔑 API key storage and handling
@@ -37,7 +37,7 @@ We provide security updates for the following versions:
 
 ### ⚠️ Please DO NOT Publicly Disclose
 
-If you discover a security vulnerability in NOFX, please **DO NOT**:
+If you discover a security vulnerability in AETHERIS, please **DO NOT**:
 - ❌ Open a public GitHub Issue
 - ❌ Discuss it on social media (Twitter, Reddit, etc.)
 - ❌ Share it in Telegram/Discord groups
@@ -138,7 +138,7 @@ We offer rewards for valid security vulnerabilities:
 
 ## 🔐 Security Best Practices (For Users)
 
-To keep your NOFX deployment secure:
+To keep your AETHERIS deployment secure:
 
 ### 1. API Key Management
 ```bash
@@ -153,19 +153,19 @@ api_key = "abc123..."  # NEVER DO THIS
 ### 2. Database Security
 ```bash
 # ✅ Set proper permissions
-chmod 600 nofx.db
+chmod 600 aetheris.db
 chmod 600 config.json
 
 # ❌ DON'T: Leave files world-readable
-chmod 777 nofx.db  # NEVER DO THIS
+chmod 777 aetheris.db  # NEVER DO THIS
 ```
 
 ### 3. Network Security
 ```bash
 # ✅ Use firewall to restrict API access
 # Only allow localhost to access API server
-iptables -A INPUT -p tcp --dport 8080 -s 127.0.0.1 -j ACCEPT
-iptables -A INPUT -p tcp --dport 8080 -j DROP
+iptables -A INPUT -p tcp --dport 3636 -s 127.0.0.1 -j ACCEPT
+iptables -A INPUT -p tcp --dport 3636 -j DROP
 
 # ❌ DON'T: Expose API to public internet without authentication
 ```
@@ -185,10 +185,10 @@ iptables -A INPUT -p tcp --dport 8080 -j DROP
 ```bash
 # Check for updates regularly
 git pull origin main
-go build -o nofx
+go build -o aetheris
 
 # Subscribe to security advisories
-# Watch GitHub releases: https://github.com/tinkle-community/nofx/releases
+# Watch GitHub releases: https://github.com/tinkle-community/aetheris/releases
 ```
 
 ---
@@ -236,11 +236,11 @@ We thank the following security researchers for responsibly disclosing vulnerabi
 
 **For general questions:**
 - See [CONTRIBUTING.md](CONTRIBUTING.md)
-- Join [Telegram Community](https://t.me/nofx_dev_community)
+- Join [Telegram Community](https://t.me/aetheris_dev_community)
 
 ---
 
-**Thank you for helping keep NOFX secure!** 🔒
+**Thank you for helping keep AETHERIS secure!** 🔒
 
 ---
 
@@ -248,7 +248,7 @@ We thank the following security researchers for responsibly disclosing vulnerabi
 
 ## 🛡️ 安全概述
 
-NOFX 是一个处理真实资金和 API 凭证的 AI 交易系统。我们非常重视安全，并感谢安全社区负责任地披露漏洞的努力。
+AETHERIS 是一个处理真实资金和 API 凭证的 AI 交易系统。我们非常重视安全，并感谢安全社区负责任地披露漏洞的努力。
 
 **关键领域：**
 - 🔑 API 密钥存储和处理
@@ -277,7 +277,7 @@ NOFX 是一个处理真实资金和 API 凭证的 AI 交易系统。我们非常
 
 ### ⚠️ 请勿公开披露
 
-如果您在 NOFX 中发现安全漏洞，请**不要**：
+如果您在 AETHERIS 中发现安全漏洞，请**不要**：
 - ❌ 公开创建 GitHub Issue
 - ❌ 在社交媒体上讨论（Twitter、Reddit 等）
 - ❌ 在 Telegram/Discord 群组中分享
@@ -378,7 +378,7 @@ NOFX 是一个处理真实资金和 API 凭证的 AI 交易系统。我们非常
 
 ## 🔐 安全最佳实践（用户指南）
 
-保护您的 NOFX 部署安全：
+保护您的 AETHERIS 部署安全：
 
 ### 1. API 密钥管理
 ```bash
@@ -393,19 +393,19 @@ api_key = "abc123..."  # 永远不要这样做
 ### 2. 数据库安全
 ```bash
 # ✅ 设置适当的权限
-chmod 600 nofx.db
+chmod 600 aetheris.db
 chmod 600 config.json
 
 # ❌ 不要：让文件全局可读
-chmod 777 nofx.db  # 永远不要这样做
+chmod 777 aetheris.db  # 永远不要这样做
 ```
 
 ### 3. 网络安全
 ```bash
 # ✅ 使用防火墙限制 API 访问
 # 仅允许本地访问 API 服务器
-iptables -A INPUT -p tcp --dport 8080 -s 127.0.0.1 -j ACCEPT
-iptables -A INPUT -p tcp --dport 8080 -j DROP
+iptables -A INPUT -p tcp --dport 3636 -s 127.0.0.1 -j ACCEPT
+iptables -A INPUT -p tcp --dport 3636 -j DROP
 
 # ❌ 不要：在没有身份验证的情况下将 API 暴露到公共互联网
 ```
@@ -425,10 +425,10 @@ iptables -A INPUT -p tcp --dport 8080 -j DROP
 ```bash
 # 定期检查更新
 git pull origin main
-go build -o nofx
+go build -o aetheris
 
 # 订阅安全公告
-# 关注 GitHub 发布：https://github.com/tinkle-community/nofx/releases
+# 关注 GitHub 发布：https://github.com/tinkle-community/aetheris/releases
 ```
 
 ---
@@ -462,8 +462,8 @@ go build -o nofx
 - 🐦 **Twitter 私信：** [@Web3Tinkle](https://x.com/Web3Tinkle)
 
 **一般问题：**
-- 加入 [Telegram 社区](https://t.me/nofx_dev_community)
+- 加入 [Telegram 社区](https://t.me/aetheris_dev_community)
 
 ---
 
-**感谢您帮助保持 NOFX 的安全！** 🔒
+**感谢您帮助保持 AETHERIS 的安全！** 🔒

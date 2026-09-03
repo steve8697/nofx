@@ -58,22 +58,113 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    // 自動登錄函數（提前定义，避免作用域问题）
+    const performAutoLogin = () => {
+      const savedPassword = sessionStorage.getItem('admin_password')
+      if (!savedPassword) {
+        console.log('⚠️ 管理员模式：沒有儲存的密碼，跳過自動登錄，請手動登入')
+        setIsLoading(false)
+        return
+      }
+      console.log('🔐 管理员模式：使用儲存的密碼自動登錄中...')
+      fetch('/api/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: savedPassword }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.token) {
+            const userInfo = {
+              id: data.user_id || 'admin',
+              email: data.email || 'admin@localhost',
+            }
+            setToken(data.token)
+            setUser(userInfo)
+            localStorage.setItem('auth_token', data.token)
+            localStorage.setItem('auth_user', JSON.stringify(userInfo))
+            console.log('✅ 自动登录成功')
+          } else {
+            console.error('❌ 自动登录失败:', data.error)
+          }
+          setIsLoading(false)
+        })
+        .catch((err) => {
+          console.error('❌ 自动登录异常:', err)
+          setIsLoading(false)
+        })
+    }
+
     // 先检查是否为管理员模式（使用带缓存的系统配置获取）
     getSystemConfig()
-      .then(() => {
-        // 不再在管理员模式下模拟登录；统一检查本地存储
+      .then((config) => {
+        // 检查本地存储的 token
         const savedToken = localStorage.getItem('auth_token')
         const savedUser = localStorage.getItem('auth_user')
-        if (savedToken && savedUser) {
-          setToken(savedToken)
-          setUser(JSON.parse(savedUser))
-        }
 
-        setIsLoading(false)
+        // ✅ 修正：簡化管理員模式的自動登錄邏輯
+        // 在管理員模式下，無論是否有 savedToken，都先嘗試自動登錄
+        if (config.admin_mode) {
+          // 如果有 savedToken，先驗證其有效性
+          if (savedToken && savedUser) {
+            const savedUserObj = JSON.parse(savedUser)
+            // 檢查保存的用戶是否是管理員
+            if (savedUserObj.email !== 'admin@localhost') {
+              console.log('🔐 管理员模式：检测到旧的用户信息，清除中...')
+              localStorage.removeItem('auth_token')
+              localStorage.removeItem('auth_user')
+              // 繼續自動登錄流程
+              performAutoLogin()
+            } else {
+              // 驗證 token 是否有效
+              console.log('🔐 管理员模式：验证现有 token...')
+              fetch('/api/my-traders', {
+                headers: { 'Authorization': `Bearer ${savedToken}` }
+              })
+                .then(response => {
+                  if (response.ok) {
+                    console.log('✅ 现有 token 有效')
+                    setToken(savedToken)
+                    setUser(savedUserObj)
+                    setIsLoading(false)
+                  } else if (response.status === 401 || response.status === 403) {
+                    console.log('⚠️ 现有 token 已过期，清除並重新登录...')
+                    localStorage.removeItem('auth_token')
+                    localStorage.removeItem('auth_user')
+                    // 繼續執行自動登錄
+                    performAutoLogin()
+                  } else {
+                    console.log('⚠️ token 验证失败，清除並重新登录...')
+                    localStorage.removeItem('auth_token')
+                    localStorage.removeItem('auth_user')
+                    // 繼續執行自動登錄
+                    performAutoLogin()
+                  }
+                })
+                .catch(() => {
+                  console.log('⚠️ token 验证异常，清除並重新登录...')
+                  localStorage.removeItem('auth_token')
+                  localStorage.removeItem('auth_user')
+                  // 繼續執行自動登錄
+                  performAutoLogin()
+                })
+            }
+          } else {
+            // 沒有 savedToken，直接執行自動登錄
+            performAutoLogin()
+          }
+        } else {
+          // 非管理員模式
+          if (savedToken && savedUser) {
+            setToken(savedToken)
+            setUser(JSON.parse(savedUser))
+          }
+          setIsLoading(false)
+        }
       })
       .catch((err) => {
         console.error('Failed to fetch system config:', err)
-        // 发生错误时，继续检查本地存储
+        // 发生错误时，先尝试从本地存储恢复
         const savedToken = localStorage.getItem('auth_token')
         const savedUser = localStorage.getItem('auth_user')
 
@@ -81,8 +172,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setToken(savedToken)
           setUser(JSON.parse(savedUser))
         }
-        setIsLoading(false)
+
+        // 然后尝试强制自动登录
+        console.log('⚠️ 系统配置获取失败，尝试强制自动登录...')
+        performAutoLogin()
       })
+
+    // 监听 localStorage 变化（用于跨标签页同步）
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'auth_token' && e.newValue) {
+        const newUser = localStorage.getItem('auth_user')
+        if (newUser) {
+          setToken(e.newValue)
+          setUser(JSON.parse(newUser))
+        }
+      } else if (e.key === 'auth_token' && !e.newValue) {
+        setToken(null)
+        setUser(null)
+      }
+    }
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
   const login = async (email: string, password: string) => {
@@ -133,6 +243,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(userInfo)
         localStorage.setItem('auth_token', data.token)
         localStorage.setItem('auth_user', JSON.stringify(userInfo))
+        // 🔒 儲存密碼用於自動重新登入（sessionStorage 關閉瀏覽器後自動清除）
+        sessionStorage.setItem('admin_password', password)
         // 跳转到仪表盘
         window.history.pushState({}, '', '/dashboard')
         window.dispatchEvent(new PopStateEvent('popstate'))

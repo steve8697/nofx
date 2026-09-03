@@ -37,9 +37,9 @@ export const faqCategories: FAQCategory[] = [
     icon: BookOpen,
     items: [
       {
-        id: 'what-is-nofx',
-        questionKey: 'faqWhatIsNOFX',
-        answerKey: 'faqWhatIsNOFXAnswer',
+        id: 'what-is-aetheris',
+        questionKey: 'faqWhatIsAETHERIS',
+        answerKey: 'faqWhatIsAETHERISAnswer',
       },
       {
         id: 'supported-exchanges',

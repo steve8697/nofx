@@ -3,6 +3,11 @@
 .gitignore
 .github
 
+# System files
+.DS_Store
+.env
+.env.local
+
 # Docker
 Dockerfile
 docker-compose.yml
@@ -16,6 +21,8 @@ docker-compose.yml
 *~
 
 # Build artifacts
+aetheris
+aetheris_test
 nofx
 nofx_test
 *.exe
@@ -40,9 +47,8 @@ coin_pool_cache/
 # Config files (should be mounted)
 config.json
 
-# Web build artifacts (but include source for multi-stage build)
+# Web build artifacts (keep node_modules ignored, allow dist for fast image assembly)
 web/node_modules/
-web/dist/
 
 # Temporary files
 tmp/

@@ -1,8 +1,8 @@
-# 📘 NOFX 使用指南
+# 📘 AETHERIS 使用指南
 
 **语言:** [English](README.md) | [中文](README.zh-CN.md)
 
-帮助您有效使用 NOFX 的综合指南。
+帮助您有效使用 AETHERIS 的综合指南。
 
 ---
 
@@ -44,8 +44,8 @@ sudo apt-get install libta-lib0-dev
 - 超时设置为 120 秒
 
 **问题：前端无法连接**
-- 确保后端正在运行 (http://localhost:8080)
-- 检查端口 8080 是否可用
+- 确保后端正在运行 (http://localhost:3636)
+- 检查端口 3636 是否可用
 - 检查浏览器控制台错误
 
 ---
@@ -128,9 +128,9 @@ sudo apt-get install libta-lib0-dev
 ## 🆘 需要帮助？
 
 **找不到您需要的内容？**
-- 💬 [Telegram 社区](https://t.me/nofx_dev_community)
-- 🐛 [GitHub Issues](https://github.com/tinkle-community/nofx/issues)
-- 🐦 [Twitter @nofx_ai](https://x.com/nofx_ai)
+- 💬 [Telegram 社区](https://t.me/aetheris_dev_community)
+- 🐛 [GitHub Issues](https://github.com/tinkle-community/aetheris/issues)
+- 🐦 [Twitter @aetheris_ai](https://x.com/aetheris_ai)
 
 ---
 

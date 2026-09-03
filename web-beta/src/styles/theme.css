@@ -1,0 +1,104 @@
+/* ============================================
+   NOFX Web Beta — Deep Dark Minimalist + TUI Theme
+   ============================================ */
+
+:root {
+  /* === Core Palette (Deep Void) === */
+  --bg: #0a0b0f;
+  --bg-elev: #111318;
+  --bg-panel: #161a21;
+  --bg-subtle: #1c212a;
+
+  /* === Borders & Dividers === */
+  --border: #1f232b;
+  --border-subtle: #2a2f38;
+
+  /* === Text === */
+  --text: #e6e7eb;
+  --text-muted: #6f7683;
+  --text-dim: #4a505b;
+
+  /* === Accent (very restrained) === */
+  --accent: #3b82f6;
+  --accent-muted: #2563eb;
+
+  /* === Status Colors (TUI style) === */
+  --green: #22c55e;
+  --red: #ef4444;
+  --amber: #f59e0b;
+  --cyan: #22d3ee;
+
+  /* === Typography === */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* === Spacing Scale === */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+
+  /* === Radii === */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+
+  /* === Global Reset === */
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  background-color: var(--bg);
+}
+
+/* Base elements */
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+h1, h2, h3, h4 {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+code, pre, .mono {
+  font-family: var(--font-mono);
+}
+
+/* TUI-style subtle scanline (very light) */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    rgba(255,255,255,0.015) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: screen;
+}
+
+/* Selection */
+::selection {
+  background: var(--accent);
+  color: white;
+}
+
+/* Scrollbars (minimal) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-dim);
+}

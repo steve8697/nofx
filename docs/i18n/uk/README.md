@@ -1,4 +1,4 @@
-# 🤖 NOFX - Agentic Trading OS
+# 🤖 AETHERIS - Agentic Trading OS
 
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go)](https://golang.org/)
 [![React](https://img.shields.io/badge/React-18+-61DAFB?style=flat&logo=react)](https://reactjs.org/)
@@ -8,7 +8,7 @@
 
 **Мови / Languages:** [English](../../../README.md) | [中文](../zh-CN/README.md) | [Українська](../uk/README.md) | [Русский](../ru/README.md) | [日本語](../ja/README.md)
 
-**Офіційний Twitter:** [@nofx_ai](https://x.com/nofx_ai)
+**Офіційний Twitter:** [@aetheris_ai](https://x.com/aetheris_ai)
 
 **📚 Документація:** [Головна](../../README.md) | [Початок роботи](../../getting-started/README.md) | [Спільнота](../../community/README.md) | [Журнал Змін](../../../CHANGELOG.md)
 
@@ -34,7 +34,7 @@
 
 ## 🚀 Універсальна AI Торгова Операційна Система
 
-**NOFX** - це **універсальна Agentic Trading OS**, побудована на єдиній архітектурі. Ми успішно замкнули цикл на криптовалютних ринках: **"Рішення Multi-Agent → Єдиний Контроль Ризиків → Виконання з Низькою Затримкою → Бектестинг Реальних/Паперових Рахунків"**, і зараз розширюємо цей же технологічний стек на **акції, ф'ючерси, опціони, форекс та всі фінансові ринки**.
+**AETHERIS** - це **універсальна Agentic Trading OS**, побудована на єдиній архітектурі. Ми успішно замкнули цикл на криптовалютних ринках: **"Рішення Multi-Agent → Єдиний Контроль Ризиків → Виконання з Низькою Затримкою → Бектестинг Реальних/Паперових Рахунків"**, і зараз розширюємо цей же технологічний стек на **акції, ф'ючерси, опціони, форекс та всі фінансові ринки**.
 
 ### 🎯 Основні Можливості
 
@@ -55,7 +55,7 @@
 
 **З питань інвестицій**, пишіть в DM **Tinkle** або **Zack** в Twitter.
 
-**З питань партнерства та співпраці**, пишіть в DM нашого офіційного Twitter [@nofx_ai](https://x.com/nofx_ai).
+**З питань партнерства та співпраці**, пишіть в DM нашого офіційного Twitter [@aetheris_ai](https://x.com/aetheris_ai).
 
 ---
 
@@ -65,7 +65,7 @@
 
 Приєднуйтесь до нашої спільноти розробників у Telegram для обговорення, обміну ідеями та отримання підтримки:
 
-**💬 [Спільнота розробників NOFX](https://t.me/nofx_dev_community)**
+**💬 [Спільнота розробників AETHERIS](https://t.me/aetheris_dev_community)**
 
 ---
 
@@ -73,7 +73,7 @@
 
 ### 🚀 Підтримка кількох бірж!
 
-NOFX тепер підтримує **три основні біржі**: Binance, Hyperliquid та Aster DEX!
+AETHERIS тепер підтримує **три основні біржі**: Binance, Hyperliquid та Aster DEX!
 
 #### **Біржа Hyperliquid**
 
@@ -200,7 +200,7 @@ NOFX тепер підтримує **три основні біржі**: Binance
 
 ## 🔮 Дорожня Карта - Розширення на Універсальні Ринки
 
-Місія NOFX - стати **Універсальною AI Торговою Операційною Системою** для всіх фінансових ринків.
+Місія AETHERIS - стати **Універсальною AI Торговою Операційною Системою** для всіх фінансових ринків.
 
 **Бачення:** Та сама архітектура. Та сама агентна структура. Всі ринки.
 
@@ -225,7 +225,7 @@ NOFX тепер підтримує **три основні біржі**: Binance
 
 ## 🏗️ Технічна Архітектура
 
-NOFX побудовано на сучасній модульній архітектурі:
+AETHERIS побудовано на сучасній модульній архітектурі:
 
 - **Backend:** Go з фреймворком Gin, база даних SQLite
 - **Frontend:** React 18 + TypeScript + Vite + TailwindCSS
@@ -354,8 +354,8 @@ sudo apt-get install libta-lib0-dev
 ### 2. Клонування проєкту
 
 ```bash
-git clone https://github.com/tinkle-community/nofx.git
-cd nofx
+git clone https://github.com/tinkle-community/aetheris.git
+cd aetheris
 ```
 
 ### 3. Встановлення залежностей
@@ -455,7 +455,7 @@ cp config.json.example config.json
   "use_default_coins": true,
   "coin_pool_api_url": "",
   "oi_top_api_url": "",
-  "api_server_port": 8080
+  "api_server_port": 3636
 }
 ```
 
@@ -486,7 +486,7 @@ cp config.json.example config.json
 
 #### 🔷 Альтернатива: Використання біржі Hyperliquid
 
-**NOFX також підтримує Hyperliquid** - децентралізовану біржу безстрокових ф'ючерсів. Щоб використовувати Hyperliquid замість Binance:
+**AETHERIS також підтримує Hyperliquid** - децентралізовану біржу безстрокових ф'ючерсів. Щоб використовувати Hyperliquid замість Binance:
 
 **Крок 1**: Отримайте приватний ключ Ethereum (для автентифікації Hyperliquid)
 
@@ -515,7 +515,7 @@ cp config.json.example config.json
     }
   ],
   "use_default_coins": true,
-  "api_server_port": 8080
+  "api_server_port": 3636
 }
 ```
 
@@ -530,7 +530,7 @@ cp config.json.example config.json
 
 #### 🔶 Альтернатива: Використання біржі Aster DEX
 
-**NOFX також підтримує Aster DEX** - децентралізовану біржу безстрокових ф'ючерсів, сумісну з Binance!
+**AETHERIS також підтримує Aster DEX** - децентралізовану біржу безстрокових ф'ючерсів, сумісну з Binance!
 
 **Чому обрати Aster?**
 - 🎯 API сумісний з Binance (легка міграція)
@@ -572,7 +572,7 @@ cp config.json.example config.json
     }
   ],
   "use_default_coins": true,
-  "api_server_port": 8080,
+  "api_server_port": 3636,
   "leverage": {
     "btc_eth_leverage": 5,
     "altcoin_leverage": 5
@@ -628,7 +628,7 @@ cp config.json.example config.json
   "use_default_coins": true,
   "coin_pool_api_url": "",
   "oi_top_api_url": "",
-  "api_server_port": 8080
+  "api_server_port": 3636
 }
 ```
 
@@ -664,7 +664,7 @@ cp config.json.example config.json
 | `use_default_coins` | Використовувати вбудований список монет<br>**✨ Розумне значення за замовчуванням: `true`** (v2.0.2+)<br>Автоматично включається без API | `true` або опустити | ❌ Ні<br>(Опціонально, авто) |
 | `coin_pool_api_url` | API користувацького пулу монет<br>*Потрібно лише при `use_default_coins: false`* | `""` (пусто) | ❌ Ні |
 | `oi_top_api_url` | API відкритого інтересу<br>*Опціональні додаткові дані* | `""` (пусто) | ❌ Ні |
-| `api_server_port` | Порт веб-панелі | `8080` | ✅ Так |
+| `api_server_port` | Порт веб-панелі | `3636` | ✅ Так |
 
 **Монети за замовчуванням для торгівлі** (коли `use_default_coins: true`):
 - BTC, ETH, SOL, BNB, XRP, DOGE, ADA, HYPE
@@ -779,10 +779,10 @@ cp config.json.example config.json
 
 ```bash
 # Зберіть програму (перший запуск або після змін коду)
-go build -o nofx
+go build -o aetheris
 
 # Запустіть backend
-./nofx
+./aetheris
 ```
 
 **Ви повинні побачити:**
@@ -790,7 +790,7 @@ go build -o nofx
 ```
 🚀 Запуск системи автоматичної торгівлі...
 ✓ Трейдер [my_trader] ініціалізовано
-✓ API сервер запущено на порту 8080
+✓ API сервер запущено на порту 3636
 📊 Починається моніторинг торгівлі...
 ```
 
@@ -800,7 +800,7 @@ go build -o nofx
 |--------------------------|---------|
 | `invalid API key` | Перевірте Binance API ключі в config.json |
 | `TA-Lib not found` | Виконайте `brew install ta-lib` (macOS) |
-| `port 8080 already in use` | ~~Змініть `api_server_port` в config.json~~ *Змініть `API_PORT` у файлі .env* |
+| `port 3636 already in use` | ~~Змініть `api_server_port` в config.json~~ *Змініть `API_PORT` у файлі .env* |
 | `DeepSeek API error` | Перевірте DeepSeek API ключ та баланс |
 
 **✅ Ознаки роботи Backend:**
@@ -874,7 +874,7 @@ VITE v5.x.x  ready in xxx ms
 
 ```bash
 # У новому вікні терміналу
-curl http://localhost:8080/api/health
+curl http://localhost:3636/api/health
 ```
 
 Повинно повернути: `{"status":"ok"}`
@@ -1024,7 +1024,7 @@ curl http://localhost:8080/api/health
   "use_default_coins": false,
   "coin_pool_api_url": "http://x.x.x.x:xxx/api/ai500/list?auth=ВАШ_AUTH",
   "oi_top_api_url": "http://x.x.x.x:xxx/api/oi/top?auth=ВАШ_AUTH",
-  "api_server_port": 8080
+  "api_server_port": 3636
 }
 ```
 
@@ -1047,8 +1047,8 @@ curl http://localhost:8080/api/health
 **Запуск backend (система AI торгівлі + API сервер):**
 
 ```bash
-go build -o nofx
-./nofx
+go build -o aetheris
+./aetheris
 ```
 
 **Запуск frontend (веб-панель):**
@@ -1064,7 +1064,7 @@ npm run dev
 
 ```
 Веб-панель: http://localhost:3000
-API сервер: http://localhost:8080
+API сервер: http://localhost:3636
 ```
 
 ### 6. Зупинка системи
@@ -1100,4 +1100,4 @@ API сервер: http://localhost:8080
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=tinkle-community/nofx&type=Date)](https://star-history.com/#tinkle-community/nofx&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=tinkle-community/aetheris&type=Date)](https://star-history.com/#tinkle-community/aetheris&Date)

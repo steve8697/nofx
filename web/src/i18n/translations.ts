@@ -3,7 +3,7 @@ export type Language = 'en' | 'zh'
 export const translations = {
   en: {
     // Header
-    appTitle: 'NOFX',
+    appTitle: 'AETHERIS',
     subtitle: 'Multi-AI Model Trading Platform',
     aiTraders: 'AI Traders',
     details: 'Details',
@@ -11,19 +11,39 @@ export const translations = {
     competition: 'Competition',
     running: 'RUNNING',
     stopped: 'STOPPED',
+    riskHalted: 'RISK HALT',
+    consecutiveWait: 'Consecutive wait',
+    dailyPnL: 'Daily P&L',
+    syncBalance: 'Sync balance',
+    reloadPrompts: 'Reload prompts',
+    injectedSkills: 'Skills',
+    haltUntil: 'New entries paused until',
+    operatorTitle: 'External operator',
+    operatorHelp:
+      'Pause new opens or leave a note for the next cycle. Does not place orders. The internal AI sees unexpired facts only.',
+    operatorPaused: 'OPENS PAUSED',
+    operatorLive: 'opens allowed',
+    operatorPausedBy: 'Paused by',
+    operatorNotePlaceholder: 'Note for next cycle, e.g. no new ETH',
+    operatorHours: 'Hours',
+    operatorPauseOpens: 'Pause opens',
+    operatorResumeOpens: 'Resume opens',
+    operatorLeaveNote: 'Leave note',
+    operatorNoEvents: 'No operator events yet',
+    operatorBanner: 'External operator paused new opens',
     adminMode: 'Admin Mode',
     logout: 'Logout',
     switchTrader: 'Switch Trader:',
     view: 'View',
 
     // Navigation
-    realtimeNav: 'Live',
-    configNav: 'Config',
+    realtimeNav: 'Engine Comparison',
+    configNav: 'Engines',
     dashboardNav: 'Dashboard',
     faqNav: 'FAQ',
 
     // Footer
-    footerTitle: 'NOFX - AI Trading System',
+    footerTitle: 'AETHERIS - AI Trading System',
     footerWarning: '⚠️ Trading involves risk. Use at your own discretion.',
 
     // Stats Cards
@@ -83,20 +103,20 @@ export const translations = {
     count: '{count} pts',
 
     // Competition Page
-    aiCompetition: 'AI Competition',
-    traders: 'traders',
-    liveBattle: 'Live Battle',
-    realTimeBattle: 'Real-time Battle',
-    leader: 'Leader',
-    leaderboard: 'Leaderboard',
+    aiCompetition: 'AI Multi-Engine Performance',
+    traders: 'engines',
+    liveBattle: 'Multi-Engine Portfolio Overview',
+    realTimeBattle: 'Engine Real-time Performance',
+    leader: 'Top Performer',
+    leaderboard: 'Performance Rankings',
     live: 'LIVE',
     realTime: 'LIVE',
     performanceComparison: 'Performance Comparison',
     realTimePnL: 'Real-time PnL %',
     realTimePnLPercent: 'Real-time PnL %',
-    headToHead: 'Head-to-Head Battle',
-    leadingBy: 'Leading by {gap}%',
-    behindBy: 'Behind by {gap}%',
+    headToHead: 'Engine Head-to-Head Performance',
+    leadingBy: 'Outperforming by {gap}%',
+    behindBy: 'Underperforming by {gap}%',
     equity: 'Equity',
     pnl: 'P&L',
     pos: 'Pos',
@@ -163,6 +183,7 @@ export const translations = {
     enterTraderName: 'Enter trader name',
     cancel: 'Cancel',
     create: 'Create',
+    delete: 'Delete',
     configureAIModels: 'Configure AI Models',
     configureExchanges: 'Configure Exchanges',
     aiScanInterval: 'AI Scan Decision Interval (minutes)',
@@ -271,9 +292,18 @@ export const translations = {
     customBaseURLPlaceholder:
       'Custom API base URL, e.g.: https://api.openai.com/v1',
     leaveBlankForDefault: 'Leave blank to use default API address',
+    providerPreset: 'Provider',
+    envKey: 'Env key (optional)',
+    envKeyHint:
+      'Name of an environment variable holding the API key. Used when API Key is empty. Survives Docker rebuilds if you put it in .env.',
+    apiKeyOrEnvHint:
+      'Leave blank to keep the stored key, or rely on env_key. Do not paste *** as a real key.',
+    fetchModels: 'Fetch /v1/models',
     modelConfigInfo1:
-      '• API Key will be encrypted and stored, please ensure it is valid',
-    modelConfigInfo2: '• Base URL is used for custom API server address',
+      '• API Key is stored in SQLite; prefer env_key so secrets are not rewritten by the UI mask',
+    modelConfigInfo2: '• Base URL is the OpenAI-compatible /v1 endpoint (no /chat/completions)',
+    modelConfigInfo4:
+      '• Fetch models lists live ids from GET /v1/models. Retired ids such as z-ai/glm-5.2 will fail with 410.',
     modelConfigInfo3:
       '• After deleting configuration, traders using this model will not work properly',
     saveConfig: 'Save Configuration',
@@ -394,20 +424,20 @@ export const translations = {
     heroTitle1: 'Read the Market.',
     heroTitle2: 'Write the Trade.',
     heroDescription:
-      'NOFX is the future standard for AI trading — an open, community-driven agentic trading OS. Supporting Binance, Aster DEX and other exchanges, self-hosted, multi-agent competition, let AI automatically make decisions, execute and optimize trades for you.',
+      'AETHERIS is the future standard for AI trading — an open, community-driven agentic trading OS. Supporting Binance, Aster DEX and other exchanges, self-hosted, multi-agent competition, let AI automatically make decisions, execute and optimize trades for you.',
     poweredBy:
       'Powered by Aster DEX and Binance, strategically invested by Amber.ac.',
 
     // Landing Page CTA
     readyToDefine: 'Ready to define the future of AI trading?',
     startWithCrypto:
-      'Starting with crypto markets, expanding to TradFi. NOFX is the infrastructure of AgentFi.',
+      'Starting with crypto markets, expanding to TradFi. AETHERIS is the infrastructure of AgentFi.',
     getStartedNow: 'Get Started Now',
     viewSourceCode: 'View Source Code',
 
     // Features Section
     coreFeatures: 'Core Features',
-    whyChooseNofx: 'Why Choose NOFX?',
+    whyChooseNofx: 'Why Choose AETHERIS?',
     openCommunityDriven:
       'Open source, transparent, community-driven AI trading OS',
     openSourceSelfHosted: '100% Open Source & Self-Hosted',
@@ -433,33 +463,33 @@ export const translations = {
     secureFeatures4: 'Trading log auditing',
 
     // About Section
-    aboutNofx: 'About NOFX',
-    whatIsNofx: 'What is NOFX?',
-    nofxNotAnotherBot:
-      "NOFX is not another trading bot, but the 'Linux' of AI trading —",
-    nofxDescription1:
+    aboutNofx: 'About AETHERIS',
+    whatIsNofx: 'What is AETHERIS?',
+    aetherisNotAnotherBot:
+      "AETHERIS is not another trading bot, but the 'Linux' of AI trading —",
+    aetherisDescription1:
       'a transparent, trustworthy open source OS that provides a unified',
-    nofxDescription2:
+    aetherisDescription2:
       "'decision-risk-execution' layer, supporting all asset classes.",
-    nofxDescription3:
+    aetherisDescription3:
       'Starting with crypto markets (24/7, high volatility perfect testing ground), future expansion to stocks, futures, forex. Core: open architecture, AI',
-    nofxDescription4:
+    aetherisDescription4:
       'Darwinism (multi-agent self-competition, strategy evolution), CodeFi',
-    nofxDescription5:
+    aetherisDescription5:
       'flywheel (developers get point rewards for PR contributions).',
     youFullControl: 'You 100% Control',
     fullControlDesc: 'Complete control over AI prompts and funds',
     startupMessages1: 'Starting automated trading system...',
-    startupMessages2: 'API server started on port 8080',
-    startupMessages3: 'Web console http://localhost:3000',
+    startupMessages2: 'API server started on port 3636',
+    startupMessages3: 'Web console http://localhost:3434',
 
     // How It Works Section
-    howToStart: 'How to Get Started with NOFX',
+    howToStart: 'How to Get Started with AETHERIS',
     fourSimpleSteps:
       'Four simple steps to start your AI automated trading journey',
     step1Title: 'Clone GitHub Repository',
     step1Desc:
-      'git clone https://github.com/tinkle-community/nofx and switch to dev branch to test new features.',
+      'git clone https://github.com/tinkle-community/aetheris and switch to dev branch to test new features.',
     step2Title: 'Configure Environment',
     step2Desc:
       'Frontend setup for exchange APIs (like Binance, Hyperliquid), AI models and custom prompts.',
@@ -471,7 +501,7 @@ export const translations = {
       'Monitor trading, submit PRs to improve framework. Join Telegram to share strategies.',
     importantRiskWarning: 'Important Risk Warning',
     riskWarningText:
-      'Dev branch is unstable, do not use funds you cannot afford to lose. NOFX is non-custodial, no official strategies. Trading involves risks, invest carefully.',
+      'Dev branch is unstable, do not use funds you cannot afford to lose. AETHERIS is non-custodial, no official strategies. Trading involves risks, invest carefully.',
 
     // Community Section (testimonials are kept as-is since they are quotes)
 
@@ -484,7 +514,7 @@ export const translations = {
     strategicInvestment: '(Strategic Investment)',
 
     // Login Modal
-    accessNofxPlatform: 'Access NOFX Platform',
+    accessNofxPlatform: 'Access AETHERIS Platform',
     loginRegisterPrompt:
       'Please login or register to access the full AI trading platform',
     registerNewAccount: 'Register New Account',
@@ -510,7 +540,7 @@ export const translations = {
 
     // FAQ Page
     faqTitle: 'Frequently Asked Questions',
-    faqSubtitle: 'Find answers to common questions about NOFX',
+    faqSubtitle: 'Find answers to common questions about AETHERIS',
     faqStillHaveQuestions: 'Still Have Questions?',
     faqContactUs: 'Join our community or check our GitHub for more help',
 
@@ -524,30 +554,30 @@ export const translations = {
     faqCategoryData: 'Data & Privacy',
 
     // FAQ Questions & Answers - General
-    faqWhatIsNOFX: 'What is NOFX?',
-    faqWhatIsNOFXAnswer:
-      'NOFX is an AI-powered cryptocurrency trading bot that uses large language models (LLMs) to make trading decisions on futures markets.',
+    faqWhatIsAETHERIS: 'What is AETHERIS?',
+    faqWhatIsAETHERISAnswer:
+      'AETHERIS is an AI-powered cryptocurrency trading bot that uses large language models (LLMs) to make trading decisions on futures markets.',
 
     faqSupportedExchanges: 'Which exchanges are supported?',
     faqSupportedExchangesAnswer:
       'Binance Futures, Hyperliquid, Aster DEX, and OKX are supported. More exchanges coming soon.',
 
-    faqIsProfitable: 'Is NOFX profitable?',
+    faqIsProfitable: 'Is AETHERIS profitable?',
     faqIsProfitableAnswer:
       'AI trading is experimental and not guaranteed to be profitable. Always start with small amounts and never invest more than you can afford to lose.',
 
     faqMultipleTraders: 'Can I run multiple traders simultaneously?',
     faqMultipleTradersAnswer:
-      'Yes! NOFX supports running multiple traders with different configurations, AI models, and trading strategies.',
+      'Yes! AETHERIS supports running multiple traders with different configurations, AI models, and trading strategies.',
 
     // Contributing & Community
     faqGithubProjectsTasks: 'How to use GitHub Projects and pick up tasks?',
     faqGithubProjectsTasksAnswer:
-      'Roadmap: https://github.com/orgs/NoFxAiOS/projects/3  • Task Dashboard: https://github.com/orgs/NoFxAiOS/projects/5  • Steps: Open links → filter by labels (good first issue / help wanted / frontend / backend) → read Description & Acceptance Criteria → comment "assign me" or self-assign → Fork the repo → sync your fork\'s dev with upstream/dev → create a feature branch from your fork\'s dev → push to your fork → open PR (base: NoFxAiOS/nofx:dev ← compare: your-username/nofx:feat/your-topic) → reference Issue (Closes #123) and use the proper template.',
+      'Roadmap: https://github.com/orgs/AetherisAiOS/projects/3  • Task Dashboard: https://github.com/orgs/AetherisAiOS/projects/5  • Steps: Open links → filter by labels (good first issue / help wanted / frontend / backend) → read Description & Acceptance Criteria → comment "assign me" or self-assign → Fork the repo → sync your fork\'s dev with upstream/dev → create a feature branch from your fork\'s dev → push to your fork → open PR (base: AetherisAiOS/aetheris:dev ← compare: your-username/aetheris:feat/your-topic) → reference Issue (Closes #123) and use the proper template.',
 
     faqContributePR: 'How to properly submit PRs and contribute?',
     faqContributePRAnswer:
-      "Guidelines: • Fork first; branch from your fork's dev (avoid direct commits to upstream main) • Branch naming: feat/..., fix/..., docs/...; Conventional Commits • Run checks before PR: npm --prefix web run lint && npm --prefix web run build • For UI changes, attach screenshots or a short video • Choose the proper PR template (frontend/backend/docs/general) • Open PR from your fork to NoFxAiOS/nofx:dev and link Issue (Closes #123) • Keep rebasing onto upstream/dev; ensure CI passes; prefer small, focused PRs • Read CONTRIBUTING.md and .github/PR_TITLE_GUIDE.md",
+      "Guidelines: • Fork first; branch from your fork's dev (avoid direct commits to upstream main) • Branch naming: feat/..., fix/..., docs/...; Conventional Commits • Run checks before PR: npm --prefix web run lint && npm --prefix web run build • For UI changes, attach screenshots or a short video • Choose the proper PR template (frontend/backend/docs/general) • Open PR from your fork to AetherisAiOS/aetheris:dev and link Issue (Closes #123) • Keep rebasing onto upstream/dev; ensure CI passes; prefer small, focused PRs • Read CONTRIBUTING.md and .github/PR_TITLE_GUIDE.md",
 
     // Setup & Configuration
     faqSystemRequirements: 'What are the system requirements?',
@@ -556,7 +586,7 @@ export const translations = {
 
     faqNeedCoding: 'Do I need coding experience?',
     faqNeedCodingAnswer:
-      'No! NOFX has a web UI for all configuration. However, basic command line knowledge helps with setup and troubleshooting.',
+      'No! AETHERIS has a web UI for all configuration. However, basic command line knowledge helps with setup and troubleshooting.',
 
     faqGetApiKeys: 'How do I get API keys?',
     faqGetApiKeysAnswer:
@@ -564,7 +594,7 @@ export const translations = {
 
     faqUseSubaccount: 'Should I use a subaccount?',
     faqUseSubaccountAnswer:
-      'Recommended: Yes, use a subaccount dedicated to NOFX for better risk isolation. However, note that some subaccounts have restrictions (e.g., 5x max leverage on Binance).',
+      'Recommended: Yes, use a subaccount dedicated to AETHERIS for better risk isolation. However, note that some subaccounts have restrictions (e.g., 5x max leverage on Binance).',
 
     faqDockerDeployment: 'Docker deployment keeps failing',
     faqDockerDeploymentAnswer:
@@ -601,7 +631,7 @@ export const translations = {
 
     faqHighFees: 'Trading fees are too high',
     faqHighFeesAnswer:
-      'NOFX default 3-minute scan interval can cause frequent trading. Solutions: Increase decision interval to 5-10 minutes; Optimize system prompt to reduce overtrading; Adjust leverage to reduce position sizes.',
+      'AETHERIS default 3-minute scan interval can cause frequent trading. Solutions: Increase decision interval to 5-10 minutes; Optimize system prompt to reduce overtrading; Adjust leverage to reduce position sizes.',
 
     faqNoTakeProfit: "AI doesn't close profitable positions",
     faqNoTakeProfitAnswer:
@@ -618,15 +648,15 @@ export const translations = {
 
     faqPortInUse: "Backend won't start / Port already in use",
     faqPortInUseAnswer:
-      'Check what\'s using port 8080 with "lsof -i :8080" and change the port in your .env file with NOFX_BACKEND_PORT=8081.',
+      'Check what\'s using port 3636 with "lsof -i :3636" and change the port in your .env file with AETHERIS_BACKEND_PORT=3637.',
 
     faqFrontendLoading: 'Frontend shows "Loading..." forever',
     faqFrontendLoadingAnswer:
-      'Check if backend is running with "curl http://localhost:8080/api/health". Should return {"status":"ok"}. If not, check the troubleshooting guide.',
+      'Check if backend is running with "curl http://localhost:3636/api/health". Should return {"status":"ok"}. If not, check the troubleshooting guide.',
 
     faqDatabaseLocked: 'Database locked error',
     faqDatabaseLockedAnswer:
-      'Stop all NOFX processes with "docker compose down" or "pkill nofx", then restart with "docker compose up -d".',
+      'Stop all AETHERIS processes with "docker compose down" or "pkill aetheris", then restart with "docker compose up -d".',
 
     faqAiLearningFailed: 'AI learning data failed to load',
     faqAiLearningFailedAnswer:
@@ -651,7 +681,7 @@ export const translations = {
 
     faqAiLearning: 'Does the AI learn from its mistakes?',
     faqAiLearningAnswer:
-      'Yes, to some extent. NOFX provides historical performance feedback in each decision prompt, allowing the AI to adjust its strategy.',
+      'Yes, to some extent. AETHERIS provides historical performance feedback in each decision prompt, allowing the AI to adjust its strategy.',
 
     faqOnlyShort: 'AI only opens short positions, no long positions',
     faqOnlyShortAnswer:
@@ -680,7 +710,7 @@ export const translations = {
   },
   zh: {
     // Header
-    appTitle: 'NOFX',
+    appTitle: 'AETHERIS',
     subtitle: '多AI模型交易平台',
     aiTraders: 'AI交易员',
     details: '详情',
@@ -688,19 +718,39 @@ export const translations = {
     competition: '竞赛',
     running: '运行中',
     stopped: '已停止',
+    riskHalted: '风控暂停开仓',
+    consecutiveWait: '连续观望',
+    dailyPnL: '当日盈亏',
+    syncBalance: '同步余额',
+    reloadPrompts: '重载策略模板',
+    injectedSkills: '已注入技能',
+    haltUntil: '暂停新开仓至',
+    operatorTitle: '外部操作',
+    operatorHelp:
+      '暂停新开仓，或给下一轮留一句话。不会下单。内部 AI 只看到未过期的事实。',
+    operatorPaused: '已暂停开仓',
+    operatorLive: '允许开仓',
+    operatorPausedBy: '暂停来自',
+    operatorNotePlaceholder: '给下一轮的留言，例如：不要新开 ETH',
+    operatorHours: '小时',
+    operatorPauseOpens: '暂停开仓',
+    operatorResumeOpens: '恢复开仓',
+    operatorLeaveNote: '留下留言',
+    operatorNoEvents: '尚无外部干涉记录',
+    operatorBanner: '外部操作已暂停新开仓',
     adminMode: '管理员模式',
     logout: '退出',
     switchTrader: '切换交易员:',
     view: '查看',
 
     // Navigation
-    realtimeNav: '实时',
-    configNav: '配置',
-    dashboardNav: '看板',
-    faqNav: '常见问题',
+    realtimeNav: '多引擎對比',
+    configNav: '引擎管理',
+    dashboardNav: '智能看板',
+    faqNav: '常見問題',
 
     // Footer
-    footerTitle: 'NOFX - AI交易系统',
+    footerTitle: 'AETHERIS - AI交易系统',
     footerWarning: '⚠️ 交易有风险，请谨慎使用。',
 
     // Stats Cards
@@ -760,23 +810,23 @@ export const translations = {
     count: '{count} 个',
 
     // Competition Page
-    aiCompetition: 'AI竞赛',
-    traders: '交易员',
-    liveBattle: '实时对战',
-    realTimeBattle: '实时对战',
-    leader: '领先者',
-    leaderboard: '排行榜',
-    live: '实时',
-    realTime: '实时',
-    performanceComparison: '表现对比',
-    realTimePnL: '实时收益率',
-    realTimePnLPercent: '实时收益率',
-    headToHead: '正面对决',
-    leadingBy: '领先 {gap}%',
-    behindBy: '落后 {gap}%',
-    equity: '权益',
-    pnl: '收益',
-    pos: '持仓',
+    aiCompetition: 'AI 多引擎性能對比',
+    traders: '個交易引擎',
+    liveBattle: '多引擎投資組合總覽',
+    realTimeBattle: '引擎即時性能分析',
+    leader: '最優性能引擎',
+    leaderboard: '性能排名',
+    live: '即時',
+    realTime: '即時',
+    performanceComparison: '性能表現對照',
+    realTimePnL: '即時收益率',
+    realTimePnLPercent: '即時收益率',
+    headToHead: '雙引擎對抗性能',
+    leadingBy: '領先 {gap}%',
+    behindBy: '落後 {gap}%',
+    equity: '帳戶淨值',
+    pnl: '即時收益',
+    pos: '持倉狀態',
 
     // AI Learning
     aiLearning: 'AI学习与反思',
@@ -839,6 +889,7 @@ export const translations = {
     enterTraderName: '输入交易员名称',
     cancel: '取消',
     create: '创建',
+    delete: '删除',
     configureAIModels: '配置AI模型',
     configureExchanges: '配置交易所',
     aiScanInterval: 'AI 扫描决策间隔 (分钟)',
@@ -934,8 +985,17 @@ export const translations = {
     customBaseURL: 'Base URL (可选)',
     customBaseURLPlaceholder: '自定义API基础URL，如: https://api.openai.com/v1',
     leaveBlankForDefault: '留空则使用默认API地址',
-    modelConfigInfo1: '• API Key将被加密存储，请确保密钥有效',
-    modelConfigInfo2: '• Base URL用于自定义API服务器地址',
+    providerPreset: 'Provider',
+    envKey: '环境变量名（可选）',
+    envKeyHint:
+      '密钥所在的环境变量名。API Key 留空时读取它。写进 .env 后 Docker 重建也不会丢。',
+    apiKeyOrEnvHint:
+      '留空则保留已存密钥，或改走 env_key。不要把 *** 当成真实密钥贴回去。',
+    fetchModels: '拉取 /v1/models',
+    modelConfigInfo1: '• API Key 存在 SQLite；建议用 env_key，避免 UI 遮蔽值把密钥写坏',
+    modelConfigInfo2: '• Base URL 是 OpenAI 兼容的 /v1 端点（不要带 /chat/completions）',
+    modelConfigInfo4:
+      '• 「拉取模型」会 GET /v1/models。已下线的 id（如 z-ai/glm-5.2）会返回 410。',
     modelConfigInfo3: '• 删除配置后，使用此模型的交易员将无法正常工作',
     saveConfig: '保存配置',
     editExchange: '编辑交易所',
@@ -1046,19 +1106,19 @@ export const translations = {
     heroTitle1: 'Read the Market.',
     heroTitle2: 'Write the Trade.',
     heroDescription:
-      'NOFX 是 AI 交易的未来标准——一个开放、社区驱动的代理式交易操作系统。支持 Binance、Aster DEX 等交易所，自托管、多代理竞争，让 AI 为你自动决策、执行和优化交易。',
+      'AETHERIS 是 AI 交易的未来标准——一个开放、社区驱动的代理式交易操作系统。支持 Binance、Aster DEX 等交易所，自托管、多代理竞争，让 AI 为你自动决策、执行和优化交易。',
     poweredBy: '由 Aster DEX 和 Binance 提供支持，Amber.ac 战略投资。',
 
     // Landing Page CTA
     readyToDefine: '准备好定义 AI 交易的未来吗？',
     startWithCrypto:
-      '从加密市场起步，扩展到 TradFi。NOFX 是 AgentFi 的基础架构。',
+      '从加密市场起步，扩展到 TradFi。AETHERIS 是 AgentFi 的基础架构。',
     getStartedNow: '立即开始',
     viewSourceCode: '查看源码',
 
     // Features Section
     coreFeatures: '核心功能',
-    whyChooseNofx: '为什么选择 NOFX？',
+    whyChooseNofx: '为什么选择 AETHERIS？',
     openCommunityDriven: '开源、透明、社区驱动的 AI 交易操作系统',
     openSourceSelfHosted: '100% 开源与自托管',
     openSourceDesc: '你的框架，你的规则。非黑箱，支持自定义提示词和多模型。',
@@ -1080,28 +1140,28 @@ export const translations = {
     secureFeatures4: '交易日志审计',
 
     // About Section
-    aboutNofx: '关于 NOFX',
-    whatIsNofx: '什么是 NOFX？',
-    nofxNotAnotherBot: "NOFX 不是另一个交易机器人，而是 AI 交易的 'Linux' ——",
-    nofxDescription1: "一个透明、可信任的开源 OS，提供统一的 '决策-风险-执行'",
-    nofxDescription2: '层，支持所有资产类别。',
-    nofxDescription3:
+    aboutNofx: '关于 AETHERIS',
+    whatIsNofx: '什么是 AETHERIS？',
+    aetherisNotAnotherBot: "AETHERIS 不是另一个交易机器人，而是 AI 交易的 'Linux' ——",
+    aetherisDescription1: "一个透明、可信任的开源 OS，提供统一的 '决策-风险-执行'",
+    aetherisDescription2: '层，支持所有资产类别。',
+    aetherisDescription3:
       '从加密市场起步（24/7、高波动性完美测试场），未来扩展到股票、期货、外汇。核心：开放架构、AI',
-    nofxDescription4:
+    aetherisDescription4:
       '达尔文主义（多代理自竞争、策略进化）、CodeFi 飞轮（开发者 PR',
-    nofxDescription5: '贡献获积分奖励）。',
+    aetherisDescription5: '贡献获积分奖励）。',
     youFullControl: '你 100% 掌控',
     fullControlDesc: '完全掌控 AI 提示词和资金',
     startupMessages1: '启动自动交易系统...',
-    startupMessages2: 'API服务器启动在端口 8080',
-    startupMessages3: 'Web 控制台 http://localhost:3000',
+    startupMessages2: 'API服务器启动在端口 3636',
+    startupMessages3: 'Web 控制台 http://localhost:3434',
 
     // How It Works Section
-    howToStart: '如何开始使用 NOFX',
+    howToStart: '如何开始使用 AETHERIS',
     fourSimpleSteps: '四个简单步骤，开启 AI 自动交易之旅',
     step1Title: '拉取 GitHub 仓库',
     step1Desc:
-      'git clone https://github.com/tinkle-community/nofx 并切换到 dev 分支测试新功能。',
+      'git clone https://github.com/tinkle-community/aetheris 并切换到 dev 分支测试新功能。',
     step2Title: '配置环境',
     step2Desc:
       '前端设置交易所 API（如 Binance、Hyperliquid）、AI 模型和自定义提示词。',
@@ -1112,7 +1172,7 @@ export const translations = {
     step4Desc: '监控交易，提交 PR 改进框架。加入 Telegram 分享策略。',
     importantRiskWarning: '重要风险提示',
     riskWarningText:
-      'dev 分支不稳定，勿用无法承受损失的资金。NOFX 非托管，无官方策略。交易有风险，投资需谨慎。',
+      'dev 分支不稳定，勿用无法承受损失的资金。AETHERIS 非托管，无官方策略。交易有风险，投资需谨慎。',
 
     // Community Section (testimonials are kept as-is since they are quotes)
 
@@ -1125,7 +1185,7 @@ export const translations = {
     strategicInvestment: '(战略投资)',
 
     // Login Modal
-    accessNofxPlatform: '访问 NOFX 平台',
+    accessNofxPlatform: '访问 AETHERIS 平台',
     loginRegisterPrompt: '请选择登录或注册以访问完整的 AI 交易平台',
     registerNewAccount: '注册新账号',
 
@@ -1147,7 +1207,7 @@ export const translations = {
 
     // FAQ Page
     faqTitle: '常见问题',
-    faqSubtitle: '查找关于 NOFX 的常见问题解答',
+    faqSubtitle: '查找关于 AETHERIS 的常见问题解答',
     faqStillHaveQuestions: '还有其他问题？',
     faqContactUs: '加入我们的社区或查看 GitHub 获取更多帮助',
 
@@ -1161,30 +1221,30 @@ export const translations = {
     faqCategoryData: '数据与隐私',
 
     // FAQ Questions & Answers - General
-    faqWhatIsNOFX: 'NOFX 是什么？',
-    faqWhatIsNOFXAnswer:
-      'NOFX 是一个 AI 驱动的加密货币交易机器人，使用大语言模型（LLM）在期货市场进行交易决策。',
+    faqWhatIsAETHERIS: 'AETHERIS 是什么？',
+    faqWhatIsAETHERISAnswer:
+      'AETHERIS 是一个 AI 驱动的加密货币交易机器人，使用大语言模型（LLM）在期货市场进行交易决策。',
 
     faqSupportedExchanges: '支持哪些交易所？',
     faqSupportedExchangesAnswer:
       '支持币安合约（Binance Futures）、Hyperliquid、Aster DEX 和 OKX。更多交易所开发中。',
 
-    faqIsProfitable: 'NOFX 能盈利吗？',
+    faqIsProfitable: 'AETHERIS 能盈利吗？',
     faqIsProfitableAnswer:
       'AI 交易是实验性的，不保证盈利。请始终用小额资金测试，不要投入超过您承受能力的资金。',
 
     faqMultipleTraders: '可以同时运行多个交易员吗？',
     faqMultipleTradersAnswer:
-      '可以！NOFX 支持运行多个交易员，每个可配置不同的 AI 模型和交易策略。',
+      '可以！AETHERIS 支持运行多个交易员，每个可配置不同的 AI 模型和交易策略。',
 
     // Contributing & Community
     faqGithubProjectsTasks: '如何在 GitHub Projects 中领取任务？',
     faqGithubProjectsTasksAnswer:
-      '路线图：https://github.com/orgs/NoFxAiOS/projects/3 ｜ 任务看板：https://github.com/orgs/NoFxAiOS/projects/5 ｜ 步骤：打开链接 → 按标签筛选（good first issue / help wanted / frontend / backend）→ 阅读描述与验收标准 → 评论“assign me”或自助分配 → Fork 仓库 → 同步你 fork 的 dev 与 upstream/dev → 从你 fork 的 dev 创建特性分支 → 推送到你的 fork → 打开 PR（base：NoFxAiOS/nofx:dev ← compare：你的用户名/nofx:feat/your-topic）→ 关联 Issue（Closes #123）并选择正确模板。',
+      '路线图：https://github.com/orgs/AetherisAiOS/projects/3 ｜ 任务看板：https://github.com/orgs/AetherisAiOS/projects/5 ｜ 步骤：打开链接 → 按标签筛选（good first issue / help wanted / frontend / backend）→ 阅读描述与验收标准 → 评论“assign me”或自助分配 → Fork 仓库 → 同步你 fork 的 dev 与 upstream/dev → 从你 fork 的 dev 创建特性分支 → 推送到你的 fork → 打开 PR（base：AetherisAiOS/aetheris:dev ← compare：你的用户名/aetheris:feat/your-topic）→ 关联 Issue（Closes #123）并选择正确模板。',
 
     faqContributePR: '如何规范地提交 PR 并参与贡献？',
     faqContributePRAnswer:
-      '规范：• 先 Fork；在你的 fork 的 dev 分支上创建特性分支（避免直接向上游 main 提交）• 分支命名：feat/...、fix/...、docs/...；提交信息遵循 Conventional Commits • PR 前运行检查：npm --prefix web run lint && npm --prefix web run build • 涉及 UI 变更请附截图/短视频 • 选择正确 PR 模板（frontend/backend/docs/general）• 从你的 fork 发起到 NoFxAiOS/nofx:dev，并在 PR 中关联 Issue（Closes #123）• 持续 rebase 到 upstream/dev，确保 CI 通过；尽量保持 PR 小而聚焦 • 参考 CONTRIBUTING.md 与 .github/PR_TITLE_GUIDE.md',
+      '规范：• 先 Fork；在你的 fork 的 dev 分支上创建特性分支（避免直接向上游 main 提交）• 分支命名：feat/...、fix/...、docs/...；提交信息遵循 Conventional Commits • PR 前运行检查：npm --prefix web run lint && npm --prefix web run build • 涉及 UI 变更请附截图/短视频 • 选择正确 PR 模板（frontend/backend/docs/general）• 从你的 fork 发起到 AetherisAiOS/aetheris:dev，并在 PR 中关联 Issue（Closes #123）• 持续 rebase 到 upstream/dev，确保 CI 通过；尽量保持 PR 小而聚焦 • 参考 CONTRIBUTING.md 与 .github/PR_TITLE_GUIDE.md',
 
     // Setup & Configuration
     faqSystemRequirements: '系统要求是什么？',
@@ -1193,7 +1253,7 @@ export const translations = {
 
     faqNeedCoding: '需要编程经验吗？',
     faqNeedCodingAnswer:
-      '不需要！NOFX 有 Web 界面进行所有配置。但基础的命令行知识有助于安装和故障排查。',
+      '不需要！AETHERIS 有 Web 界面进行所有配置。但基础的命令行知识有助于安装和故障排查。',
 
     faqGetApiKeys: '如何获取 API 密钥？',
     faqGetApiKeysAnswer:
@@ -1201,7 +1261,7 @@ export const translations = {
 
     faqUseSubaccount: '应该使用子账户吗？',
     faqUseSubaccountAnswer:
-      '推荐：是的，使用专门的子账户运行 NOFX 可以更好地隔离风险。但请注意，某些子账户有限制（例如币安子账户最高 5 倍杠杆）。',
+      '推荐：是的，使用专门的子账户运行 AETHERIS 可以更好地隔离风险。但请注意，某些子账户有限制（例如币安子账户最高 5 倍杠杆）。',
 
     faqDockerDeployment: 'Docker 部署一直失败',
     faqDockerDeploymentAnswer:
@@ -1238,7 +1298,7 @@ export const translations = {
 
     faqHighFees: '交易手续费太高',
     faqHighFeesAnswer:
-      'NOFX 默认 3 分钟扫描间隔会导致频繁交易。解决方案：将决策间隔增加到 5-10 分钟；优化系统提示词减少过度交易；调整杠杆降低仓位大小。',
+      'AETHERIS 默认 3 分钟扫描间隔会导致频繁交易。解决方案：将决策间隔增加到 5-10 分钟；优化系统提示词减少过度交易；调整杠杆降低仓位大小。',
 
     faqNoTakeProfit: 'AI 不平掉盈利的仓位',
     faqNoTakeProfitAnswer:
@@ -1255,15 +1315,15 @@ export const translations = {
 
     faqPortInUse: '后端无法启动 / 端口被占用',
     faqPortInUseAnswer:
-      '使用 "lsof -i :8080" 查看占用端口的进程，在 .env 中修改端口：NOFX_BACKEND_PORT=8081。',
+      '使用 "lsof -i :3636" 查看占用端口的进程，在 .env 中修改端口：AETHERIS_BACKEND_PORT=3637。',
 
     faqFrontendLoading: '前端一直显示"加载中..."',
     faqFrontendLoadingAnswer:
-      '使用 "curl http://localhost:8080/api/health" 检查后端是否运行。应该返回 {"status":"ok"}。如果不是，查看故障排查指南。',
+      '使用 "curl http://localhost:3636/api/health" 检查后端是否运行。应该返回 {"status":"ok"}。如果不是，查看故障排查指南。',
 
     faqDatabaseLocked: '数据库锁定错误',
     faqDatabaseLockedAnswer:
-      '使用 "docker compose down" 或 "pkill nofx" 停止所有 NOFX 进程，然后使用 "docker compose up -d" 重启。',
+      '使用 "docker compose down" 或 "pkill aetheris" 停止所有 AETHERIS 进程，然后使用 "docker compose up -d" 重启。',
 
     faqAiLearningFailed: 'AI 学习数据加载失败',
     faqAiLearningFailedAnswer:
@@ -1288,7 +1348,7 @@ export const translations = {
 
     faqAiLearning: 'AI 会从错误中学习吗？',
     faqAiLearningAnswer:
-      '会的，在一定程度上。NOFX 在每次决策提示中提供历史表现反馈，允许 AI 调整策略。',
+      '会的，在一定程度上。AETHERIS 在每次决策提示中提供历史表现反馈，允许 AI 调整策略。',
 
     faqOnlyShort: 'AI 只开空单，不开多单',
     faqOnlyShortAnswer:

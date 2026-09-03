@@ -78,8 +78,8 @@ npm install -g pm2
 启动成功后：
 
 - **前端 Web 界面**: http://localhost:3000
-- **后端 API**: http://localhost:8080
-- **健康检查**: http://localhost:8080/api/health
+- **后端 API**: http://localhost:3636
+- **健康检查**: http://localhost:3636/api/health
 
 ---
 
@@ -95,14 +95,14 @@ const path = require('path');
 module.exports = {
   apps: [
     {
-      name: 'nofx-backend',
-      script: './nofx',           // Go 二进制文件
+      name: 'aetheris-backend',
+      script: './aetheris',           // Go 二进制文件
       cwd: __dirname,             // 动态获取当前目录
       autorestart: true,
       max_memory_restart: '500M'
     },
     {
-      name: 'nofx-frontend',
+      name: 'aetheris-frontend',
       script: 'npm',
       args: 'run dev',            // Vite 开发服务器
       cwd: path.join(__dirname, 'web'), // 动态拼接路径
@@ -174,8 +174,8 @@ pm2 unstartup
 ### 查看详细信息
 
 ```bash
-pm2 info nofx-backend   # 后端详情
-pm2 info nofx-frontend  # 前端详情
+pm2 info aetheris-backend   # 后端详情
+pm2 info aetheris-frontend  # 前端详情
 ```
 
 ### 清空日志
@@ -195,12 +195,12 @@ pm2 flush
 ./pm2.sh logs
 
 # 2. 检查端口占用
-lsof -i :8080  # 后端端口
+lsof -i :3636  # 后端端口
 lsof -i :3000  # 前端端口
 
 # 3. 手动编译测试
-go build -o nofx
-./nofx
+go build -o aetheris
+./aetheris
 ```
 
 ### 后端无法启动
@@ -213,10 +213,10 @@ go build -o nofx
 ls -l trading.db
 
 # 检查权限
-chmod +x nofx
+chmod +x aetheris
 
 # 手动运行看报错
-./nofx
+./aetheris
 ```
 
 ### 前端无法访问
@@ -239,7 +239,7 @@ npm run dev
 
 ```javascript
 {
-  name: 'nofx-frontend',
+  name: 'aetheris-frontend',
   script: 'npm',
   args: 'run preview',  // 改为 preview（需先 npm run build）
   env: {
@@ -252,8 +252,8 @@ npm run dev
 
 ```javascript
 {
-  name: 'nofx-backend',
-  script: './nofx',
+  name: 'aetheris-backend',
+  script: './aetheris',
   instances: 2,  // 启动 2 个实例
   exec_mode: 'cluster'
 }

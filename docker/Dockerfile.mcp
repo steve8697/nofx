@@ -1,0 +1,9 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# 預先安裝 mcp SDK 及其命令列依賴與 Uvicorn 服務器
+RUN pip install --no-cache-dir "mcp[cli]" uvicorn starlette
+
+# 預設執行指令
+CMD ["uvicorn", "aetheris_mcp_server:app", "--host", "0.0.0.0", "--port", "1997"]

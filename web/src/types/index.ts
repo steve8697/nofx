@@ -9,6 +9,10 @@ export interface SystemStatus {
   stop_until: string
   last_reset_time: string
   ai_provider: string
+  risk_halted?: boolean
+  consecutive_wait?: number
+  daily_pnl?: number
+  injected_skills?: string[]
 }
 
 // 账户信息

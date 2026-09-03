@@ -2,7 +2,7 @@
 
 ## What Changed?
 
-NOFX documentation has been reorganized into a structured `docs/` directory for better organization and navigation.
+AETHERIS documentation has been reorganized into a structured `docs/` directory for better organization and navigation.
 
 ## 🗺️ File Locations (Old → New)
 
@@ -35,7 +35,7 @@ These stay in the root for GitHub recognition:
 
 ### Before (❌ Problems)
 ```
-nofx/
+aetheris/
 ├── README.md
 ├── README.zh-CN.md
 ├── README.ru.md
@@ -59,7 +59,7 @@ nofx/
 
 ### After (✅ Benefits)
 ```
-nofx/
+aetheris/
 ├── README.md              # Project homepage
 ├── LICENSE                # Legal (GitHub needs it here)
 ├── CONTRIBUTING.md        # GitHub auto-links
@@ -146,7 +146,7 @@ Files GitHub needs to see:
 ```
 
 **GitHub URLs automatically redirect!**
-- Old: `github.com/tinkle-community/nofx/blob/main/DOCKER_DEPLOY.en.md`
+- Old: `github.com/tinkle-community/aetheris/blob/main/DOCKER_DEPLOY.en.md`
 - Will redirect to: `github.com/.../docs/getting-started/docker-deploy.en.md`
 
 ## 🛠️ For Contributors
@@ -224,10 +224,10 @@ Closes #XXX
 **Can't find a document?**
 1. Check [docs/README.md](README.md) navigation hub
 2. Search GitHub repo
-3. Ask in [Telegram](https://t.me/nofx_dev_community)
+3. Ask in [Telegram](https://t.me/aetheris_dev_community)
 
 **Link broken?**
-- Report in [GitHub Issues](https://github.com/tinkle-community/nofx/issues)
+- Report in [GitHub Issues](https://github.com/tinkle-community/aetheris/issues)
 - We'll fix it ASAP!
 
 **Want to contribute docs?**

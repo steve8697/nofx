@@ -603,29 +603,31 @@ func GetMergedCoinPool(ai500Limit int) (*MergedCoinPool, error) {
 		oiTopSymbols = []string{} // 失败时用空列表
 	}
 
-	// 3. 合并并去重
+	// 3. 合并并去重 (保持优先级顺序: AI500 > OI Top)
 	symbolSet := make(map[string]bool)
 	symbolSources := make(map[string][]string)
+	var allSymbols []string // 保持有序列表
 
-	// 添加AI500币种
+	// 添加AI500币种 (已有序: Score DESC)
 	for _, symbol := range ai500TopSymbols {
-		symbolSet[symbol] = true
+		if !symbolSet[symbol] {
+			symbolSet[symbol] = true
+			allSymbols = append(allSymbols, symbol)
+		}
 		symbolSources[symbol] = append(symbolSources[symbol], "ai500")
 	}
 
-	// 添加OI Top币种
+	// 添加OI Top币种 (已有序: Rank ASC)
 	for _, symbol := range oiTopSymbols {
 		if !symbolSet[symbol] {
 			symbolSet[symbol] = true
+			allSymbols = append(allSymbols, symbol)
 		}
 		symbolSources[symbol] = append(symbolSources[symbol], "oi_top")
 	}
 
-	// 转换为数组
-	var allSymbols []string
-	for symbol := range symbolSet {
-		allSymbols = append(allSymbols, symbol)
-	}
+	// 移除旧的随机迭代逻辑
+	// for symbol := range symbolSet { ... }
 
 	// 获取完整数据
 	ai500Coins, _ := GetCoinPool()

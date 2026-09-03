@@ -3,8 +3,8 @@ const path = require('path');
 module.exports = {
   apps: [
     {
-      name: 'nofx-backend',
-      script: './nofx',
+      name: 'aetheris-backend',
+      script: './aetheris',
       cwd: __dirname, // 使用当前目录（配置文件所在目录）
       interpreter: 'none', // 不使用解释器，直接执行二进制文件
       instances: 1,
@@ -20,7 +20,7 @@ module.exports = {
       merge_logs: true
     },
     {
-      name: 'nofx-frontend',
+      name: 'aetheris-frontend',
       script: 'npm',
       args: 'run dev',
       cwd: path.join(__dirname, 'web'), // 动态拼接 web 目录
@@ -30,7 +30,7 @@ module.exports = {
       max_memory_restart: '300M',
       env: {
         NODE_ENV: 'development',
-        PORT: 3000
+        PORT: 3434
       },
       error_file: './logs/frontend-error.log',
       out_file: './logs/frontend-out.log',

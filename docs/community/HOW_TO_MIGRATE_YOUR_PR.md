@@ -83,7 +83,7 @@ If you prefer to do it manually:
 
 ```bash
 # Add upstream if not already added
-git remote add upstream https://github.com/tinkle-community/nofx.git
+git remote add upstream https://github.com/tinkle-community/aetheris.git
 
 # Fetch latest changes
 git fetch upstream
@@ -254,8 +254,8 @@ If the migration script doesn't work:
 
 **Stuck on migration?**
 - Comment on your PR
-- Ask in [Telegram](https://t.me/nofx_dev_community)
-- Open a [Discussion](https://github.com/tinkle-community/nofx/discussions)
+- Ask in [Telegram](https://t.me/aetheris_dev_community)
+- Open a [Discussion](https://github.com/tinkle-community/aetheris/discussions)
 
 **We're here to help you succeed!** 🚀
 
@@ -269,4 +269,4 @@ Once migrated:
 3. ✅ Wait for maintainer review
 4. ✅ Celebrate when merged! 🎉
 
-**Thank you for contributing to NOFX!**
+**Thank you for contributing to AETHERIS!**

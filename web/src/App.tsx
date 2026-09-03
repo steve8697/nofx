@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import useSWR from 'swr'
 import { api } from './lib/api'
 import { EquityChart } from './components/EquityChart'
@@ -11,6 +11,8 @@ import { LandingPage } from './pages/LandingPage'
 import { FAQPage } from './pages/FAQPage'
 import HeaderBar from './components/landing/HeaderBar'
 import AILearning from './components/AILearning'
+import { OperatorPanel } from './components/OperatorPanel'
+import { Interactive3DBackground } from './components/Interactive3DBackground'
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { t, type Language } from './i18n/translations'
@@ -23,6 +25,7 @@ import type {
   DecisionRecord,
   Statistics,
   TraderInfo,
+  AIModel,
 } from './types'
 
 type Page = 'competition' | 'traders' | 'trader'
@@ -62,12 +65,16 @@ function App() {
   const [selectedTraderId, setSelectedTraderId] = useState<string | undefined>()
   const [lastUpdate, setLastUpdate] = useState<string>('--:--:--')
 
-  // 监听URL变化，同步页面状态
+  // 统一的路由处理逻辑 - 监听URL变化并同步状态
   useEffect(() => {
     const handleRouteChange = () => {
       const path = window.location.pathname
       const hash = window.location.hash.slice(1)
 
+      // 更新 route 状态
+      setRoute(path)
+
+      // 根据路径和hash更新 currentPage
       if (path === '/traders' || hash === 'traders') {
         setCurrentPage('traders')
       } else if (
@@ -79,26 +86,35 @@ function App() {
       } else if (
         path === '/competition' ||
         hash === 'competition' ||
-        hash === ''
+        hash === '' ||
+        path === '/'
       ) {
         setCurrentPage('competition')
       }
-      setRoute(path)
     }
 
+    // 初始化时执行一次
+    handleRouteChange()
+
+    // 监听路由变化
     window.addEventListener('hashchange', handleRouteChange)
     window.addEventListener('popstate', handleRouteChange)
+
     return () => {
       window.removeEventListener('hashchange', handleRouteChange)
       window.removeEventListener('popstate', handleRouteChange)
     }
   }, [])
 
-  // 切换页面时更新URL hash (当前通过按钮直接调用setCurrentPage，这个函数暂时保留用于未来扩展)
-  // const navigateToPage = (page: Page) => {
-  //   setCurrentPage(page);
-  //   window.location.hash = page === 'competition' ? '' : 'trader';
-  // };
+  // 當偵測到用戶已登入且處於登入/註冊頁面時，主動重定向至 dashboard
+  useEffect(() => {
+    if (user && token && (route === '/login' || route === '/register' || route === '/reset-password' || route === '/')) {
+      window.history.pushState({}, '', '/dashboard')
+      setRoute('/dashboard')
+      setCurrentPage('trader')
+    }
+  }, [user, token, route])
+
 
   // 获取trader列表（仅在用户登录时）
   const { data: traders } = useSWR<TraderInfo[]>(
@@ -184,39 +200,39 @@ function App() {
     }
   }, [account])
 
-  const selectedTrader = traders?.find((t) => t.trader_id === selectedTraderId)
+  const selectedTrader = traders?.find((t: TraderInfo) => t.trader_id === selectedTraderId)
 
-  // Handle routing
-  useEffect(() => {
-    const handlePopState = () => {
-      setRoute(window.location.pathname)
-    }
-    window.addEventListener('popstate', handlePopState)
-    return () => window.removeEventListener('popstate', handlePopState)
-  }, [])
+  // 统一的页面导航函数
+  const navigateToPage = (page: string) => {
+    let path = '/competition'
+    let targetPage: Page = 'competition'
 
-  // Set current page based on route for consistent navigation state
-  useEffect(() => {
-    if (route === '/competition') {
-      setCurrentPage('competition')
-    } else if (route === '/traders') {
-      setCurrentPage('traders')
-    } else if (route === '/dashboard') {
-      setCurrentPage('trader')
+    if (page === 'competition') {
+      path = '/competition'
+      targetPage = 'competition'
+    } else if (page === 'traders') {
+      path = '/traders'
+      targetPage = 'traders'
+    } else if (page === 'trader') {
+      path = '/dashboard'
+      targetPage = 'trader'
     }
-  }, [route])
+
+    window.history.pushState({}, '', path)
+    setRoute(path)
+    setCurrentPage(targetPage)
+  }
 
   // Show loading spinner while checking auth or config
   if (isLoading || configLoading) {
     return (
       <div
-        className="min-h-screen flex items-center justify-center"
-        style={{ background: '#0B0E11' }}
+        className="min-h-screen flex items-center justify-center bg-transparent"
       >
         <div className="text-center">
           <img
-            src="/icons/nofx.svg"
-            alt="NoFx Logo"
+            src="/icons/aetheris.svg"
+            alt="Aetheris Logo"
             className="w-16 h-16 mx-auto mb-4 animate-pulse"
           />
           <p style={{ color: '#EAECEF' }}>{t('loading', language)}</p>
@@ -227,6 +243,11 @@ function App() {
 
   // Handle specific routes regardless of authentication
   if (route === '/login') {
+    if (user && token) {
+      window.history.pushState({}, '', '/dashboard')
+      // Let useEffect handle state update
+      return null
+    }
     return <LoginPage />
   }
   if (route === '/register') {
@@ -237,17 +258,29 @@ function App() {
     return <RegisterPage />
   }
   if (route === '/faq') {
+    if (systemConfig?.admin_mode) {
+      window.history.pushState({}, '', user && token ? '/dashboard' : '/login')
+      return null
+    }
     return <FAQPage />
   }
   if (route === '/reset-password') {
+    if (systemConfig?.admin_mode) {
+      window.history.pushState({}, '', '/login')
+      return <LoginPage />
+    }
     return <ResetPasswordPage />
   }
   if (route === '/competition') {
+    if (systemConfig?.admin_mode && (!user || !token)) {
+      window.history.pushState({}, '', '/login')
+      return <LoginPage />
+    }
     return (
       <div
-        className="min-h-screen"
-        style={{ background: '#000000', color: '#EAECEF' }}
+        className="min-h-screen bg-transparent text-[#EAECEF] relative"
       >
+        <Interactive3DBackground currentPage="competition" />
         <HeaderBar
           isLoggedIn={!!user}
           currentPage="competition"
@@ -256,53 +289,66 @@ function App() {
           user={user}
           onLogout={logout}
           isAdminMode={systemConfig?.admin_mode}
-          onPageChange={(page) => {
-            console.log('Competition page onPageChange called with:', page)
-            console.log('Current route:', route, 'Current page:', currentPage)
-
-            if (page === 'competition') {
-              console.log('Navigating to competition')
-              window.history.pushState({}, '', '/competition')
-              setRoute('/competition')
-              setCurrentPage('competition')
-            } else if (page === 'traders') {
-              console.log('Navigating to traders')
-              window.history.pushState({}, '', '/traders')
-              setRoute('/traders')
-              setCurrentPage('traders')
-            } else if (page === 'trader') {
-              console.log('Navigating to trader/dashboard')
-              window.history.pushState({}, '', '/dashboard')
-              setRoute('/dashboard')
-              setCurrentPage('trader')
-            } else if (page === 'faq') {
-              console.log('Navigating to faq')
-              window.history.pushState({}, '', '/faq')
-              setRoute('/faq')
-            }
-
-            console.log(
-              'After navigation - route:',
-              route,
-              'currentPage:',
-              currentPage
-            )
-          }}
+          onPageChange={navigateToPage}
         />
-        <main className="max-w-[1920px] mx-auto px-6 py-6 pt-24">
+        <main className="max-w-[1920px] mx-auto px-6 py-6 pt-24 relative z-10">
           <CompetitionPage />
         </main>
       </div>
     )
   }
 
-  // Show landing page for root route
+  // Show main app for authenticated users or redirect them to dashboard
   if (route === '/' || route === '') {
-    return <LandingPage isAdminMode={systemConfig?.admin_mode} />
+    if (user && token) {
+      window.history.pushState({}, '', '/dashboard')
+      return (
+        <div
+          className="min-h-screen bg-transparent text-[#EAECEF] relative"
+        >
+          {/* 3D Atmospheric Interactive WebGL Background */}
+          <Interactive3DBackground currentPage="trader" />
+
+          <HeaderBar
+            isLoggedIn={!!user}
+            currentPage="trader"
+            language={language}
+            onLanguageChange={setLanguage}
+            user={user}
+            onLogout={logout}
+            isAdminMode={systemConfig?.admin_mode}
+            onPageChange={navigateToPage}
+          />
+          <main className="max-w-[1920px] mx-auto px-6 py-6 pt-24 relative z-10">
+            <TraderDetailsPage
+              selectedTrader={selectedTrader}
+              status={status}
+              account={account}
+              positions={positions}
+              decisions={decisions}
+              stats={stats}
+              lastUpdate={lastUpdate}
+              language={language}
+              traders={traders}
+              selectedTraderId={selectedTraderId}
+              onTraderSelect={setSelectedTraderId}
+            />
+          </main>
+        </div>
+      )
+    } else {
+      // 未登录时，若是自部署模式（admin_mode）直接引導至登入頁
+      if (systemConfig?.admin_mode) {
+        window.history.pushState({}, '', '/login')
+        return <LoginPage />
+      }
+      return <LandingPage isAdminMode={systemConfig?.admin_mode} />
+    }
   }
 
   // In admin mode, require authentication for any protected routes
   if (systemConfig?.admin_mode && (!user || !token)) {
+    window.history.pushState({}, '', '/login')
     return <LoginPage />
   }
 
@@ -314,9 +360,11 @@ function App() {
 
   return (
     <div
-      className="min-h-screen"
-      style={{ background: '#0B0E11', color: '#EAECEF' }}
+      className="min-h-screen bg-transparent text-[#EAECEF] relative"
     >
+      {/* 3D Atmospheric Interactive WebGL Background */}
+      <Interactive3DBackground currentPage={currentPage} />
+
       <HeaderBar
         isLoggedIn={!!user}
         currentPage={currentPage}
@@ -325,39 +373,18 @@ function App() {
         user={user}
         onLogout={logout}
         isAdminMode={systemConfig?.admin_mode}
-        onPageChange={(page) => {
-          console.log('Main app onPageChange called with:', page)
-
-          if (page === 'competition') {
-            window.history.pushState({}, '', '/competition')
-            setRoute('/competition')
-            setCurrentPage('competition')
-          } else if (page === 'traders') {
-            window.history.pushState({}, '', '/traders')
-            setRoute('/traders')
-            setCurrentPage('traders')
-          } else if (page === 'trader') {
-            window.history.pushState({}, '', '/dashboard')
-            setRoute('/dashboard')
-            setCurrentPage('trader')
-          } else if (page === 'faq') {
-            window.history.pushState({}, '', '/faq')
-            setRoute('/faq')
-          }
-        }}
+        onPageChange={navigateToPage}
       />
 
       {/* Main Content */}
-      <main className="max-w-[1920px] mx-auto px-6 py-6 pt-24">
+      <main className="max-w-[1920px] mx-auto px-6 py-6 pt-24 relative z-10">
         {currentPage === 'competition' ? (
           <CompetitionPage />
         ) : currentPage === 'traders' ? (
           <AITradersPage
             onTraderSelect={(traderId) => {
               setSelectedTraderId(traderId)
-              window.history.pushState({}, '', '/dashboard')
-              setRoute('/dashboard')
-              setCurrentPage('trader')
+              navigateToPage('trader')
             }}
           />
         ) : (
@@ -379,48 +406,35 @@ function App() {
 
       {/* Footer */}
       <footer
-        className="mt-16"
-        style={{ borderTop: '1px solid #2B3139', background: '#181A20' }}
+        className="mt-20 border-t"
+        style={{ borderColor: 'rgba(255, 255, 255, 0.035)', background: 'rgba(10, 10, 12, 0.45)', backdropFilter: 'blur(8px)' }}
       >
         <div
-          className="max-w-[1920px] mx-auto px-6 py-6 text-center text-sm"
+          className="max-w-[1920px] mx-auto px-6 py-8 text-center text-xs font-mono"
           style={{ color: '#5E6673' }}
         >
-          <p>{t('footerTitle', language)}</p>
-          <p className="mt-1">{t('footerWarning', language)}</p>
-          <div className="mt-4">
-            <a
-              href="https://github.com/tinkle-community/nofx"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-3 py-2 rounded text-sm font-semibold transition-all hover:scale-105"
-              style={{
-                background: '#1E2329',
-                color: '#848E9C',
-                border: '1px solid #2B3139',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#2B3139'
-                e.currentTarget.style.color = '#EAECEF'
-                e.currentTarget.style.borderColor = '#F0B90B'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#1E2329'
-                e.currentTarget.style.color = '#848E9C'
-                e.currentTarget.style.borderColor = '#2B3139'
-              }}
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-              >
-                <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-              </svg>
-              GitHub
-            </a>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 max-w-6xl mx-auto border-b border-white/[0.03] pb-6 mb-6">
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-2 h-2 rounded-full bg-white animate-pulse"></span>
+              <span className="text-white font-bold tracking-wider">KRONOS QUANTUM v5.0.0-STEALTH</span>
+            </div>
+            <div className="text-gray-500">
+              COGNITIVE TRADING CORE: <span className="text-gray-400 font-bold">ONLINE</span> // STEALTH MATRIX ACTIVE
+            </div>
+            <div className="text-gray-500">
+              ENVIRONMENT: <span className="text-gray-400 font-bold">LOCALHOST DOCKER CELL</span>
+            </div>
           </div>
+          <p className="text-gray-600 uppercase tracking-widest text-[10px] mb-2">
+            {language === 'zh' 
+              ? '⚡ 私有量化控制台 • 認知核心數據已完全隔離保護' 
+              : '⚡ PRIVATE ALGORITHMIC CONSOLE • COGNITIVE DATA STRICTLY ISOLATED'}
+          </p>
+          <p className="text-gray-600 text-[10px]">
+            {language === 'zh'
+              ? '⚠️ 警示：量化算法具有不可預知風險。系統已加載自適應風控 (Micro-Equity Mode / Anti-Paralysis Detection)，請實時監測遙測日誌。'
+              : '⚠️ TELEMETRY NOTICE: QUANTUM ALGORITHMS CONTAIN INHERENT RISK. ADAPTIVE RISK MITIGATION ACTIVE (ANTI-PARALYSIS).'}
+          </p>
         </div>
       </footer>
     </div>
@@ -452,6 +466,42 @@ function TraderDetailsPage({
   lastUpdate: string
   language: Language
 }) {
+  const [allModels, setAllModels] = useState<AIModel[]>([])
+  const { user, token } = useAuth()
+
+  useEffect(() => {
+    const loadModels = async () => {
+      if (user && token) {
+        try {
+          const models = await api.getModelConfigs()
+          setAllModels(models)
+        } catch (error) {
+          console.error('Failed to load models in Details:', error)
+        }
+      }
+    }
+    loadModels()
+  }, [user, token])
+
+  const getModelShowName = (modelId: string) => {
+    // 优先匹配完整 ID
+    let model = allModels?.find((m) => m.id === modelId)
+    
+    // 找不到时，剥离用户前缀进行匹配
+    if (!model) {
+      const provider = modelId.includes('_') ? modelId.split('_').pop() : modelId
+      model = allModels?.find((m) => m.id === provider || m.provider === provider || m.id.split('_').pop() === provider)
+    }
+
+    if (model) {
+      if (model.customModelName && model.customModelName.trim() !== '') {
+        return model.customModelName
+      }
+      return model.name
+    }
+    return getModelDisplayName(modelId)
+  }
+
   if (!selectedTrader) {
     return (
       <div className="space-y-6">
@@ -482,47 +532,43 @@ function TraderDetailsPage({
 
   return (
     <div>
-      {/* Trader Header */}
-      <div
-        className="mb-6 rounded p-6 animate-scale-in"
-        style={{
-          background:
-            'linear-gradient(135deg, rgba(240, 185, 11, 0.15) 0%, rgba(252, 213, 53, 0.05) 100%)',
-          border: '1px solid rgba(240, 185, 11, 0.2)',
-          boxShadow: '0 0 30px rgba(240, 185, 11, 0.15)',
-        }}
-      >
-        <div className="flex items-start justify-between mb-3">
-          <h2
-            className="text-2xl font-bold flex items-center gap-2"
-            style={{ color: '#EAECEF' }}
-          >
-            <span
-              className="w-10 h-10 rounded-full flex items-center justify-center text-xl"
-              style={{
-                background: 'linear-gradient(135deg, #F0B90B 0%, #FCD535 100%)',
-              }}
-            >
-              🤖
+      {/* Trader Masthead - Luxury Editorial Style */}
+      <div className="mb-8 pb-6 border-b border-white/[0.08] flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <span className="text-[10px] uppercase font-inter font-medium tracking-luxury text-[#7C7A75]">
+              ACTIVE AGENT DOSSIER
             </span>
-            {selectedTrader.trader_name}
-          </h2>
-
-          {/* Trader Selector */}
-          {traders && traders.length > 0 && (
-            <div className="flex items-center gap-2">
-              <span className="text-sm" style={{ color: '#848E9C' }}>
-                {t('switchTrader', language)}:
+            <span className="text-[#383940]">•</span>
+            <span className="text-[10px] font-mono text-[#6E987E] tracking-widest uppercase">
+              {status?.is_running ? 'AUTONOMOUS EXECUTING' : 'STANDBY'}
+            </span>
+          </div>
+          
+          <div className="flex items-baseline gap-4">
+            <h1 className="text-3xl md:text-5xl font-playfair font-normal text-[#ECEBE6] tracking-tight">
+              {selectedTrader.trader_name}
+            </h1>
+            <span className="text-xs font-mono uppercase tracking-widest text-[#7C7A75]">
+              [{getModelShowName(selectedTrader.ai_model)}]
+            </span>
+            {(status?.consecutive_wait || 0) >= 5 && (
+              <span className="text-[10px] font-mono uppercase px-2 py-0.5 border border-white/10 text-[#7C7A75] bg-white/[0.02]">
+                WAIT {status?.consecutive_wait} CYCLES
               </span>
+            )}
+          </div>
+        </div>
+
+        {/* Right side: Switcher & Telemetry stats */}
+        <div className="flex items-center gap-4 text-xs font-mono text-[#7C7A75]">
+          {traders && traders.length > 1 && (
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-inter uppercase tracking-wider text-[#5E5D58]">SELECT:</span>
               <select
                 value={selectedTraderId}
-                onChange={(e) => onTraderSelect(e.target.value)}
-                className="rounded px-3 py-2 text-sm font-medium cursor-pointer transition-colors"
-                style={{
-                  background: '#1E2329',
-                  border: '1px solid #2B3139',
-                  color: '#EAECEF',
-                }}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onTraderSelect(e.target.value)}
+                className="bg-[#17181D] border border-white/10 px-3 py-1 text-xs font-mono text-[#ECEBE6] cursor-pointer"
               >
                 {traders.map((trader) => (
                   <option key={trader.trader_id} value={trader.trader_id}>
@@ -532,61 +578,62 @@ function TraderDetailsPage({
               </select>
             </div>
           )}
-        </div>
-        <div
-          className="flex items-center gap-4 text-sm"
-          style={{ color: '#848E9C' }}
-        >
-          <span>
-            AI Model:{' '}
-            <span
-              className="font-semibold"
-              style={{
-                color: selectedTrader.ai_model.includes('qwen')
-                  ? '#c084fc'
-                  : '#60a5fa',
-              }}
-            >
-              {getModelDisplayName(
-                selectedTrader.ai_model.split('_').pop() ||
-                  selectedTrader.ai_model
-              )}
-            </span>
-          </span>
           {status && (
-            <>
+            <div className="flex items-center gap-3 border-l border-white/10 pl-4 text-[11px]">
+              <span>CYCLES: <strong className="text-[#ECEBE6] font-normal">{status.call_count}</strong></span>
               <span>•</span>
-              <span>Cycles: {status.call_count}</span>
-              <span>•</span>
-              <span>Runtime: {status.runtime_minutes} min</span>
-            </>
+              <span>RUNTIME: <strong className="text-[#ECEBE6] font-normal">{status.runtime_minutes}m</strong></span>
+            </div>
           )}
         </div>
       </div>
-
-      {/* Debug Info */}
-      {account && (
+      {/* Risk / Pause Status Alert if active */}
+      {status?.risk_halted && (
         <div
-          className="mb-4 p-3 rounded text-xs font-mono"
-          style={{ background: '#1E2329', border: '1px solid #2B3139' }}
+          className="mb-6 p-4 border border-[#B86B65]/30 bg-[#B86B65]/5 text-[#B86B65] text-xs font-mono tracking-wider flex items-center justify-between"
         >
-          <div style={{ color: '#848E9C' }}>
-            🔄 Last Update: {lastUpdate} | Total Equity:{' '}
-            {account?.total_equity?.toFixed(2) || '0.00'} | Available:{' '}
-            {account?.available_balance?.toFixed(2) || '0.00'} | P&L:{' '}
-            {account?.total_pnl?.toFixed(2) || '0.00'} (
-            {account?.total_pnl_pct?.toFixed(2) || '0.00'}%)
+          <div>
+            ⚠️ {t('riskHalted', language)}
+            {status.stop_until ? ` — ${t('haltUntil', language)} ${new Date(status.stop_until).toLocaleString()}` : ''}
+            . {t('consecutiveWait', language)}: {status.consecutive_wait ?? 0}
+          </div>
+        </div>
+      )}
+      {status?.operator_pause_opens && (
+        <div
+          className="mb-6 p-4 border border-[#B86B65]/30 bg-[#B86B65]/5 text-[#B86B65] text-xs font-mono tracking-wider flex items-center justify-between"
+        >
+          <div>
+            🛑 {t('operatorBanner', language)}: {status.operator_pause_actor || 'operator'}
+            {status.operator_pause_until ? ` — ${t('haltUntil', language)} ${new Date(status.operator_pause_until).toLocaleString()}` : ''}
           </div>
         </div>
       )}
 
-      {/* Account Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      {/* Live Sync Bar */}
+      {account && (
+        <div className="mb-6 px-4 py-2 bg-white/[0.02] border border-white/[0.06] text-[11px] font-mono text-[#7C7A75] flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#6E987E]"></span>
+            <span>LAST SYNC: <strong className="text-[#ECEBE6] font-normal">{lastUpdate}</strong></span>
+            <span>•</span>
+            <span>AUTO-POLL: <strong className="text-[#ECEBE6] font-normal">ACTIVE</strong></span>
+          </div>
+          <div className="hidden sm:flex items-center gap-4 text-[#5E5D58]">
+            <span>EQUITY: {account?.total_equity?.toFixed(2) || '0.00'} USDT</span>
+            <span>•</span>
+            <span>AVAIL: {account?.available_balance?.toFixed(2) || '0.00'} USDT</span>
+          </div>
+        </div>
+      )}
+      {/* Luxury Editorial Minimal Telemetry Strip (Hairline Separators, Zero Thick Boxes) */}
+      <div className="border-y border-white/[0.08] bg-[#17181C]/40 backdrop-blur-sm grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-10 divide-y sm:divide-y-0 sm:divide-x divide-white/[0.08]">
         <StatCard
           title={t('totalEquity', language)}
           value={`${account?.total_equity?.toFixed(2) || '0.00'} USDT`}
           change={account?.total_pnl_pct || 0}
           positive={(account?.total_pnl ?? 0) > 0}
+          subtitle={account?.initial_balance ? `${t('initialBalance', language) || '初始本金'}: ${account.initial_balance.toFixed(2)} USDT` : undefined}
         />
         <StatCard
           title={t('availableBalance', language)}
@@ -598,18 +645,20 @@ function TraderDetailsPage({
           value={`${account?.total_pnl !== undefined && account.total_pnl >= 0 ? '+' : ''}${account?.total_pnl?.toFixed(2) || '0.00'} USDT`}
           change={account?.total_pnl_pct || 0}
           positive={(account?.total_pnl ?? 0) >= 0}
+          subtitle={account?.initial_balance && account?.total_equity ? `${account.total_equity.toFixed(2)} - ${account.initial_balance.toFixed(2)} = ${account.total_pnl?.toFixed(2) || '0.00'}` : undefined}
         />
         <StatCard
           title={t('positions', language)}
           value={`${account?.position_count || 0}`}
-          subtitle={`${t('margin', language)}: ${account?.margin_used_pct?.toFixed(1) || '0.0'}%`}
+          unit={account?.position_count ? 'POSITIONS' : 'ACTIVE'}
+          subtitle={`${t('margin', language)}: ${account?.margin_used_pct?.toFixed(1) || '0.0'}% · ${t('dailyPnL', language)}: ${account?.daily_pnl !== undefined ? account.daily_pnl.toFixed(2) : (status?.daily_pnl ?? 0).toFixed(2)}`}
         />
       </div>
 
-      {/* 主要内容区：左右分屏 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* 左侧：图表 + 持仓 */}
-        <div className="space-y-6">
+      {/* 主要内容区：7:5 黄金非对称比例分屏 */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6 items-start">
+        {/* 左侧：Recent Decisions 核心决策与雷达 (7 列 - 60% 宽度) */}
+        <div className="lg:col-span-7 space-y-6">
           {/* Equity Chart */}
           <div className="animate-slide-in" style={{ animationDelay: '0.1s' }}>
             <EquityChart traderId={selectedTrader.trader_id} />
@@ -617,190 +666,121 @@ function TraderDetailsPage({
 
           {/* Current Positions */}
           <div
-            className="binance-card p-6 animate-slide-in"
+            className="glass-card p-6 animate-slide-in relative overflow-hidden"
             style={{ animationDelay: '0.15s' }}
           >
-            <div className="flex items-center justify-between mb-5">
+            {/* Top decorative glow border */}
+            <div className="absolute top-0 left-0 w-full h-[1.5px] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+
+            <div className="flex items-center justify-between mb-6">
               <h2
-                className="text-xl font-bold flex items-center gap-2"
+                className="text-lg font-bold flex items-center gap-2.5 font-mono tracking-wide"
                 style={{ color: '#EAECEF' }}
               >
-                📈 {t('currentPositions', language)}
+                <span className="text-white">⚡</span> {t('currentPositions', language).toUpperCase()}
               </h2>
               {positions && positions.length > 0 && (
-                <div
-                  className="text-xs px-3 py-1 rounded"
-                  style={{
-                    background: 'rgba(240, 185, 11, 0.1)',
-                    color: '#F0B90B',
-                    border: '1px solid rgba(240, 185, 11, 0.2)',
-                  }}
-                >
-                  {positions.length} {t('active', language)}
+                <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white text-xs font-bold font-mono">
+                  <span className="pulse-dot-green"></span>
+                  {positions.length} ACTIVE
                 </div>
               )}
             </div>
             {positions && positions.length > 0 ? (
               <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="text-left border-b border-gray-800">
-                    <tr>
-                      <th className="pb-3 font-semibold text-gray-400">
-                        {t('symbol', language)}
-                      </th>
-                      <th className="pb-3 font-semibold text-gray-400">
-                        {t('side', language)}
-                      </th>
-                      <th className="pb-3 font-semibold text-gray-400">
-                        {t('entryPrice', language)}
-                      </th>
-                      <th className="pb-3 font-semibold text-gray-400">
-                        {t('markPrice', language)}
-                      </th>
-                      <th className="pb-3 font-semibold text-gray-400">
-                        {t('quantity', language)}
-                      </th>
-                      <th className="pb-3 font-semibold text-gray-400">
-                        {t('positionValue', language)}
-                      </th>
-                      <th className="pb-3 font-semibold text-gray-400">
-                        {t('leverage', language)}
-                      </th>
-                      <th className="pb-3 font-semibold text-gray-400">
-                        {t('unrealizedPnL', language)}
-                      </th>
-                      <th className="pb-3 font-semibold text-gray-400">
-                        {t('liqPrice', language)}
-                      </th>
+                <table className="w-full text-xs text-left">
+                  <thead>
+                    <tr className="border-b border-white/5 text-[10px] text-gray-500 font-mono tracking-wider uppercase">
+                      <th className="pb-3 font-semibold">{t('symbol', language)}</th>
+                      <th className="pb-3 font-semibold">{t('side', language)}</th>
+                      <th className="pb-3 font-semibold">{t('entryPrice', language)}</th>
+                      <th className="pb-3 font-semibold">{t('markPrice', language)}</th>
+                      <th className="pb-3 font-semibold">{t('quantity', language)}</th>
+                      <th className="pb-3 font-semibold">{t('positionValue', language)}</th>
+                      <th className="pb-3 font-semibold">{t('leverage', language)}</th>
+                      <th className="pb-3 font-semibold text-right">{t('unrealizedPnL', language)}</th>
+                      <th className="pb-3 font-semibold text-right">{t('liqPrice', language)}</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {positions.map((pos, i) => (
-                      <tr
-                        key={i}
-                        className="border-b border-gray-800 last:border-0"
-                      >
-                        <td className="py-3 font-mono font-semibold">
-                          {pos.symbol}
-                        </td>
-                        <td className="py-3">
-                          <span
-                            className="px-2 py-1 rounded text-xs font-bold"
-                            style={
-                              pos.side === 'long'
-                                ? {
-                                    background: 'rgba(14, 203, 129, 0.1)',
-                                    color: '#0ECB81',
-                                  }
-                                : {
-                                    background: 'rgba(246, 70, 93, 0.1)',
-                                    color: '#F6465D',
-                                  }
-                            }
-                          >
-                            {t(
-                              pos.side === 'long' ? 'long' : 'short',
-                              language
-                            )}
-                          </span>
-                        </td>
-                        <td
-                          className="py-3 font-mono"
-                          style={{ color: '#EAECEF' }}
+                  <tbody className="divide-y divide-white/5 font-mono">
+                    {positions.map((pos, i) => {
+                      const isLong = pos.side === 'long';
+                      return (
+                        <tr
+                          key={i}
+                          className="hover:bg-white/[0.02] transition-colors duration-150"
                         >
-                          {pos.entry_price.toFixed(4)}
-                        </td>
-                        <td
-                          className="py-3 font-mono"
-                          style={{ color: '#EAECEF' }}
-                        >
-                          {pos.mark_price.toFixed(4)}
-                        </td>
-                        <td
-                          className="py-3 font-mono"
-                          style={{ color: '#EAECEF' }}
-                        >
-                          {pos.quantity.toFixed(4)}
-                        </td>
-                        <td
-                          className="py-3 font-mono font-bold"
-                          style={{ color: '#EAECEF' }}
-                        >
-                          {(pos.quantity * pos.mark_price).toFixed(2)} USDT
-                        </td>
-                        <td
-                          className="py-3 font-mono"
-                          style={{ color: '#F0B90B' }}
-                        >
-                          {pos.leverage}x
-                        </td>
-                        <td className="py-3 font-mono">
-                          <span
-                            style={{
-                              color:
-                                pos.unrealized_pnl >= 0 ? '#0ECB81' : '#F6465D',
-                              fontWeight: 'bold',
-                            }}
-                          >
-                            {pos.unrealized_pnl >= 0 ? '+' : ''}
-                            {pos.unrealized_pnl.toFixed(2)} (
-                            {pos.unrealized_pnl_pct.toFixed(2)}%)
-                          </span>
-                        </td>
-                        <td
-                          className="py-3 font-mono"
-                          style={{ color: '#848E9C' }}
-                        >
-                          {pos.liquidation_price.toFixed(4)}
-                        </td>
-                      </tr>
-                    ))}
+                          <td className="py-4 font-bold text-gray-200">{pos.symbol}</td>
+                          <td className="py-4">
+                            <span
+                               className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
+                                isLong
+                                  ? 'bg-[#0ecb81]/8 text-[#0ecb81] border border-[#0ecb81]/15'
+                                  : 'bg-[#f6465d]/8 text-[#f6465d] border border-[#f6465d]/15'
+                              }`}
+                            >
+                              <span className={isLong ? 'pulse-dot-green' : 'pulse-dot-red'} style={{ width: 6, height: 6 }}></span>
+                              {t(pos.side === 'long' ? 'long' : 'short', language)}
+                            </span>
+                          </td>
+                          <td className="py-4 text-gray-300">{pos.entry_price.toFixed(4)}</td>
+                          <td className="py-4 text-gray-300">{pos.mark_price.toFixed(4)}</td>
+                          <td className="py-4 text-gray-300">{pos.quantity.toFixed(4)}</td>
+                          <td className="py-4 text-gray-300 font-bold">{(pos.quantity * pos.mark_price).toFixed(2)} USDT</td>
+                          <td className="py-4 text-white font-bold">{pos.leverage}x</td>
+                          <td className="py-4 text-right">
+                            <span
+                              className={`font-bold text-white`}
+                            >
+                              {pos.unrealized_pnl >= 0 ? '+' : ''}
+                              {pos.unrealized_pnl.toFixed(2)} ({pos.unrealized_pnl_pct.toFixed(2)}%)
+                            </span>
+                          </td>
+                          <td className="py-4 text-right text-gray-500">{pos.liquidation_price.toFixed(4)}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             ) : (
-              <div className="text-center py-16" style={{ color: '#848E9C' }}>
-                <div className="text-6xl mb-4 opacity-50">📊</div>
-                <div className="text-lg font-semibold mb-2">
-                  {t('noPositions', language)}
+              <div className="text-center py-14 text-gray-500 rounded-lg bg-black/10 border border-white/[0.02]">
+                <div className="text-4xl mb-3 opacity-25">📁</div>
+                <div className="text-sm font-bold font-mono tracking-wider text-gray-400 mb-1">
+                  {t('noPositions', language).toUpperCase()}
                 </div>
-                <div className="text-sm">
+                <div className="text-xs text-gray-600">
                   {t('noActivePositions', language)}
                 </div>
               </div>
             )}
           </div>
+
+          {/* External Operator Panel */}
+          <div className="animate-slide-in" style={{ animationDelay: '0.2s' }}>
+            <OperatorPanel />
+          </div>
         </div>
         {/* 左侧结束 */}
 
-        {/* 右侧：Recent Decisions - 卡片容器 */}
+        {/* 辅助栏：Recent Decisions - 5 列宽度 */}
         <div
-          className="binance-card p-6 animate-slide-in h-fit lg:sticky lg:top-24 lg:max-h-[calc(100vh-120px)]"
+          className="sharp-card bracket-corners p-6 animate-slide-in h-fit lg:col-span-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-120px)]"
           style={{ animationDelay: '0.2s' }}
         >
-          {/* 标题 */}
-          <div
-            className="flex items-center gap-3 mb-5 pb-4 border-b"
-            style={{ borderColor: '#2B3139' }}
-          >
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
-              style={{
-                background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
-                boxShadow: '0 4px 14px rgba(99, 102, 241, 0.4)',
-              }}
-            >
-              🧠
-            </div>
-            <div>
-              <h2 className="text-xl font-bold" style={{ color: '#EAECEF' }}>
-                {t('recentDecisions', language)}
+          {/* 标题 - Luxury Editorial Header */}
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/[0.08]">
+            <div className="flex items-baseline gap-3">
+              <h2 className="text-2xl font-playfair font-normal tracking-tight text-[#ECEBE6]">
+                The <span className="luxury-gold-italic">Decisions</span>
               </h2>
-              {decisions && decisions.length > 0 && (
-                <div className="text-xs" style={{ color: '#848E9C' }}>
-                  {t('lastCycles', language, { count: decisions.length })}
-                </div>
-              )}
+              <span className="text-[9px] uppercase font-inter font-medium tracking-luxury text-[#7C7A75]">
+                {decisions && decisions.length > 0 ? `LAST ${decisions.length} CYCLES` : 'ACTIVE POOL'}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 font-mono text-[9px] tracking-widest text-[#6E987E] uppercase px-2 py-0.5 border border-[#6E987E]/20 bg-[#6E987E]/5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#6E987E]"></span>
+              SYNCED
             </div>
           </div>
 
@@ -840,55 +820,58 @@ function TraderDetailsPage({
   )
 }
 
-// Stat Card Component - Binance Style Enhanced
+// Stat Card Component - Luxury Editorial Minimal Gallery Strip
 function StatCard({
   title,
   value,
   change,
   positive,
   subtitle,
+  unit = 'USDT',
 }: {
   title: string
   value: string
   change?: number
   positive?: boolean
   subtitle?: string
+  unit?: string | null
 }) {
+  const pureValue = value.replace(' USDT', '')
   return (
-    <div className="stat-card animate-fade-in">
-      <div
-        className="text-xs mb-2 mono uppercase tracking-wider"
-        style={{ color: '#848E9C' }}
-      >
-        {title}
+    <div className="p-6 relative bg-transparent flex flex-col justify-between h-full group transition-all duration-300 hover:bg-white/[0.015]">
+      <div>
+        <div className="text-[10px] uppercase font-inter font-medium tracking-[0.28em] text-[#7C7A75] mb-2.5">
+          {title}
+        </div>
+        <div className="text-3xl lg:text-4xl font-playfair font-normal tracking-tight text-[#ECEBE6]">
+          {pureValue}
+          {unit && (
+            <span className="text-[11px] font-mono uppercase tracking-[0.2em] text-[#7C7A75] ml-1.5">
+              {unit}
+            </span>
+          )}
+        </div>
       </div>
-      <div
-        className="text-2xl font-bold mb-1 mono"
-        style={{ color: '#EAECEF' }}
-      >
-        {value}
-      </div>
-      {change !== undefined && (
-        <div className="flex items-center gap-1">
-          <div
-            className="text-sm mono font-bold"
-            style={{ color: positive ? '#0ECB81' : '#F6465D' }}
-          >
-            {positive ? '▲' : '▼'} {positive ? '+' : ''}
-            {change.toFixed(2)}%
+
+      <div className="mt-5 flex items-baseline justify-between pt-3 border-t border-white/[0.04]">
+        {change !== undefined ? (
+          <div className="flex items-center gap-1.5 font-mono text-xs">
+            <span className={positive ? 'text-[#6E987E]' : 'text-[#B86B65]'}>
+              {positive ? '↑' : '↓'} {positive ? '+' : ''}{change.toFixed(2)}%
+            </span>
           </div>
-        </div>
-      )}
-      {subtitle && (
-        <div className="text-xs mt-2 mono" style={{ color: '#848E9C' }}>
-          {subtitle}
-        </div>
-      )}
+        ) : <div />}
+        {subtitle && (
+          <div className="text-[10px] font-mono tracking-wider text-[#5E5D58]">
+            {subtitle}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
 
-// Decision Card Component with CoT Trace - Binance Style
+// Decision Card Component with CoT Trace - Hackers Bloomberg Terminal Style
 function DecisionCard({
   decision,
   language,
@@ -898,65 +881,346 @@ function DecisionCard({
 }) {
   const [showInputPrompt, setShowInputPrompt] = useState(false)
   const [showCoT, setShowCoT] = useState(false)
+  const [showAnalysis, setShowAnalysis] = useState(false)
+  const [selectedCandidate, setSelectedCandidate] = useState<string | null>(null)
+
+  // Parse decision_json to get full un-truncated reasoning for each symbol
+  const parsedDecisionList = useMemo(() => {
+    if (!decision.decision_json) return []
+    try {
+      const parsed = JSON.parse(decision.decision_json)
+      return Array.isArray(parsed) ? parsed : [parsed]
+    } catch {
+      return []
+    }
+  }, [decision.decision_json])
+
+  const getFullReasoning = (symbol?: string, fallbackReasoning?: string) => {
+    if (symbol && parsedDecisionList.length > 0) {
+      const found = parsedDecisionList.find((p: any) => p?.symbol === symbol)
+      if (found?.reasoning) return found.reasoning
+    }
+    return fallbackReasoning || ''
+  }
+
+  const isAllWait = !decision.decisions || decision.decisions.length === 0 || decision.decisions.every(d => d.action === 'wait' || d.action === 'hold');
+  const primaryReasoning = getFullReasoning(decision.decisions?.[0]?.symbol, decision.decisions?.find(d => d.reasoning)?.reasoning) || decision.error_message || '';
 
   return (
     <div
-      className="rounded p-5 transition-all duration-300 hover:translate-y-[-2px]"
-      style={{
-        border: '1px solid #2B3139',
-        background: '#1E2329',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
-      }}
+      className="sharp-card bracket-corners p-6 transition-all duration-300 border border-white/5 relative"
     >
+      {/* 右上角極小直角亮點指示 */}
+      <div className="absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 border border-white/5 bg-black/50 font-mono text-[9px] tracking-[0.2em] uppercase">
+        <span className={`w-1.5 h-1.5 ${decision.success ? 'bg-[#00DC82]' : 'bg-[#F43F5E]'}`}></span>
+        <span style={{ color: decision.success ? '#F4F3EE' : '#9E9EA8' }}>
+          {decision.success ? 'CYCLE_SUCCESS' : 'CYCLE_FAILURE'}
+        </span>
+      </div>
+
       {/* Header */}
-      <div className="flex items-start justify-between mb-3">
+      <div className="mb-6 flex items-baseline justify-between border-b border-white/[0.06] pb-4">
         <div>
-          <div className="font-semibold" style={{ color: '#EAECEF' }}>
-            {t('cycle', language)} #{decision.cycle_number}
+          <div className="text-xl text-[#ECEBE6] font-playfair flex items-baseline gap-2.5">
+            <span className="tracking-tight">Cycle Record <span className="luxury-gold-italic">#{decision.cycle_number}</span></span>
+            <span className="text-[9px] font-inter font-medium text-[#7C7A75] tracking-luxury uppercase">[{t('cycle', language)}]</span>
           </div>
-          <div className="text-xs" style={{ color: '#848E9C' }}>
-            {new Date(decision.timestamp).toLocaleString()}
+          <div className="text-[10px] text-[#5E5D58] font-mono tracking-widest mt-1">
+            TIMESTAMP: {new Date(decision.timestamp).toLocaleString()}
           </div>
         </div>
-        <div
-          className="px-3 py-1 rounded text-xs font-bold"
-          style={
-            decision.success
-              ? { background: 'rgba(14, 203, 129, 0.1)', color: '#0ECB81' }
-              : { background: 'rgba(246, 70, 93, 0.1)', color: '#F6465D' }
-          }
-        >
-          {t(decision.success ? 'success' : 'failed', language)}
+      </div>
+
+      {/* Account State Summary */}
+      {decision.account_state && (
+        <div className="border border-white/[0.06] bg-transparent p-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono mb-6 text-[#9C9B96] divide-x divide-white/[0.04]">
+          <div className="pl-1">
+            <div className="text-[9px] text-[#7C7A75] font-inter uppercase tracking-[0.25em]">NET_WORTH</div>
+            <div className="font-playfair font-normal text-[#ECEBE6] mt-1 text-lg">{decision.account_state.total_balance.toFixed(2)} <span className="text-[#5E5D58] text-[10px] font-mono">USDT</span></div>
+          </div>
+          <div className="pl-3">
+            <div className="text-[9px] text-[#7C7A75] font-inter uppercase tracking-[0.25em]">AVAILABLE</div>
+            <div className="font-playfair font-normal text-[#ECEBE6] mt-1 text-lg">{decision.account_state.available_balance.toFixed(2)} <span className="text-[#5E5D58] text-[10px] font-mono">USDT</span></div>
+          </div>
+          <div>
+            <div className="text-[9px] text-[#5E5D58] uppercase tracking-[0.2em]">MARGIN_PCT</div>
+            <div className="font-medium text-[#ECEBE6] mt-0.5 font-mono text-sm">{decision.account_state.margin_used_pct.toFixed(1)}%</div>
+          </div>
+          <div>
+            <div className="text-[9px] text-[#5E5D58] uppercase tracking-[0.2em]">ACTIVE_POS</div>
+            <div className="font-medium text-[#B4B0A5] mt-0.5 font-mono text-sm">{decision.account_state.position_count}</div>
+          </div>
         </div>
+      )}
+
+      {/* AI Core Thesis / Observation Reason Banner */}
+      {isAllWait && (primaryReasoning || parsedDecisionList.length > 0) && (
+        <div className="mb-5 p-4 bg-white/[0.02] backdrop-blur-md border-l-2 border-white/20 border-t border-r border-b border-white/[0.06] space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-medium text-[#B4B0A5] tracking-[0.2em] uppercase font-mono">CURATED OBSERVATION DISCIPLINE</span>
+            <span className="px-2 py-0.5 bg-white/[0.03] border border-white/10 text-[#9C9B96] text-[9px] font-mono tracking-wider">CAPITAL DISCIPLINE</span>
+          </div>
+          <div className="space-y-2 text-xs font-mono text-[#C5C4BE] leading-relaxed">
+            {parsedDecisionList.length > 0 ? (
+              parsedDecisionList.map((p: any, idx: number) => (
+                <div key={idx} className="flex items-start gap-2 bg-white/[0.02] p-2.5 border border-white/[0.06]">
+                  <span className="font-medium text-[#ECEBE6] shrink-0">[{p.symbol}]:</span>
+                  <span className="text-[#C5C4BE]">{p.reasoning || '觀望等待確認信號'}</span>
+                </div>
+              ))
+            ) : (
+              <div className="bg-white/[0.02] p-2.5 border border-white/[0.06]">{primaryReasoning}</div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Scanned Candidates Radar */}
+      {decision.candidate_coins && decision.candidate_coins.length > 0 && (
+        <div className="mb-5 bg-white/[0.02] backdrop-blur-md border border-white/[0.06] p-4 font-mono">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-[9px] text-[#5E5D58] uppercase tracking-[0.2em] flex items-center gap-2">
+              <span className="text-[#ECEBE6] font-medium">SCANNED ASSETS SPECTRUM</span>
+              <span className="px-1.5 py-0.5 bg-white/5 text-[#9C9B96] text-[9px]">
+                {decision.candidate_coins.length} ASSETS
+              </span>
+            </div>
+            <span className="text-[9px] text-[#5E5D58] tracking-wider">SELECT ASSET FOR PROFILE</span>
+          </div>
+          
+          {/* Horizontal Chip Bar */}
+          <div className="flex flex-wrap gap-2">
+            {decision.candidate_coins.map((coin) => {
+              const ta = decision.technical_analysis?.[coin];
+              const isSelected = selectedCandidate === coin;
+              const isBullish = ta?.TrendState === 'Bullish';
+              const isBearish = ta?.TrendState === 'Bearish';
+              const trendColor = isBullish ? 'bg-[#00E599]' : isBearish ? 'bg-[#FF3B69]' : 'bg-gray-400';
+              const hasExplicitDecision = decision.decisions?.some(d => d.symbol === coin);
+              
+              return (
+                <button
+                  key={coin}
+                  type="button"
+                  onClick={() => setSelectedCandidate(isSelected ? null : coin)}
+                  className={`sharp-chip px-3 py-2 text-xs font-mono flex items-center gap-2.5 transition-all cursor-pointer ${
+                    isSelected ? 'active' : ''
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 ${trendColor}`}></span>
+                  <span className="font-bold tracking-wider">{coin.replace('USDT', '')}</span>
+                  {hasExplicitDecision && (
+                    <span className="w-1.5 h-1.5 bg-[#D4AF37]" title="Explicit AI Action Output"></span>
+                  )}
+                  {ta?.SignalScore !== undefined && (
+                    <span className={`text-[10px] px-1 py-0.2 font-semibold ${
+                      ta.SignalScore >= 70 ? 'text-[#00DC82] bg-[#00DC82]/10 border border-[#00DC82]/20' : 'text-[#9E9EA8] bg-white/5'
+                    }`}>
+                      {ta.SignalScore}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Candidate Detail Inspector */}
+          {selectedCandidate && (
+            <div className="mt-4 pt-4 border-t border-white/10">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2.5">
+                  <span className="font-bold text-sm text-[#D4AF37] font-mono tracking-wider">{selectedCandidate}</span>
+                  <span className="text-[9px] text-[#60606C] font-mono uppercase tracking-[0.25em]">ARCHITECTURAL METRICS MATRIX</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCandidate(null)}
+                  className="text-[10px] text-[#9E9EA8] hover:text-[#F4F3EE] px-2.5 py-1 bg-white/5 border border-white/10 hover:border-[#D4AF37]/30 transition-all cursor-pointer font-mono"
+                >
+                  ✕ CLOSE
+                </button>
+              </div>
+
+              {(() => {
+                const ta = decision.technical_analysis?.[selectedCandidate];
+                const pa = decision.price_action?.[selectedCandidate];
+
+                if (!ta && !pa) {
+                  return (
+                    <div className="text-xs text-amber-400/90 bg-amber-500/10 p-2.5 rounded-lg border border-amber-500/20">
+                      ℹ️ {selectedCandidate} 持倉價值或流動性未達系統門檻，已自動過濾（未列入本週期微觀指標計算）。
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                    <div className="bg-black/30 p-2.5 rounded-lg border border-white/5">
+                      <span className="text-[10px] text-gray-500 block uppercase">Trend</span>
+                      <span className={`font-bold ${
+                        ta?.TrendState === 'Bullish' ? 'text-[#0ECB81]' : ta?.TrendState === 'Bearish' ? 'text-[#F6465D]' : 'text-gray-300'
+                      }`}>
+                        {ta?.TrendState || 'Neutral'}
+                      </span>
+                    </div>
+                    <div className="bg-black/30 p-2.5 rounded-lg border border-white/5">
+                      <span className="text-[10px] text-gray-500 block uppercase">RSI State</span>
+                      <span className={`font-bold ${
+                        ta?.RSIState === 'Overbought' ? 'text-[#F6465D]' : ta?.RSIState === 'Oversold' ? 'text-[#0ECB81]' : 'text-gray-300'
+                      }`}>
+                        {ta?.RSIState || 'Neutral'}
+                      </span>
+                    </div>
+                    <div className="bg-black/30 p-2.5 rounded-lg border border-white/5">
+                      <span className="text-[10px] text-gray-500 block uppercase">Volume</span>
+                      <span className="font-bold text-gray-300">
+                        {ta?.VolumeState || 'Normal'}
+                      </span>
+                    </div>
+                    <div className="bg-black/30 p-2.5 rounded-lg border border-white/5">
+                      <span className="text-[10px] text-gray-500 block uppercase">Score</span>
+                      <span className={`font-bold ${
+                        (ta?.SignalScore || 0) >= 70 ? 'text-[#0ECB81]' : 'text-gray-300'
+                      }`}>
+                        {ta?.SignalScore !== undefined ? `${ta.SignalScore}/100` : 'N/A'}
+                      </span>
+                    </div>
+                    {ta?.volume_zscore !== undefined && ta.volume_zscore !== 0 && (
+                      <div className="bg-black/30 p-2.5 rounded-lg border border-white/5">
+                        <span className="text-[10px] text-gray-500 block uppercase">Volume Z-Score</span>
+                        <span className={`font-bold ${
+                          ta.volume_zscore < -1.5 ? 'text-[#F6465D]' : ta.volume_zscore < 0 ? 'text-amber-400' : 'text-[#0ECB81]'
+                        }`}>
+                          {ta.volume_zscore.toFixed(2)}
+                          <span className="text-[9px] ml-1 font-normal text-gray-400">
+                            {ta.volume_zscore < -1.5 ? '(枯竭)' : ta.volume_zscore < 0 ? '(偏冷)' : '(放量)'}
+                          </span>
+                        </span>
+                      </div>
+                    )}
+                    {pa && (
+                      <>
+                        <div className="bg-black/30 p-2.5 rounded-lg border border-white/5">
+                          <span className="text-[10px] text-gray-500 block uppercase">Candle Type</span>
+                          <span className="font-bold text-gray-300 truncate block">{pa.CandleType || 'Doji'}</span>
+                        </div>
+                        <div className="bg-black/30 p-2.5 rounded-lg border border-white/5">
+                          <span className="text-[10px] text-gray-500 block uppercase">Dist to EMA20</span>
+                          <span className="font-bold text-gray-300">{pa.DistToEMA20 !== undefined ? `${pa.DistToEMA20.toFixed(2)}%` : '0.00%'}</span>
+                        </div>
+                        <div className="bg-black/30 p-2.5 rounded-lg border border-white/5">
+                          <span className="text-[10px] text-gray-500 block uppercase">Body Ratio</span>
+                          <span className="font-bold text-gray-300">{(pa.BodyRatio * 100).toFixed(0)}%</span>
+                        </div>
+                        <div className="bg-black/30 p-2.5 rounded-lg border border-white/5">
+                          <span className="text-[10px] text-gray-500 block uppercase">Wick Ratio</span>
+                          <span className="font-bold text-gray-300">{(pa.UpperWickRatio * 100).toFixed(0)}% / {(pa.LowerWickRatio * 100).toFixed(0)}%</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Actions */}
+      <div className="space-y-3 mb-5">
+        {/* Decisions Actions */}
+        {decision.decisions && decision.decisions.length > 0 && (
+          <div className="space-y-2">
+            <div className="text-[10px] text-gray-500 font-mono uppercase tracking-wider">ACTIONS_DISPATCHED</div>
+            {decision.decisions.map((action, j) => {
+              const fullReason = getFullReasoning(action.symbol, action.reasoning);
+              return (
+                <div
+                  key={j}
+                  className="bg-black/40 border border-white/5 rounded-xl px-3.5 py-2.5 font-mono text-xs space-y-1.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <span className="font-bold text-[#EAECEF] tracking-wider">{action.symbol}</span>
+                      {(() => {
+                        const isLong = action.action.includes('long') || action.action === 'open_long';
+                        const isShort = action.action.includes('short') || action.action === 'open_short';
+                        const isWait = action.action === 'wait';
+                        const isHold = action.action === 'hold';
+                        const badgeColor = isLong
+                          ? 'bg-[#00DC82]/10 text-[#00DC82] border-[#00DC82]/30'
+                          : isShort
+                          ? 'bg-[#FF3B69]/10 text-[#FF3B69] border-[#FF3B69]/30'
+                          : isHold
+                          ? 'bg-amber-400/10 text-amber-300 border-amber-400/25'
+                          : 'bg-white/5 text-[#9C9B96] border-white/10';
+                        const icon = isLong ? '▲' : isShort ? '▼' : isWait ? '⏸' : '●';
+                        return (
+                          <span
+                            className={`px-2.5 py-0.5 rounded-none text-[10px] font-bold uppercase tracking-wider font-mono border flex items-center gap-1.5 ${badgeColor}`}
+                          >
+                            <span>{icon}</span>
+                            <span>{action.action}</span>
+                          </span>
+                        );
+                      })()}
+                      {action.leverage > 0 && (
+                        <span className="text-[#ECEBE6] text-[11px] font-mono px-1.5 py-0.5 bg-white/5 border border-white/10">
+                          {action.leverage}x
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {action.price > 0 && (
+                        <span className="text-[#7C7A75] font-mono text-[11px]">@{action.price.toFixed(4)}</span>
+                      )}
+                      <span className={`text-[10px] font-mono font-bold tracking-wider ${action.success ? 'text-[#00DC82]' : 'text-[#FF3B69]'}`}>
+                        {action.success ? '✓ DISPATCHED' : '✗ REJECTED'}
+                      </span>
+                    </div>
+                  </div>
+                  {fullReason && (
+                    <div className="text-[11px] text-[#A6A49E] border-t border-white/[0.06] pt-2 flex items-start gap-2">
+                      <span className="text-[#D4AF37] font-semibold shrink-0 uppercase tracking-widest text-[9px] mt-0.5">THESIS:</span>
+                      <span className="text-[#C5C4BE] leading-relaxed font-mono">{fullReason}</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Input Prompt - Collapsible */}
       {decision.input_prompt && (
-        <div className="mb-3">
+        <div className="mb-4">
           <button
             onClick={() => setShowInputPrompt(!showInputPrompt)}
-            className="flex items-center gap-2 text-sm transition-colors"
-            style={{ color: '#60a5fa' }}
+            className="flex items-center gap-2 text-xs font-mono text-gray-400 hover:text-white transition-colors uppercase tracking-wider"
           >
-            <span className="font-semibold">
-              📥 {t('inputPrompt', language)}
-            </span>
-            <span className="text-xs">
-              {showInputPrompt
-                ? t('collapse', language)
-                : t('expand', language)}
-            </span>
+            <span>📥 {t('inputPrompt', language)}</span>
+            <span className="text-[10px] text-gray-500">[{showInputPrompt ? t('collapse', language) : t('expand', language)}]</span>
           </button>
           {showInputPrompt && (
-            <div
-              className="mt-2 rounded p-4 text-sm font-mono whitespace-pre-wrap max-h-96 overflow-y-auto"
-              style={{
-                background: '#0B0E11',
-                border: '1px solid #2B3139',
-                color: '#EAECEF',
-              }}
-            >
-              {decision.input_prompt}
+            <div className="mt-2 rounded-lg border border-white/10 overflow-hidden shadow-2xl">
+              {/* Terminal Title Bar */}
+              <div className="flex items-center justify-between px-4 py-2 bg-[#0d0e12] border-b border-white/5 font-mono text-xs text-gray-400">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-white/10 border border-white/20"></span>
+                  <span className="w-2 h-2 rounded-full bg-white/10 border border-white/20"></span>
+                  <span className="w-2 h-2 rounded-full bg-white/10 border border-white/20"></span>
+                </div>
+                <span className="text-[10px] tracking-wider text-[#EAECEF]">SYSTEM_INPUT_PROMPT.md</span>
+              </div>
+              <div
+                className="p-4 text-xs font-mono whitespace-pre-wrap max-h-96 overflow-y-auto bg-[#020203] text-[#EAECEF] border border-white/5 leading-relaxed selection:bg-white/10"
+                style={{
+                  textShadow: '0 0 4px rgba(255, 255, 255, 0.1)',
+                }}
+              >
+                {decision.input_prompt}
+              </div>
             </div>
           )}
         </div>
@@ -964,143 +1228,135 @@ function DecisionCard({
 
       {/* AI Chain of Thought - Collapsible */}
       {decision.cot_trace && (
-        <div className="mb-3">
+        <div className="mb-4">
           <button
             onClick={() => setShowCoT(!showCoT)}
-            className="flex items-center gap-2 text-sm transition-colors"
-            style={{ color: '#F0B90B' }}
+            className="flex items-center gap-2 text-xs font-mono text-gray-400 hover:text-white transition-colors uppercase tracking-wider"
           >
-            <span className="font-semibold">
-              📤 {t('aiThinking', language)}
-            </span>
-            <span className="text-xs">
-              {showCoT ? t('collapse', language) : t('expand', language)}
-            </span>
+            <span>📤 {t('aiThinking', language)}</span>
+            <span className="text-[10px] text-gray-500">[{showCoT ? t('collapse', language) : t('expand', language)}]</span>
           </button>
           {showCoT && (
-            <div
-              className="mt-2 rounded p-4 text-sm font-mono whitespace-pre-wrap max-h-96 overflow-y-auto"
-              style={{
-                background: '#0B0E11',
-                border: '1px solid #2B3139',
-                color: '#EAECEF',
-              }}
-            >
-              {decision.cot_trace}
+            <div className="mt-2 rounded-lg border border-white/10 overflow-hidden shadow-2xl">
+              {/* Terminal Title Bar */}
+              <div className="flex items-center justify-between px-4 py-2 bg-[#0d0e12] border-b border-white/5 font-mono text-xs text-gray-400">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-white/10 border border-white/20"></span>
+                  <span className="w-2 h-2 rounded-full bg-white/10 border border-white/20"></span>
+                  <span className="w-2 h-2 rounded-full bg-white/10 border border-white/20"></span>
+                </div>
+                <span className="text-[10px] tracking-wider text-[#EAECEF]">COT_CHAIN_OF_THOUGHT.log</span>
+              </div>
+              <div
+                className="p-4 text-xs font-mono whitespace-pre-wrap max-h-96 overflow-y-auto bg-[#020203] text-[#EAECEF] border border-white/5 leading-relaxed selection:bg-white/10"
+                style={{
+                  textShadow: '0 0 4px rgba(255, 255, 255, 0.1)',
+                }}
+              >
+                {decision.cot_trace}
+              </div>
             </div>
           )}
         </div>
       )}
 
-      {/* Decisions Actions */}
-      {decision.decisions && decision.decisions.length > 0 && (
-        <div className="space-y-2 mb-3">
-          {decision.decisions.map((action, j) => (
-            <div
-              key={j}
-              className="flex items-center gap-2 text-sm rounded px-3 py-2"
-              style={{ background: '#0B0E11' }}
-            >
-              <span
-                className="font-mono font-bold"
-                style={{ color: '#EAECEF' }}
-              >
-                {action.symbol}
-              </span>
-              <span
-                className="px-2 py-0.5 rounded text-xs font-bold"
-                style={
-                  action.action.includes('open')
-                    ? {
-                        background: 'rgba(96, 165, 250, 0.1)',
-                        color: '#60a5fa',
-                      }
-                    : {
-                        background: 'rgba(240, 185, 11, 0.1)',
-                        color: '#F0B90B',
-                      }
-                }
-              >
-                {action.action}
-              </span>
-              {action.leverage > 0 && (
-                <span style={{ color: '#F0B90B' }}>{action.leverage}x</span>
-              )}
-              {action.price > 0 && (
-                <span
-                  className="font-mono text-xs"
-                  style={{ color: '#848E9C' }}
-                >
-                  @{action.price.toFixed(4)}
-                </span>
-              )}
-              <span style={{ color: action.success ? '#0ECB81' : '#F6465D' }}>
-                {action.success ? '✓' : '✗'}
-              </span>
-              {action.error && (
-                <span className="text-xs ml-2" style={{ color: '#F6465D' }}>
-                  {action.error}
-                </span>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Account State Summary */}
-      {decision.account_state && (
-        <div
-          className="flex gap-4 text-xs mb-3 rounded px-3 py-2"
-          style={{ background: '#0B0E11', color: '#848E9C' }}
-        >
-          <span>
-            净值: {decision.account_state.total_balance.toFixed(2)} USDT
-          </span>
-          <span>
-            可用: {decision.account_state.available_balance.toFixed(2)} USDT
-          </span>
-          <span>
-            保证金率: {decision.account_state.margin_used_pct.toFixed(1)}%
-          </span>
-          <span>持仓: {decision.account_state.position_count}</span>
-          <span
-            style={{
-              color:
-                decision.candidate_coins &&
-                decision.candidate_coins.length === 0
-                  ? '#F6465D'
-                  : '#848E9C',
-            }}
+      {/* Market Analysis - Collapsible */}
+      {(decision.technical_analysis || decision.price_action) && (
+        <div className="mb-4">
+          <button
+            onClick={() => setShowAnalysis(!showAnalysis)}
+            className="flex items-center gap-2 text-xs font-mono text-gray-400 hover:text-white transition-colors uppercase tracking-wider"
           >
-            {t('candidateCoins', language)}:{' '}
-            {decision.candidate_coins?.length || 0}
-          </span>
+            <span>📊 {t('marketAnalysis', language) || 'Market Analysis'}</span>
+            <span className="text-[10px] text-gray-500">[{showAnalysis ? t('collapse', language) : t('expand', language)}]</span>
+          </button>
+          {showAnalysis && (
+            <div className="mt-2 rounded-lg border border-white/10 overflow-hidden shadow-2xl">
+              <div className="flex items-center justify-between px-4 py-2 bg-[#0d0e12] border-b border-white/5 font-mono text-xs text-gray-400">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-white/10 border border-white/20"></span>
+                  <span className="w-2 h-2 rounded-full bg-white/10 border border-white/20"></span>
+                  <span className="w-2 h-2 rounded-full bg-white/10 border border-white/20"></span>
+                </div>
+                <span className="text-[10px] tracking-wider text-[#EAECEF]">MARKET_STRUCTURE_METRICS.json</span>
+              </div>
+              <div
+                className="p-4 text-xs space-y-3 bg-[#030712] font-mono text-gray-300"
+              >
+                {/* Technical Analysis */}
+                {decision.technical_analysis &&
+                  Object.entries(decision.technical_analysis).map(([symbol, ta]) => (
+                    <div key={`ta-${symbol}`} className="border-b border-white/5 last:border-0 pb-3 last:pb-0">
+                      <div className="font-bold mb-2 flex items-center gap-2" style={{ color: '#FFFFFF' }}>
+                        <span className="pulse-dot-green"></span>
+                        {symbol}
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-xs bg-black/30 p-2.5 rounded-lg border border-white/5">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Trend:</span>
+                          <span style={{ color: ta.TrendState === 'Bullish' ? '#0ECB81' : ta.TrendState === 'Bearish' ? '#F6465D' : '#EAECEF' }}>
+                            {ta.TrendState}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">RSI:</span>
+                          <span style={{ color: ta.RSIState === 'Overbought' ? '#F6465D' : ta.RSIState === 'Oversold' ? '#0ECB81' : '#EAECEF' }}>
+                            {ta.RSIState}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Volume:</span>
+                          <span style={{ color: ta.VolumeState === 'High' ? '#FFFFFF' : '#EAECEF' }}>
+                            {ta.VolumeState}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Score:</span>
+                          <span className="font-bold" style={{ color: ta.SignalScore >= 80 ? '#0ECB81' : ta.SignalScore <= 20 ? '#F6465D' : '#FFFFFF' }}>
+                            {ta.SignalScore}/100
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+
+                {/* Price Action */}
+                {decision.price_action &&
+                  Object.entries(decision.price_action).map(([symbol, pa]) => (
+                    <div key={`pa-${symbol}`} className="pt-2 flex justify-between items-center text-xs bg-black/30 p-2.5 rounded-lg border border-white/5">
+                      <span className="text-gray-500">Candle Pattern:</span>
+                      <span className="font-mono font-bold text-[#EAECEF]">{pa.CandleType}</span>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
       {/* Candidate Coins Warning */}
       {decision.candidate_coins && decision.candidate_coins.length === 0 && (
         <div
-          className="text-sm rounded px-4 py-3 mb-3 flex items-start gap-3"
+          className="rounded-xl px-4 py-3 mb-4 flex items-start gap-3 glass-card relative overflow-hidden"
           style={{
-            background: 'rgba(246, 70, 93, 0.1)',
-            border: '1px solid rgba(246, 70, 93, 0.3)',
-            color: '#F6465D',
+            background: 'rgba(246, 70, 93, 0.05)',
+            border: '1px solid rgba(246, 70, 93, 0.25)',
           }}
         >
-          <AlertTriangle size={16} className="flex-shrink-0 mt-0.5" />
+          <div className="absolute top-0 bottom-0 left-0 w-[3px] bg-rose-500"></div>
+          <AlertTriangle size={18} className="flex-shrink-0 mt-0.5 text-rose-500 animate-pulse" />
           <div className="flex-1">
-            <div className="font-semibold mb-1">
+            <div className="font-semibold text-xs text-rose-400 mb-1">
               ⚠️ {t('candidateCoinsZeroWarning', language)}
             </div>
-            <div className="text-xs space-y-1" style={{ color: '#848E9C' }}>
+            <div className="text-[11px] space-y-1 text-gray-400">
               <div>{t('possibleReasons', language)}</div>
               <ul className="list-disc list-inside space-y-0.5 ml-2">
                 <li>{t('coinPoolApiNotConfigured', language)}</li>
                 <li>{t('apiConnectionTimeout', language)}</li>
                 <li>{t('noCustomCoinsAndApiFailed', language)}</li>
               </ul>
-              <div className="mt-2">
+              <div className="mt-2 text-gray-300">
                 <strong>{t('solutions', language)}</strong>
               </div>
               <ul className="list-disc list-inside space-y-0.5 ml-2">
@@ -1115,31 +1371,48 @@ function DecisionCard({
 
       {/* Execution Logs */}
       {decision.execution_log && decision.execution_log.length > 0 && (
-        <div className="space-y-1">
-          {decision.execution_log.map((log, k) => (
-            <div
-              key={k}
-              className="text-xs font-mono"
-              style={{
-                color:
-                  log.includes('✓') || log.includes('成功')
-                    ? '#0ECB81'
-                    : '#F6465D',
-              }}
-            >
-              {log}
+        <div className="mt-4 rounded-lg border border-white/10 overflow-hidden shadow-2xl">
+          <div className="flex items-center justify-between px-4 py-2 bg-[#0d0e12] border-b border-white/5 font-mono text-xs text-gray-400">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#ef4444]"></span>
+              <span className="w-2 h-2 rounded-full bg-[#f59e0b]"></span>
+              <span className="w-2 h-2 rounded-full bg-[#10b981]"></span>
             </div>
-          ))}
+            <span className="text-[10px] tracking-wider text-gray-400">CYCLE_EXECUTION_JOURNAL.sh</span>
+          </div>
+          <div className="p-4 bg-[#030712] font-mono text-xs space-y-1.5 max-h-48 overflow-y-auto">
+            {decision.execution_log.map((log, k) => {
+              const isSuccess = log.includes('✓') || log.includes('成功') || log.includes('SUCCESS');
+              return (
+                <div
+                  key={k}
+                  className="flex items-start gap-1 leading-relaxed"
+                  style={{
+                    color: isSuccess ? '#0ECB81' : log.includes('❌') || log.includes('失敗') ? '#F6465D' : '#9ca3af',
+                  }}
+                >
+                  <span className="text-gray-600 select-none">$</span>
+                  <span>{log}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 
       {/* Error Message */}
       {decision.error_message && (
         <div
-          className="text-sm rounded px-3 py-2 mt-3"
-          style={{ color: '#F6465D', background: 'rgba(246, 70, 93, 0.1)' }}
+          className="rounded-xl px-4 py-3 mt-4 glass-card relative overflow-hidden"
+          style={{
+            background: 'rgba(246, 70, 93, 0.05)',
+            border: '1px solid rgba(246, 70, 93, 0.25)',
+          }}
         >
-          ❌ {decision.error_message}
+          <div className="absolute top-0 bottom-0 left-0 w-[3px] bg-rose-500"></div>
+          <div className="text-xs font-mono text-rose-400">
+            ❌ SYSTEM_FATAL_ERROR: {decision.error_message}
+          </div>
         </div>
       )}
     </div>

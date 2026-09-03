@@ -2,8 +2,12 @@ package trader
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"math"
+	"net/http"
 	"strconv"
 	"strings"
 	"sync"
@@ -28,6 +32,11 @@ type FuturesTrader struct {
 
 	// 缓存有效期（15秒）
 	cacheDuration time.Duration
+
+	// ExchangeInfo 缓存 (较长时间有效，如 1 小时)
+	cachedExchangeInfo     *futures.ExchangeInfo
+	exchangeInfoCacheTime  time.Time
+	exchangeInfoCacheMutex sync.RWMutex
 }
 
 // NewFuturesTrader 创建合约交易器
@@ -491,8 +500,6 @@ func (t *FuturesTrader) CloseShort(symbol string, quantity float64) (map[string]
 	return result, nil
 }
 
-
-
 // CancelStopLossOrders 仅取消止损单（不影响止盈单）
 func (t *FuturesTrader) CancelStopLossOrders(symbol string) error {
 	// 获取该币种的所有未完成订单
@@ -678,19 +685,18 @@ func (t *FuturesTrader) SetStopLoss(symbol string, positionSide string, quantity
 		posSide = futures.PositionSideTypeShort
 	}
 
-	// 格式化数量
-	quantityStr, err := t.FormatQuantity(symbol, quantity)
-	if err != nil {
-		return err
-	}
+	// 格式化数量 (ClosePosition=true 不需要数量)
+	// quantityStr, err := t.FormatQuantity(symbol, quantity)
+	// if err != nil {
+	// 	return err
+	// }
 
-	_, err = t.client.NewCreateOrderService().
+	_, err := t.client.NewCreateOrderService().
 		Symbol(symbol).
 		Side(side).
 		PositionSide(posSide).
 		Type(futures.OrderTypeStopMarket).
-		StopPrice(fmt.Sprintf("%.8f", stopPrice)).
-		Quantity(quantityStr).
+		StopPrice(t.FormatPrice(symbol, stopPrice)).
 		WorkingType(futures.WorkingTypeContractPrice).
 		ClosePosition(true).
 		Do(context.Background())
@@ -716,19 +722,18 @@ func (t *FuturesTrader) SetTakeProfit(symbol string, positionSide string, quanti
 		posSide = futures.PositionSideTypeShort
 	}
 
-	// 格式化数量
-	quantityStr, err := t.FormatQuantity(symbol, quantity)
-	if err != nil {
-		return err
-	}
+	// ClosePosition(true) 模式下不需要数量
+	// quantityStr, err := t.FormatQuantity(symbol, quantity)
+	// if err != nil {
+	// 	return err
+	// }
 
-	_, err = t.client.NewCreateOrderService().
+	_, err := t.client.NewCreateOrderService().
 		Symbol(symbol).
 		Side(side).
 		PositionSide(posSide).
 		Type(futures.OrderTypeTakeProfitMarket).
-		StopPrice(fmt.Sprintf("%.8f", takeProfitPrice)).
-		Quantity(quantityStr).
+		StopPrice(t.FormatPrice(symbol, takeProfitPrice)).
 		WorkingType(futures.WorkingTypeContractPrice).
 		ClosePosition(true).
 		Do(context.Background())
@@ -767,9 +772,37 @@ func (t *FuturesTrader) CheckMinNotional(symbol string, quantity float64) error 
 	return nil
 }
 
+// GetExchangeInfo 获取交易规则信息（带缓存）
+func (t *FuturesTrader) GetExchangeInfo() (*futures.ExchangeInfo, error) {
+	// 检查缓存 (1小时有效期)
+	t.exchangeInfoCacheMutex.RLock()
+	if t.cachedExchangeInfo != nil && time.Since(t.exchangeInfoCacheTime) < 1*time.Hour {
+		// log.Printf("✓ 使用缓存的 ExchangeInfo") // 减少日志噪音
+		defer t.exchangeInfoCacheMutex.RUnlock()
+		return t.cachedExchangeInfo, nil
+	}
+	t.exchangeInfoCacheMutex.RUnlock()
+
+	// 调用API
+	log.Printf("🔄 调用币安API获取 ExchangeInfo (缓存已过期)...")
+	exchangeInfo, err := t.client.NewExchangeInfoService().Do(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("获取ExchangeInfo失败: %w", err)
+	}
+
+	// 更新缓存
+	t.exchangeInfoCacheMutex.Lock()
+	t.cachedExchangeInfo = exchangeInfo
+	t.exchangeInfoCacheTime = time.Now()
+	t.exchangeInfoCacheMutex.Unlock()
+
+	return exchangeInfo, nil
+}
+
 // GetSymbolPrecision 获取交易对的数量精度
 func (t *FuturesTrader) GetSymbolPrecision(symbol string) (int, error) {
-	exchangeInfo, err := t.client.NewExchangeInfoService().Do(context.Background())
+	// 使用缓存的 ExchangeInfo
+	exchangeInfo, err := t.GetExchangeInfo()
 	if err != nil {
 		return 0, fmt.Errorf("获取交易规则失败: %w", err)
 	}
@@ -781,7 +814,7 @@ func (t *FuturesTrader) GetSymbolPrecision(symbol string) (int, error) {
 				if filter["filterType"] == "LOT_SIZE" {
 					stepSize := filter["stepSize"].(string)
 					precision := calculatePrecision(stepSize)
-					log.Printf("  %s 数量精度: %d (stepSize: %s)", symbol, precision, stepSize)
+					// log.Printf("  %s 数量精度: %d (stepSize: %s)", symbol, precision, stepSize)
 					return precision, nil
 				}
 			}
@@ -790,6 +823,32 @@ func (t *FuturesTrader) GetSymbolPrecision(symbol string) (int, error) {
 
 	log.Printf("  ⚠ %s 未找到精度信息，使用默认精度3", symbol)
 	return 3, nil // 默认精度为3
+}
+
+// GetPricePrecision 获取交易对的价格精度
+func (t *FuturesTrader) GetPricePrecision(symbol string) (int, error) {
+	// 使用缓存的 ExchangeInfo
+	exchangeInfo, err := t.GetExchangeInfo()
+	if err != nil {
+		return 0, fmt.Errorf("获取交易规则失败: %w", err)
+	}
+
+	for _, s := range exchangeInfo.Symbols {
+		if s.Symbol == symbol {
+			// 从PRICE_FILTER filter获取精度
+			for _, filter := range s.Filters {
+				if filter["filterType"] == "PRICE_FILTER" {
+					tickSize := filter["tickSize"].(string)
+					precision := calculatePrecision(tickSize)
+					// log.Printf("  %s 价格精度: %d (tickSize: %s)", symbol, precision, tickSize)
+					return precision, nil
+				}
+			}
+		}
+	}
+
+	log.Printf("  ⚠ %s 未找到价格精度信息，使用默认精度2", symbol)
+	return 2, nil // 默认精度为2
 }
 
 // calculatePrecision 从stepSize计算精度
@@ -836,6 +895,7 @@ func trimTrailingZeros(s string) string {
 }
 
 // FormatQuantity 格式化数量到正确的精度
+// FormatQuantity 格式化数量到正确的精度 (向下取整，防止超出余额)
 func (t *FuturesTrader) FormatQuantity(symbol string, quantity float64) (string, error) {
 	precision, err := t.GetSymbolPrecision(symbol)
 	if err != nil {
@@ -843,8 +903,29 @@ func (t *FuturesTrader) FormatQuantity(symbol string, quantity float64) (string,
 		return fmt.Sprintf("%.3f", quantity), nil
 	}
 
+	// ⚠️ 关键：使用向下取整 (Floor)，而不是四舍五入
+	// 四舍五入可能导致数量微增，导致"余额不足"或"持仓不足"错误
+	// 例如：持仓 0.0015, precision=3. Sprintf默认四舍五入->0.002. 平仓0.002会失败。
+
+	pow := math.Pow(10, float64(precision))
+	// 添加 epsilon 防止浮点数精度问题 (如 1.0 -> 0.999999 -> Floor -> 0)
+	epsilon := 1e-9
+	truncated := math.Floor((quantity+epsilon)*pow) / pow
+
 	format := fmt.Sprintf("%%.%df", precision)
-	return fmt.Sprintf(format, quantity), nil
+	return fmt.Sprintf(format, truncated), nil
+}
+
+// FormatPrice 格式化价格到正确的精度
+func (t *FuturesTrader) FormatPrice(symbol string, price float64) string {
+	precision, err := t.GetPricePrecision(symbol)
+	if err != nil {
+		// 如果获取失败，使用默认格式 (2位小数)
+		return fmt.Sprintf("%.2f", price)
+	}
+
+	format := fmt.Sprintf("%%.%df", precision)
+	return fmt.Sprintf(format, price)
 }
 
 // 辅助函数
@@ -859,4 +940,96 @@ func stringContains(s, substr string) bool {
 		}
 	}
 	return false
+}
+
+// GetOpenOrders 获取挂单 (Stub)
+func (t *FuturesTrader) GetOpenOrders(symbol string) ([]map[string]interface{}, error) {
+	// TODO: Implement real API call if needed
+	return []map[string]interface{}{}, nil
+}
+
+// GetUserTrades 获取用户成交历史
+func (t *FuturesTrader) GetUserTrades(symbol string, limit int) ([]map[string]interface{}, error) {
+	if limit <= 0 {
+		limit = 50
+	}
+	// 查询最近成交
+	trades, err := t.client.NewListAccountTradeService().Symbol(symbol).Limit(limit).Do(context.Background())
+	if err != nil {
+		return nil, fmt.Errorf("binance get user trades error: %w", err)
+	}
+
+	// 转换为通用格式
+	var result []map[string]interface{}
+	data, err := json.Marshal(trades)
+	if err != nil {
+		return nil, fmt.Errorf("marshal trades error: %w", err)
+	}
+	if err := json.Unmarshal(data, &result); err != nil {
+		return nil, fmt.Errorf("unmarshal trades error: %w", err)
+	}
+	return result, nil
+}
+
+// GetOpenInterestHistory 获取Open Interest历史数据
+// limit: default 30, max 500
+// period: "5m", "15m", "1h", etc.
+func (t *FuturesTrader) GetOpenInterestHistory(symbol string, period string, limit int) ([]map[string]interface{}, error) {
+	if limit <= 0 {
+		limit = 30
+	}
+	if limit > 500 {
+		limit = 500
+	}
+
+	// Binance API: GET /futures/data/openInterestHist
+	// Params: symbol, period, limit
+
+	baseURL := "https://fapi.binance.com/futures/data/openInterestHist"
+	url := fmt.Sprintf("%s?symbol=%s&period=%s&limit=%d", baseURL, symbol, period, limit)
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("fetch OI history error: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("fetch OI history status code: %d", resp.StatusCode)
+	}
+
+	var rawData []struct {
+		Symbol string `json:"symbol"`
+		SumOI  string `json:"sumOpenInterest"`      // 持仓量 (币)
+		SumVal string `json:"sumOpenInterestValue"` // 持仓价值 (USDT)
+		Time   int64  `json:"timestamp"`
+	}
+
+	body, _ := ioutil.ReadAll(resp.Body)
+	if err := json.Unmarshal(body, &rawData); err != nil {
+		return nil, fmt.Errorf("unmarshal OI history error: %w", err)
+	}
+
+	var result []map[string]interface{}
+	for _, item := range rawData {
+		oiVal, _ := strconv.ParseFloat(item.SumVal, 64)
+		oiQty, _ := strconv.ParseFloat(item.SumOI, 64)
+
+		entry := map[string]interface{}{
+			"symbol":               item.Symbol,
+			"sumOpenInterest":      oiQty,
+			"sumOpenInterestValue": oiVal,
+			"timestamp":            item.Time,
+		}
+		result = append(result, entry)
+	}
+
+	return result, nil
+}
+
+// GetTradingFees 获取币安合约手续费率
+// Binance Futures: Maker 0.02%, Taker 0.05% (VIP0)
+func (t *FuturesTrader) GetTradingFees() (makerFeeRate, takerFeeRate float64) {
+	return 0.0002, 0.0005 // Maker: 0.02%, Taker: 0.05%
 }

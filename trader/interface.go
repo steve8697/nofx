@@ -9,6 +9,9 @@ type Trader interface {
 	// GetPositions 获取所有持仓
 	GetPositions() ([]map[string]interface{}, error)
 
+	// GetOpenOrders 获取所有挂单 (symbol为空则获取所有)
+	GetOpenOrders(symbol string) ([]map[string]interface{}, error)
+
 	// OpenLong 开多仓
 	OpenLong(symbol string, quantity float64, leverage int) (map[string]interface{}, error)
 
@@ -42,6 +45,9 @@ type Trader interface {
 	// CancelTakeProfitOrders 仅取消止盈单（修复 BUG：调整止盈时不删除止损）
 	CancelTakeProfitOrders(symbol string) error
 
+	// GetUserTrades 获取用户成交历史 (用于被动平仓侦測)
+	GetUserTrades(symbol string, limit int) ([]map[string]interface{}, error)
+
 	// CancelAllOrders 取消该币种的所有挂单
 	CancelAllOrders(symbol string) error
 
@@ -50,4 +56,15 @@ type Trader interface {
 
 	// FormatQuantity 格式化数量到正确的精度
 	FormatQuantity(symbol string, quantity float64) (string, error)
+
+	// GetOrderProtection 获取当前持仓的止损止盈价格
+	// symbol: 币种
+	// positionSide: "LONG" or "SHORT"
+	// 返回: stopLoss, takeProfit, error
+	GetOrderProtection(symbol string, positionSide string) (float64, float64, error)
+
+	// GetTradingFees 获取交易手续费率
+	// 返回: makerFeeRate, takerFeeRate (例如 0.0001 表示 0.01%)
+	// 用于计算净盈亏和最小止盈距离
+	GetTradingFees() (makerFeeRate, takerFeeRate float64)
 }

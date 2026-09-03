@@ -1,0 +1,34 @@
+{
+  "timestamp": "2026-09-03T23:47:40.398827878+08:00",
+  "cycle_number": 112,
+  "system_prompt": "",
+  "input_prompt": "",
+  "cot_trace": "",
+  "decision_json": "",
+  "account_state": {
+    "total_balance": 22.02423218,
+    "available_balance": 22.02423218,
+    "total_unrealized_profit": 0,
+    "position_count": 0,
+    "margin_used_pct": 0
+  },
+  "positions": null,
+  "candidate_coins": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "XRPUSDT",
+    "ADAUSDT",
+    "HYPEUSDT",
+    "LTCUSDT",
+    "SOLUSDT",
+    "XPLUSDT",
+    "ZENUSDT",
+    "DOGEUSDT"
+  ],
+  "technical_analysis": null,
+  "price_action": null,
+  "decisions": null,
+  "execution_log": [],
+  "success": false,
+  "error_message": "获取AI决策失败: 调用AI API失败: 重试3次后仍然失败: API返回错误 (status 504): "
+}

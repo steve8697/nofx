@@ -1,8 +1,8 @@
-# 🚀 Getting Started with NOFX
+# 🚀 Getting Started with AETHERIS
 
 **Language:** [English](README.md) | [中文](README.zh-CN.md)
 
-This section contains all the documentation you need to get NOFX up and running.
+This section contains all the documentation you need to get AETHERIS up and running.
 
 ## 📋 Deployment Options
 
@@ -44,7 +44,7 @@ cp config.json.example config.json
 
 **Quick Start:**
 ```bash
-go build -o nofx
+go build -o aetheris
 cd web && npm install && npm run build
 pm2 start ecosystem.config.js
 ```
@@ -103,7 +103,7 @@ For single-tenant/self-hosted usage, you can enable strict admin-only access:
 }
 ```
 2) Set environment variables (Docker compose already wired):
-- `NOFX_ADMIN_PASSWORD` — admin password (plaintext; hashed on startup)
+- `AETHERIS_ADMIN_PASSWORD` — admin password (plaintext; hashed on startup)
 
 3) Login at `/login` using the admin password. All non-essential endpoints are blocked to unauthenticated users while admin mode is enabled.
 
@@ -131,13 +131,13 @@ For single-tenant/self-hosted usage, you can enable strict admin-only access:
 
 1. **Docker build fails** → Check Docker version, update to 20.10+
 2. **TA-Lib not found** → `brew install ta-lib` (macOS) or `apt-get install libta-lib0-dev` (Ubuntu)
-3. **Port 8080 in use** → Change `API_PORT` in .env file
-4. **Frontend won't connect** → Check backend is running on port 8080
+3. **Port 3636 in use** → Change `API_PORT` in .env file
+4. **Frontend won't connect** → Check backend is running on port 3636
 
 **Need more help?**
 - 📖 [FAQ](../guides/faq.zh-CN.md)
-- 💬 [Telegram Community](https://t.me/nofx_dev_community)
-- 🐛 [GitHub Issues](https://github.com/tinkle-community/nofx/issues)
+- 💬 [Telegram Community](https://t.me/aetheris_dev_community)
+- 🐛 [GitHub Issues](https://github.com/tinkle-community/aetheris/issues)
 
 ---
 

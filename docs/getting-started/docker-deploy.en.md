@@ -1,6 +1,6 @@
 # 🐳 Docker One-Click Deployment Guide
 
-This guide will help you quickly deploy the NOFX AI Trading Competition System using Docker.
+This guide will help you quickly deploy the AETHERIS AI Trading Competition System using Docker.
 
 ## 📋 Prerequisites
 
@@ -74,7 +74,7 @@ nano config.json  # or use any other editor
     }
   ],
   "use_default_coins": true,
-  "api_server_port": 8080
+  "api_server_port": 3636
 }
 ```
 
@@ -97,7 +97,7 @@ docker compose up -d
 Once deployed, open your browser and visit:
 
 - **Web Interface**: http://localhost:3000
-- **API Health Check**: http://localhost:8080/api/health
+- **API Health Check**: http://localhost:3636/api/health
 
 ## 📊 Service Management
 
@@ -168,7 +168,7 @@ Edit `docker-compose.yml` to modify port mappings:
 services:
   backend:
     ports:
-      - "8080:8080"  # Change to "your_port:8080"
+      - "3636:3636"  # Change to "your_port:3636"
 
   frontend:
     ports:
@@ -199,7 +199,7 @@ Create `.env` file to manage environment variables:
 ```bash
 # .env
 TZ=Asia/Shanghai
-BACKEND_PORT=8080
+BACKEND_PORT=3636
 FRONTEND_PORT=3000
 ```
 
@@ -209,7 +209,7 @@ Then use in `docker-compose.yml`:
 services:
   backend:
     ports:
-      - "${BACKEND_PORT}:8080"
+      - "${BACKEND_PORT}:3636"
 ```
 
 ## 📁 Data Persistence
@@ -253,7 +253,7 @@ docker compose build --no-cache
 
 ```bash
 # Find process using the port
-lsof -i :8080  # backend port
+lsof -i :3636  # backend port
 lsof -i :3000  # frontend port
 
 # Kill the process
@@ -276,11 +276,11 @@ kill -9 <PID>
 
 ```bash
 # Check health status
-docker inspect nofx-backend | jq '.[0].State.Health'
-docker inspect nofx-frontend | jq '.[0].State.Health'
+docker inspect aetheris-backend | jq '.[0].State.Health'
+docker inspect aetheris-frontend | jq '.[0].State.Health'
 
 # Manually test health endpoints
-curl http://localhost:8080/api/health
+curl http://localhost:3636/api/health
 curl http://localhost:3000/health
 ```
 
@@ -291,7 +291,7 @@ curl http://localhost:3000/health
 docker compose exec frontend ping backend
 
 # Check if backend service is running
-docker compose exec frontend wget -O- http://backend:8080/health
+docker compose exec frontend wget -O- http://backend:3636/health
 ```
 
 ### Clean Docker Resources
@@ -333,7 +333,7 @@ docker system prune -a --volumes
    services:
      backend:
        ports:
-         - "127.0.0.1:8080:8080"
+         - "127.0.0.1:3636:3636"
    ```
 
 4. **Regularly update images**
@@ -347,7 +347,7 @@ docker system prune -a --volumes
 ### Using Nginx Reverse Proxy
 
 ```nginx
-# /etc/nginx/sites-available/nofx
+# /etc/nginx/sites-available/aetheris
 server {
     listen 80;
     server_name your-domain.com;
@@ -359,7 +359,7 @@ server {
     }
 
     location /api/ {
-        proxy_pass http://localhost:8080/api/;
+        proxy_pass http://localhost:3636/api/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
@@ -386,13 +386,13 @@ sudo certbot renew --dry-run
 docker swarm init
 
 # Deploy stack
-docker stack deploy -c docker-compose.yml nofx
+docker stack deploy -c docker-compose.yml aetheris
 
 # View service status
-docker stack services nofx
+docker stack services aetheris
 
 # Scale services
-docker service scale nofx_backend=3
+docker service scale aetheris_backend=3
 ```
 
 ## 📈 Monitoring & Logging
@@ -433,7 +433,7 @@ services:
 
 ## 🆘 Get Help
 
-- **GitHub Issues**: [Submit an issue](https://github.com/yourusername/open-nofx/issues)
+- **GitHub Issues**: [Submit an issue](https://github.com/yourusername/open-aetheris/issues)
 - **Documentation**: Check [README.md](README.md)
 - **Community**: Join our Discord/Telegram group
 
@@ -468,6 +468,6 @@ docker system prune -a             # Clean Docker resources
 
 ---
 
-🎉 Congratulations! You've successfully deployed the NOFX AI Trading Competition System!
+🎉 Congratulations! You've successfully deployed the AETHERIS AI Trading Competition System!
 
 If you encounter any issues, please check the [Troubleshooting](#-troubleshooting) section or submit an issue.

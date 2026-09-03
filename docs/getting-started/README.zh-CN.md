@@ -1,6 +1,6 @@
-# 🚀 NOFX 快速开始
+# 🚀 AETHERIS 快速开始
 
-本节包含让 NOFX 运行起来所需的所有文档。
+本节包含让 AETHERIS 运行起来所需的所有文档。
 
 ## 📋 部署选项
 
@@ -42,7 +42,7 @@ cp config.json.example config.json
 
 **快速开始：**
 ```bash
-go build -o nofx
+go build -o aetheris
 cd web && npm install && npm run build
 pm2 start ecosystem.config.js
 ```
@@ -112,13 +112,13 @@ pm2 start ecosystem.config.js
 
 1. **Docker 构建失败** → 检查 Docker 版本，更新到 20.10+
 2. **找不到 TA-Lib** → `brew install ta-lib` (macOS) 或 `apt-get install libta-lib0-dev` (Ubuntu)
-3. **端口 8080 被占用** → 在 .env 文件中更改 `API_PORT`
-4. **前端无法连接** → 检查后端是否在端口 8080 上运行
+3. **端口 3636 被占用** → 在 .env 文件中更改 `API_PORT`
+4. **前端无法连接** → 检查后端是否在端口 3636 上运行
 
 **需要更多帮助？**
 - 📖 [常见问题](../guides/faq.zh-CN.md)
-- 💬 [Telegram 社区](https://t.me/nofx_dev_community)
-- 🐛 [GitHub Issues](https://github.com/tinkle-community/nofx/issues)
+- 💬 [Telegram 社区](https://t.me/aetheris_dev_community)
+- 🐛 [GitHub Issues](https://github.com/tinkle-community/aetheris/issues)
 
 ---
 

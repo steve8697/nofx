@@ -30,6 +30,7 @@ type TraderConfig struct {
 	AsterUser       string `json:"aster_user,omitempty"`        // Aster主钱包地址
 	AsterSigner     string `json:"aster_signer,omitempty"`      // Aster API钱包地址
 	AsterPrivateKey string `json:"aster_private_key,omitempty"` // Aster API钱包私钥
+	AsterTestnet    bool   `json:"aster_testnet,omitempty"`     // Aster测试网模式
 
 	// AI配置
 	QwenKey     string `json:"qwen_key,omitempty"`
@@ -73,8 +74,20 @@ type Config struct {
 	MaxDailyLoss       float64        `json:"max_daily_loss"`
 	MaxDrawdown        float64        `json:"max_drawdown"`
 	StopTradingMinutes int            `json:"stop_trading_minutes"`
-	Leverage           LeverageConfig `json:"leverage"` // 杠杆配置
-	Log                *LogConfig     `json:"log"`      // 日志配置（可选）
+	Leverage           LeverageConfig `json:"leverage"`     // 杠杆配置
+	Log                *LogConfig     `json:"log"`          // 日志配置（可选）
+	PromptRules        *PromptRules   `json:"prompt_rules"` // 提示词规则配置（可选）
+}
+
+// PromptRules 提示词规则配置
+type PromptRules struct {
+	RiskRewardRatio        string  `json:"risk_reward_ratio"`         // 风险回报比 (e.g., "1:3")
+	MaxPositions           int     `json:"max_positions"`             // 最大持仓数量
+	MaxPositionSizeAltcoin float64 `json:"max_position_size_altcoin"` // 山寨币最大仓位（相对于账户净值的倍数）
+	MaxPositionSizeBTCETH  float64 `json:"max_position_size_btc_eth"` // BTC/ETH最大仓位（相对于账户净值的倍数）
+	MarginUsageLimit       float64 `json:"margin_usage_limit"`        // 保证金使用率上限 (0-100)
+	MinPositionSize        float64 `json:"min_position_size"`         // 最小开仓金额 (USDT)
+	OIThresholdMillions    float64 `json:"oi_threshold_millions"`     // OI阈值 (百万美元)
 }
 
 // LoadConfig 从文件加载配置
@@ -148,18 +161,23 @@ func (c *Config) Validate() error {
 		}
 
 		// 根据平台验证对应的密钥
-		if trader.Exchange == "binance" {
+		switch trader.Exchange {
+		case "binance":
 			if trader.BinanceAPIKey == "" || trader.BinanceSecretKey == "" {
 				return fmt.Errorf("trader[%d]: 使用币安时必须配置binance_api_key和binance_secret_key", i)
 			}
-		} else if trader.Exchange == "hyperliquid" {
+		case "hyperliquid":
 			if trader.HyperliquidPrivateKey == "" {
 				return fmt.Errorf("trader[%d]: 使用Hyperliquid时必须配置hyperliquid_private_key", i)
 			}
-		} else if trader.Exchange == "aster" {
-			if trader.AsterUser == "" || trader.AsterSigner == "" || trader.AsterPrivateKey == "" {
-				return fmt.Errorf("trader[%d]: 使用Aster时必须配置aster_user, aster_signer和aster_private_key", i)
+		case "aster":
+			if trader.AsterUser == "" {
+				return fmt.Errorf("trader[%d]: 使用Aster时必须配置aster_user (主钱包地址)", i)
 			}
+			if trader.AsterPrivateKey == "" {
+				return fmt.Errorf("trader[%d]: 使用Aster时必须配置aster_private_key (API私钥)", i)
+			}
+			// AsterSigner 可以为空，如果为空则在 Trader 中通过 PrivateKey 自动推导
 		}
 
 		if trader.AIModel == "qwen" && trader.QwenKey == "" {
@@ -188,7 +206,7 @@ func (c *Config) Validate() error {
 	}
 
 	if c.APIServerPort <= 0 {
-		c.APIServerPort = 8080 // 默认8080端口
+		c.APIServerPort = 3636 // 默认3636端口
 	}
 
 	// 设置杠杆默认值（适配币安子账户限制，最大5倍）
@@ -203,6 +221,32 @@ func (c *Config) Validate() error {
 	}
 	if c.Leverage.AltcoinLeverage > 5 {
 		fmt.Printf("⚠️  警告: 山寨币杠杆设置为%dx，如果使用子账户可能会失败（子账户限制≤5x）\n", c.Leverage.AltcoinLeverage)
+	}
+
+	// 设置PromptRules默认值
+	if c.PromptRules == nil {
+		c.PromptRules = &PromptRules{}
+	}
+	if c.PromptRules.RiskRewardRatio == "" {
+		c.PromptRules.RiskRewardRatio = "2:1"
+	}
+	if c.PromptRules.MaxPositions <= 0 {
+		c.PromptRules.MaxPositions = 3
+	}
+	if c.PromptRules.MaxPositionSizeAltcoin <= 0 {
+		c.PromptRules.MaxPositionSizeAltcoin = 1.5
+	}
+	if c.PromptRules.MaxPositionSizeBTCETH <= 0 {
+		c.PromptRules.MaxPositionSizeBTCETH = 8.0
+	}
+	if c.PromptRules.MarginUsageLimit <= 0 {
+		c.PromptRules.MarginUsageLimit = 90.0
+	}
+	if c.PromptRules.MinPositionSize <= 0 {
+		c.PromptRules.MinPositionSize = 12.0
+	}
+	if c.PromptRules.OIThresholdMillions <= 0 {
+		c.PromptRules.OIThresholdMillions = 15.0
 	}
 
 	return nil

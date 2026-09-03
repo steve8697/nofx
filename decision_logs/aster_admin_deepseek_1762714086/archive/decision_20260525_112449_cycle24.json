@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-05-25T11:24:49.461058716+08:00",
+  "cycle_number": 24,
+  "system_prompt": "",
+  "input_prompt": "",
+  "cot_trace": "",
+  "decision_json": "",
+  "account_state": {
+    "total_balance": 0,
+    "available_balance": 0,
+    "total_unrealized_profit": 0,
+    "position_count": 0,
+    "margin_used_pct": 0
+  },
+  "positions": null,
+  "candidate_coins": null,
+  "technical_analysis": null,
+  "price_action": null,
+  "decisions": null,
+  "execution_log": [],
+  "success": false,
+  "error_message": "构建交易上下文失败: 获取账户余额失败: Get \"https://fapi.asterdex.com/fapi/v3/balance?nonce=1779679479445856\u0026recvWindow=50000\u0026signature=0xd49b7ec75ac839e668d607b5946efe447836c5ee5fb27fa5fa75025f7d42067506a147aa60a964e67dda677537a69161b21b061ea4b51a285bfefd0f445ca8641c\u0026signer=0x80002Dc36f9CF734a47d5CD4B51ad0200278fEbc\u0026timestamp=1779679479445\u0026user=0x399200C86E1E0Fb1240b6Bce3a78fa7079B26FfD\": dial tcp: lookup fapi.asterdex.com on 127.0.0.11:53: read udp 127.0.0.1:34957-\u003e127.0.0.11:53: i/o timeout"
+}

@@ -1,0 +1,3502 @@
+[
+  {
+    "price": 12.37,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.364,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.364,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.364,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.364,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.364,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.364,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.378,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.378,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.384,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766511899999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 15080.746,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": false
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.375,
+    "volume": 0,
+    "type": "Long Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.427,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510999999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 17546.462,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": false
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  },
+  {
+    "price": 12.439,
+    "volume": 0,
+    "type": "Short Liquidation",
+    "timestamp": 1766510099999,
+    "visited": true
+  }
+]

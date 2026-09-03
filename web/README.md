@@ -1,4 +1,4 @@
-# NOFX Web Dashboard
+# AETHERIS Web Dashboard
 
 基于 Vite + React + TypeScript 的AI自动交易监控面板
 
@@ -54,7 +54,7 @@ npm run build
 - 决策日志、统计：每10秒刷新
 
 ### API集成
-前端通过Vite代理访问后端API（http://localhost:8080）
+前端通过Vite代理访问后端API（http://localhost:3636）
 
 **API端点：**
 - `GET /api/status` - 系统状态
@@ -87,7 +87,7 @@ web/
 
 ## 注意事项
 
-1. **确保后端API服务已启动**（默认端口8080）
+1. **确保后端API服务已启动**（默认端口3636）
 2. **Node.js版本要求**：>= 18.0.0
 3. **网络连接**：需要访问Binance API
 

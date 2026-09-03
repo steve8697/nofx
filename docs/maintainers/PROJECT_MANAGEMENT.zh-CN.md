@@ -2,7 +2,7 @@
 
 **语言：** [English](PROJECT_MANAGEMENT.md) | [中文](PROJECT_MANAGEMENT.zh-CN.md)
 
-本指南解释了我们如何管理 NOFX 项目、跟踪进度和优先级排序。
+本指南解释了我们如何管理 AETHERIS 项目、跟踪进度和优先级排序。
 
 ---
 
@@ -12,7 +12,7 @@
 
 我们使用 **GitHub Projects (Beta)** 和以下看板：
 
-#### 1. **NOFX 开发看板**
+#### 1. **AETHERIS 开发看板**
 
 **列：**
 ```
@@ -316,10 +316,10 @@ Available → Claimed → In Progress → Under Review → Paid
 
 ### 外部（社区）
 
-- **Telegram：** [@nofx_dev_community](https://t.me/nofx_dev_community)
+- **Telegram：** [@aetheris_dev_community](https://t.me/aetheris_dev_community)
 - **GitHub Issues：** Bug 报告、功能请求
 - **GitHub Discussions：** 一般问题、想法
-- **Twitter：** [@nofx_ai](https://x.com/nofx_ai) - 公告
+- **Twitter：** [@aetheris_ai](https://x.com/aetheris_ai) - 公告
 
 ---
 

@@ -36,6 +36,9 @@ func init() {
 	} else {
 		log.Printf("✓ 已加载 %d 个系统提示词模板", len(globalPromptManager.templates))
 	}
+	if err := LoadPlaybooks(); err != nil {
+		log.Printf("⚠️  加载交易 skills 失败: %v", err)
+	}
 }
 
 // NewPromptManager 创建提示词管理器
@@ -55,14 +58,19 @@ func (pm *PromptManager) LoadTemplates(dir string) error {
 		return fmt.Errorf("提示词目录不存在: %s", dir)
 	}
 
-	// 扫描目录中的所有 .txt 文件
-	files, err := filepath.Glob(filepath.Join(dir, "*.txt"))
-	if err != nil {
-		return fmt.Errorf("扫描提示词目录失败: %w", err)
+	// 扫描目录中的所有 .txt 和 .md 文件
+	var files []string
+	txtFiles, err := filepath.Glob(filepath.Join(dir, "*.txt"))
+	if err == nil {
+		files = append(files, txtFiles...)
+	}
+	mdFiles, err := filepath.Glob(filepath.Join(dir, "*.md"))
+	if err == nil {
+		files = append(files, mdFiles...)
 	}
 
 	if len(files) == 0 {
-		log.Printf("⚠️  提示词目录 %s 中没有找到 .txt 文件", dir)
+		log.Printf("⚠️  提示词目录 %s 中没有找到 .txt 或 .md 文件", dir)
 		return nil
 	}
 
@@ -158,5 +166,8 @@ func GetAllPromptTemplates() []*PromptTemplate {
 
 // ReloadPromptTemplates 重新加载所有模板（全局函数）
 func ReloadPromptTemplates() error {
-	return globalPromptManager.ReloadTemplates(promptsDir)
+	if err := globalPromptManager.ReloadTemplates(promptsDir); err != nil {
+		return err
+	}
+	return LoadPlaybooks()
 }

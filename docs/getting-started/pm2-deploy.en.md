@@ -78,8 +78,8 @@ That's it! Frontend and backend will start automatically.
 After successful startup:
 
 - **Frontend Web Interface**: http://localhost:3000
-- **Backend API**: http://localhost:8080
-- **Health Check**: http://localhost:8080/api/health
+- **Backend API**: http://localhost:3636
+- **Health Check**: http://localhost:3636/api/health
 
 ---
 
@@ -95,14 +95,14 @@ const path = require('path');
 module.exports = {
   apps: [
     {
-      name: 'nofx-backend',
-      script: './nofx',           // Go binary
+      name: 'aetheris-backend',
+      script: './aetheris',           // Go binary
       cwd: __dirname,             // Dynamically get current directory
       autorestart: true,
       max_memory_restart: '500M'
     },
     {
-      name: 'nofx-frontend',
+      name: 'aetheris-frontend',
       script: 'npm',
       args: 'run dev',            // Vite dev server
       cwd: path.join(__dirname, 'web'), // Dynamically join path
@@ -174,8 +174,8 @@ pm2 unstartup
 ### View Detailed Information
 
 ```bash
-pm2 info nofx-backend   # Backend details
-pm2 info nofx-frontend  # Frontend details
+pm2 info aetheris-backend   # Backend details
+pm2 info aetheris-frontend  # Frontend details
 ```
 
 ### Clear Logs
@@ -195,12 +195,12 @@ pm2 flush
 ./pm2.sh logs
 
 # 2. Check port usage
-lsof -i :8080  # Backend port
+lsof -i :3636  # Backend port
 lsof -i :3000  # Frontend port
 
 # 3. Manual compile test
-go build -o nofx
-./nofx
+go build -o aetheris
+./aetheris
 ```
 
 ### Backend Won't Start
@@ -213,10 +213,10 @@ go build -o nofx
 ls -l trading.db
 
 # Check permissions
-chmod +x nofx
+chmod +x aetheris
 
 # Run manually to see errors
-./nofx
+./aetheris
 ```
 
 ### Frontend Not Accessible
@@ -239,7 +239,7 @@ Modify `pm2.config.js`:
 
 ```javascript
 {
-  name: 'nofx-frontend',
+  name: 'aetheris-frontend',
   script: 'npm',
   args: 'run preview',  // Change to preview (requires npm run build first)
   env: {
@@ -252,8 +252,8 @@ Modify `pm2.config.js`:
 
 ```javascript
 {
-  name: 'nofx-backend',
-  script: './nofx',
+  name: 'aetheris-backend',
+  script: './aetheris',
   instances: 2,  // Start 2 instances
   exec_mode: 'cluster'
 }

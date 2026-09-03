@@ -1,4 +1,4 @@
-# 🤖 NOFX - Agentic Trading OS
+# 🤖 AETHERIS - Agentic Trading OS
 
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go)](https://golang.org/)
 [![React](https://img.shields.io/badge/React-18+-61DAFB?style=flat&logo=react)](https://reactjs.org/)
@@ -8,7 +8,7 @@
 
 **Languages:** [English](README.md) | [中文](docs/i18n/zh-CN/README.md) | [Українська](docs/i18n/uk/README.md) | [Русский](docs/i18n/ru/README.md) | [日本語](docs/i18n/ja/README.md)
 
-**Official Twitter:** [@nofx_ai](https://x.com/nofx_ai)
+**Official Twitter:** [@aetheris_ai](https://x.com/aetheris_ai)
 
 **📚 Documentation:** [Docs Home](docs/README.md) | [Getting Started](docs/getting-started/README.md) | [Changelog](CHANGELOG.md) | [Contributing](CONTRIBUTING.md) | [Security](SECURITY.md)
 
@@ -41,7 +41,7 @@
 
 ## 🚀 Universal AI Trading Operating System
 
-**NOFX** is a **universal Agentic Trading OS** built on a unified architecture. We've successfully closed the loop in crypto markets: **"Multi-Agent Decision → Unified Risk Control → Low-Latency Execution → Live/Paper Account Backtesting"**, and are now expanding this same technology stack to **stocks, futures, options, forex, and all financial markets**.
+**AETHERIS** is a **universal Agentic Trading OS** built on a unified architecture. We've successfully closed the loop in crypto markets: **"Multi-Agent Decision → Unified Risk Control → Low-Latency Execution → Live/Paper Account Backtesting"**, and are now expanding this same technology stack to **stocks, futures, options, forex, and all financial markets**.
 
 ### 🎯 Core Features
 
@@ -62,7 +62,7 @@ We are currently raising our **seed round**.
 
 **For investment inquiries**, please DM **Tinkle** or **Zack** via Twitter.
 
-**For partnerships and collaborations**, please DM our official Twitter [@nofx_ai](https://x.com/nofx_ai).
+**For partnerships and collaborations**, please DM our official Twitter [@aetheris_ai](https://x.com/aetheris_ai).
 
 ---
 
@@ -72,7 +72,7 @@ We are currently raising our **seed round**.
 
 Join our Telegram developer community to discuss, share ideas, and get support:
 
-**💬 [NOFX Developer Community](https://t.me/nofx_dev_community)**
+**💬 [AETHERIS Developer Community](https://t.me/aetheris_dev_community)**
 
 ---
 
@@ -80,7 +80,7 @@ Join our Telegram developer community to discuss, share ideas, and get support:
 
 ### 🚀 Multi-Exchange Support!
 
-NOFX now supports **three major exchanges**: Binance, Hyperliquid, and Aster DEX!
+AETHERIS now supports **three major exchanges**: Binance, Hyperliquid, and Aster DEX!
 
 #### **Hyperliquid Exchange**
 
@@ -148,7 +148,7 @@ A Binance-compatible decentralized perpetual futures exchange!
 
 ## ✨ Current Implementation - Crypto Markets
 
-NOFX is currently **fully operational in cryptocurrency markets** with the following proven capabilities:
+AETHERIS is currently **fully operational in cryptocurrency markets** with the following proven capabilities:
 
 ### 🏆 Multi-Agent Competition Framework
 - **Live Agent Battle**: Qwen vs DeepSeek models compete in real-time trading
@@ -196,7 +196,7 @@ NOFX is currently **fully operational in cryptocurrency markets** with the follo
 
 ## 🔮 Roadmap - Universal Market Expansion
 
-NOFX is on a mission to become the **Universal AI Trading Operating System** for all financial markets.
+AETHERIS is on a mission to become the **Universal AI Trading Operating System** for all financial markets.
 
 **Vision:** Same architecture. Same agent framework. All markets.
 
@@ -221,7 +221,7 @@ NOFX is on a mission to become the **Universal AI Trading Operating System** for
 
 ## 🏗️ Technical Architecture
 
-NOFX is built with a modern, modular architecture:
+AETHERIS is built with a modern, modular architecture:
 
 - **Backend:** Go with Gin framework, SQLite database
 - **Frontend:** React 18 + TypeScript + Vite + TailwindCSS
@@ -245,7 +245,7 @@ NOFX is built with a modern, modular architecture:
 
 ## 🔐 Admin Mode (Single-User)
 
-For self-hosted or single-tenant setups, NOFX supports a strict admin-only mode that disables public features and requires an admin password for all access.
+For self-hosted or single-tenant setups, AETHERIS supports a strict admin-only mode that disables public features and requires an admin password for all access.
 
 ### How it works
 - All API endpoints require a valid JWT when `admin_mode=true`, except:
@@ -266,14 +266,14 @@ For self-hosted or single-tenant setups, NOFX supports a strict admin-only mode 
 ```
 
 2) Provide required environment variables:
-- `NOFX_ADMIN_PASSWORD` — plaintext admin password (only used at startup to derive a bcrypt hash)
+- `AETHERIS_ADMIN_PASSWORD` — plaintext admin password (only used at startup to derive a bcrypt hash)
 
 Docker Compose example (already wired):
 ```yaml
 services:
-  nofx:
+  aetheris:
     environment:
-      - NOFX_ADMIN_PASSWORD=${NOFX_ADMIN_PASSWORD}
+      - AETHERIS_ADMIN_PASSWORD=${AETHERIS_ADMIN_PASSWORD}
 ```
 
 1) Login flow (admin mode):
@@ -401,8 +401,8 @@ sudo apt-get install libta-lib0-dev
 ### 2. Clone the Project
 
 ```bash
-git clone https://github.com/tinkle-community/nofx.git
-cd nofx
+git clone https://github.com/tinkle-community/aetheris.git
+cd aetheris
 ```
 
 ### 3. Install Dependencies
@@ -469,10 +469,10 @@ Before configuring the system, you need to obtain AI API keys. Choose one of the
 
 ```bash
 # Build the program (first time only, or after code changes)
-go build -o nofx
+go build -o aetheris
 
 # Start the backend
-./nofx
+./aetheris
 ```
 
 **What you should see:**
@@ -535,7 +535,7 @@ Open your browser and visit: **🌐 http://localhost:3000**
 
 #### 🔷 Alternative: Using Hyperliquid Exchange
 
-**NOFX also supports Hyperliquid** - a decentralized perpetual futures exchange. To use Hyperliquid instead of Binance:
+**AETHERIS also supports Hyperliquid** - a decentralized perpetual futures exchange. To use Hyperliquid instead of Binance:
 
 **Step 1**: Get your Ethereum private key (for Hyperliquid authentication)
 
@@ -564,7 +564,7 @@ Open your browser and visit: **🌐 http://localhost:3000**
     }
   ],
   "use_default_coins": true,
-  "api_server_port": 8080
+  "api_server_port": 3636
 }
 ```
 
@@ -579,7 +579,7 @@ Open your browser and visit: **🌐 http://localhost:3000**
 
 #### 🔶 Alternative: Using Aster DEX Exchange
 
-**NOFX also supports Aster DEX** - a Binance-compatible decentralized perpetual futures exchange!
+**AETHERIS also supports Aster DEX** - a Binance-compatible decentralized perpetual futures exchange!
 
 **Why Choose Aster?**
 - 🎯 Binance-compatible API (easy migration)
@@ -621,7 +621,7 @@ Open your browser and visit: **🌐 http://localhost:3000**
     }
   ],
   "use_default_coins": true,
-  "api_server_port": 8080,
+  "api_server_port": 3636,
   "leverage": {
     "btc_eth_leverage": 5,
     "altcoin_leverage": 5
@@ -679,7 +679,7 @@ For running multiple AI traders competing against each other:
   "use_default_coins": true,
   "coin_pool_api_url": "",
   "oi_top_api_url": "",
-  "api_server_port": 8080
+  "api_server_port": 3636
 }
 ```
 
@@ -715,7 +715,7 @@ For running multiple AI traders competing against each other:
 | `use_default_coins` | Use built-in coin list<br>**✨ Smart Default: `true`** (v2.0.2+)<br>Auto-enabled if no API URL provided | `true` or omit | ❌ No<br>(Optional, auto-defaults) |
 | `coin_pool_api_url` | Custom coin pool API<br>*Only needed when `use_default_coins: false`* | `""` (empty) | ❌ No |
 | `oi_top_api_url` | Open interest API<br>*Optional supplement data* | `""` (empty) | ❌ No |
-| `api_server_port` | Web dashboard port | `8080` | ✅ Yes |
+| `api_server_port` | Web dashboard port | `3636` | ✅ Yes |
 
 ~~**Default Trading Coins** (when `use_default_coins: true`):
 - BTC, ETH, SOL, BNB, XRP, DOGE, ADA, HYPE~~
@@ -836,10 +836,10 @@ Open a terminal and run:
 
 ```bash
 # Build the program (first time only, or after code changes)
-go build -o nofx
+go build -o aetheris
 
 # Start the backend
-./nofx
+./aetheris
 ```
 
 **What you should see:**
@@ -847,7 +847,7 @@ go build -o nofx
 ```
 🚀 启动自动交易系统...
 ✓ Trader [my_trader] 已初始化
-✓ API服务器启动在端口 8080
+✓ API服务器启动在端口 3636
 📊 开始交易监控...
 ```
 
@@ -857,7 +857,7 @@ go build -o nofx
 |--------------|----------|
 | `invalid API key` | Check your Binance API key in config.json |
 | `TA-Lib not found` | Run `brew install ta-lib` (macOS) |
-| `port 8080 already in use` | ~~Change `api_server_port` in config.json~~ *Change `API_PORT` in .env file* |
+| `port 3636 already in use` | ~~Change `api_server_port` in config.json~~ *Change `API_PORT` in .env file* |
 | `DeepSeek API error` | Verify your DeepSeek API key and balance |
 
 **✅ Backend is running correctly when you see:**
@@ -931,7 +931,7 @@ Open your web browser and visit:
 
 ```bash
 # In a new terminal window
-curl http://localhost:8080/api/health
+curl http://localhost:3636/api/health
 ```
 
 Should return: `{"status":"ok"}`
@@ -1241,8 +1241,8 @@ sudo apt-get install libta-lib0-dev
 ### 4. Frontend can't connect to backend
 
 **Solution**:
-- Ensure backend is running (http://localhost:8080)
-- Check if port 8080 is occupied
+- Ensure backend is running (http://localhost:3636)
+- Check if port 3636 is occupied
 - Check browser console for errors
 
 ### 5. Coin pool API failure
@@ -1318,8 +1318,8 @@ We welcome contributions from the community! See our comprehensive guides:
 
 
 ### 🐛 Technical Support
-- **GitHub Issues**: [Submit an Issue](https://github.com/tinkle-community/nofx/issues)
-- **Developer Community**: [Telegram Group](https://t.me/nofx_dev_community)
+- **GitHub Issues**: [Submit an Issue](https://github.com/tinkle-community/aetheris/issues)
+- **Developer Community**: [Telegram Group](https://t.me/aetheris_dev_community)
 
 ---
 
@@ -1341,4 +1341,4 @@ We welcome contributions from the community! See our comprehensive guides:
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=tinkle-community/nofx&type=Date)](https://star-history.com/#tinkle-community/nofx&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=tinkle-community/aetheris&type=Date)](https://star-history.com/#tinkle-community/aetheris&Date)

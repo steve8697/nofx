@@ -1,4 +1,4 @@
-# 🤖 NOFX - AI交易操作系统
+# 🤖 AETHERIS - AI交易操作系统
 
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go)](https://golang.org/)
 [![React](https://img.shields.io/badge/React-18+-61DAFB?style=flat&logo=react)](https://reactjs.org/)
@@ -8,7 +8,7 @@
 
 **语言 / Languages:** [English](../../../README.md) | [中文](../zh-CN/README.md) | [Українська](../uk/README.md) | [Русский](../ru/README.md) | [日本語](../ja/README.md)
 
-**官方推特:** [@nofx_ai](https://x.com/nofx_ai)
+**官方推特:** [@aetheris_ai](https://x.com/aetheris_ai)
 
 **📚 文档中心:** [文档首页](../../README.md) | [快速开始](../../getting-started/README.zh-CN.md) | [更新日志](../../../CHANGELOG.zh-CN.md) | [社区指南](../../community/README.md)
 
@@ -42,7 +42,7 @@
 
 ## 🚀 通用AI交易操作系统
 
-**NOFX** 是通用架构的 **AI交易操作系统（Agentic Trading OS）**。我们已在加密市场打通"**多智能体决策 → 统一风控 → 低延迟执行 → 真实/纸面账户复盘**"的闭环，正按同一技术栈扩展到**股票、期货、期权、外汇等所有市场**。
+**AETHERIS** 是通用架构的 **AI交易操作系统（Agentic Trading OS）**。我们已在加密市场打通"**多智能体决策 → 统一风控 → 低延迟执行 → 真实/纸面账户复盘**"的闭环，正按同一技术栈扩展到**股票、期货、期权、外汇等所有市场**。
 
 ### 🎯 核心特性
 
@@ -63,7 +63,7 @@
 
 **投资咨询**，请通过 Twitter 私信联系 **Tinkle** 或 **Zack**。
 
-**商务合作**，请私信官方推特 [@nofx_ai](https://x.com/nofx_ai)。
+**商务合作**，请私信官方推特 [@aetheris_ai](https://x.com/aetheris_ai)。
 
 ---
 
@@ -73,7 +73,7 @@
 
 加入我们的Telegram开发者社区，讨论、分享想法并获得支持：
 
-**💬 [NOFX开发者社区](https://t.me/nofx_dev_community)**
+**💬 [AETHERIS开发者社区](https://t.me/aetheris_dev_community)**
 
 ---
 
@@ -81,7 +81,7 @@
 
 ### 🚀 多交易所支持！
 
-NOFX现已支持**三大交易所**：Binance、Hyperliquid和Aster DEX！
+AETHERIS现已支持**三大交易所**：Binance、Hyperliquid和Aster DEX！
 
 #### **Hyperliquid交易所**
 
@@ -149,7 +149,7 @@ NOFX现已支持**三大交易所**：Binance、Hyperliquid和Aster DEX！
 
 ## ✨ 当前实现 - 加密货币市场
 
-NOFX 目前已在**加密货币市场全面运行**，具备以下经过验证的能力：
+AETHERIS 目前已在**加密货币市场全面运行**，具备以下经过验证的能力：
 
 ### 🏆 多智能体竞赛框架
 - **实时智能体对战**：Qwen vs DeepSeek 模型实时交易竞赛
@@ -197,7 +197,7 @@ NOFX 目前已在**加密货币市场全面运行**，具备以下经过验证�
 
 ## 🔮 路线图 - 通用市场扩展
 
-NOFX 的使命是成为所有金融市场的**通用 AI 交易操作系统**。
+AETHERIS 的使命是成为所有金融市场的**通用 AI 交易操作系统**。
 
 **愿景：** 相同架构。相同智能体框架。所有市场。
 
@@ -222,7 +222,7 @@ NOFX 的使命是成为所有金融市场的**通用 AI 交易操作系统**。
 
 ## 🏗️ 技术架构
 
-NOFX 采用现代化的模块化架构：
+AETHERIS 采用现代化的模块化架构：
 
 - **后端：** Go + Gin 框架，SQLite 数据库
 - **前端：** React 18 + TypeScript + Vite + TailwindCSS
@@ -351,7 +351,7 @@ sudo apt-get install libta-lib0-dev
 
 ```bash
 git clone <repository-url>
-cd nofx
+cd aetheris
 ```
 
 ### 3. 安装依赖
@@ -453,7 +453,7 @@ cp config.json.example config.json
   "use_default_coins": true,
   "coin_pool_api_url": "",
   "oi_top_api_url": "",
-  "api_server_port": 8080
+  "api_server_port": 3636
 }
 ```
 
@@ -484,7 +484,7 @@ cp config.json.example config.json
 
 #### 🔷 备选：使用Hyperliquid交易所
 
-**NOFX也支持Hyperliquid** - 去中心化永续期货交易所。使用Hyperliquid而非Binance：
+**AETHERIS也支持Hyperliquid** - 去中心化永续期货交易所。使用Hyperliquid而非Binance：
 
 **步骤1**：获取以太坊私钥（用于Hyperliquid身份验证）
 
@@ -513,7 +513,7 @@ cp config.json.example config.json
     }
   ],
   "use_default_coins": true,
-  "api_server_port": 8080
+  "api_server_port": 3636
 }
 ```
 
@@ -528,7 +528,7 @@ cp config.json.example config.json
 
 #### 🔶 备选：使用Aster DEX交易所
 
-**NOFX也支持Aster DEX** - 兼容Binance的去中心化永续期货交易所！
+**AETHERIS也支持Aster DEX** - 兼容Binance的去中心化永续期货交易所！
 
 **为什么选择Aster？**
 - 🎯 兼容Binance API（轻松迁移）
@@ -570,7 +570,7 @@ cp config.json.example config.json
     }
   ],
   "use_default_coins": true,
-  "api_server_port": 8080,
+  "api_server_port": 3636,
   "leverage": {
     "btc_eth_leverage": 5,
     "altcoin_leverage": 5
@@ -626,7 +626,7 @@ cp config.json.example config.json
   "use_default_coins": true,
   "coin_pool_api_url": "",
   "oi_top_api_url": "",
-  "api_server_port": 8080
+  "api_server_port": 3636
 }
 ```
 
@@ -662,7 +662,7 @@ cp config.json.example config.json
 | `use_default_coins` | 使用内置币种列表<br>**✨ 智能默认：`true`** (v2.0.2+)<br>未提供API时自动启用 | `true` 或省略 | ❌ 否<br>(可选，自动默认) |
 | `coin_pool_api_url` | 自定义币种池API<br>*仅当`use_default_coins: false`时需要* | `""`（空） | ❌ 否 |
 | `oi_top_api_url` | 持仓量API<br>*可选补充数据* | `""`（空） | ❌ 否 |
-| `api_server_port` | Web仪表板端口 | `8080` | ✅ 是 |
+| `api_server_port` | Web仪表板端口 | `3636` | ✅ 是 |
 
 **默认交易币种**（当 `use_default_coins: true` 时）：
 - BTC、ETH、SOL、BNB、XRP、DOGE、ADA、HYPE
@@ -777,10 +777,10 @@ cp config.json.example config.json
 
 ```bash
 # 构建程序（首次运行或代码更改后）
-go build -o nofx
+go build -o aetheris
 
 # 启动后端
-./nofx
+./aetheris
 ```
 
 **您应该看到：**
@@ -788,7 +788,7 @@ go build -o nofx
 ```
 🚀 启动自动交易系统...
 ✓ Trader [my_trader] 已初始化
-✓ API服务器启动在端口 8080
+✓ API服务器启动在端口 3636
 📊 开始交易监控...
 ```
 
@@ -798,7 +798,7 @@ go build -o nofx
 |---------|---------|
 | `invalid API key` | ~~检查config.json中的币安API密钥~~ *检查Web界面中的API密钥* |
 | `TA-Lib not found` | 运行`brew install ta-lib`（macOS） |
-| `port 8080 already in use` | ~~修改config.json中的`api_server_port`~~ *修改.env文件中的`API_PORT`* |
+| `port 3636 already in use` | ~~修改config.json中的`api_server_port`~~ *修改.env文件中的`API_PORT`* |
 | `DeepSeek API error` | 验证DeepSeek API密钥和余额 |
 
 **✅ 后端运行正常的标志：**
@@ -872,7 +872,7 @@ VITE v5.x.x  ready in xxx ms
 
 ```bash
 # 在新终端窗口中
-curl http://localhost:8080/api/health
+curl http://localhost:3636/api/health
 ```
 
 应返回：`{"status":"ok"}`
@@ -1220,8 +1220,8 @@ sudo apt-get install libta-lib0-dev
 ### 4. 前端无法连接后端
 
 **解决**:
-- 确保后端正在运行（http://localhost:8080）
-- 检查端口8080是否被占用
+- 确保后端正在运行（http://localhost:3636）
+- 检查端口3636是否被占用
 - 查看浏览器控制台错误信息
 
 ### 5. 币种池API失败
@@ -1292,8 +1292,8 @@ sudo apt-get install libta-lib0-dev
 ## 📬 联系方式
 
 ### 🐛 技术支持
-- **GitHub Issues**: [提交Issue](https://github.com/tinkle-community/nofx/issues)
-- **开发者社区**: [Telegram群组](https://t.me/nofx_dev_community)
+- **GitHub Issues**: [提交Issue](https://github.com/tinkle-community/aetheris/issues)
+- **开发者社区**: [Telegram群组](https://t.me/aetheris_dev_community)
 
 ---
 
@@ -1315,4 +1315,4 @@ sudo apt-get install libta-lib0-dev
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=tinkle-community/nofx&type=Date)](https://star-history.com/#tinkle-community/nofx&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=tinkle-community/aetheris&type=Date)](https://star-history.com/#tinkle-community/aetheris&Date)

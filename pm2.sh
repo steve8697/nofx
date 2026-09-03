@@ -60,7 +60,7 @@ ensure_log_dirs() {
 # 函数：编译后端
 build_backend() {
     print_info "正在编译后端..."
-    go build -o nofx
+    go build -o aetheris
     if [ $? -eq 0 ]; then
         print_success "后端编译完成"
     else
@@ -89,7 +89,7 @@ start_services() {
     ensure_log_dirs
 
     # 检查后端二进制文件是否存在
-    if [ ! -f "./nofx" ]; then
+    if [ ! -f "./aetheris" ]; then
         print_warning "后端二进制文件不存在，开始编译..."
         build_backend
     fi
@@ -104,8 +104,8 @@ start_services() {
     print_success "服务启动完成！"
     echo ""
     echo -e "${CYAN}📊 访问地址:${NC}"
-    echo -e "  ${GREEN}前端:${NC} http://localhost:3000"
-    echo -e "  ${GREEN}后端 API:${NC} http://localhost:8080"
+    echo -e "  ${GREEN}前端:${NC} http://localhost:3434"
+    echo -e "  ${GREEN}后端 API:${NC} http://localhost:3636"
     echo ""
     echo -e "${CYAN}📝 查看日志:${NC}"
     echo -e "  ${GREEN}实时日志:${NC} ./pm2.sh logs"
@@ -146,9 +146,9 @@ show_status() {
     pm2 status
     echo ""
     print_info "详细信息:"
-    pm2 info nofx-backend
+    pm2 info aetheris-backend
     echo ""
-    pm2 info nofx-frontend
+    pm2 info aetheris-frontend
 }
 
 # 函数：查看日志
@@ -157,9 +157,9 @@ show_logs() {
         # 显示所有日志
         pm2 logs
     elif [ "$2" = "backend" ]; then
-        pm2 logs nofx-backend
+        pm2 logs aetheris-backend
     elif [ "$2" = "frontend" ]; then
-        pm2 logs nofx-frontend
+        pm2 logs aetheris-frontend
     else
         print_error "未知的日志类型: $2"
         print_info "用法: ./pm2.sh logs [backend|frontend]"
@@ -181,7 +181,7 @@ rebuild_and_restart() {
     build_backend
 
     print_info "正在重启后端服务..."
-    pm2 restart nofx-backend
+    pm2 restart aetheris-backend
 
     sleep 2
     pm2 status

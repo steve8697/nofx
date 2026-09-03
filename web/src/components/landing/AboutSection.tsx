@@ -50,17 +50,17 @@ export default function AboutSection({ language }: AboutSectionProps) {
               className="text-lg leading-relaxed"
               style={{ color: 'var(--text-secondary)' }}
             >
-              {t('nofxNotAnotherBot', language)}{' '}
-              {t('nofxDescription1', language)}{' '}
-              {t('nofxDescription2', language)}
+              {t('aetherisNotAnotherBot', language)}{' '}
+              {t('aetherisDescription1', language)}{' '}
+              {t('aetherisDescription2', language)}
             </p>
             <p
               className="text-lg leading-relaxed"
               style={{ color: 'var(--text-secondary)' }}
             >
-              {t('nofxDescription3', language)}{' '}
-              {t('nofxDescription4', language)}{' '}
-              {t('nofxDescription5', language)}
+              {t('aetherisDescription3', language)}{' '}
+              {t('aetherisDescription4', language)}{' '}
+              {t('aetherisDescription5', language)}
             </p>
             <motion.div
               className="flex items-center gap-3 pt-4"
@@ -102,8 +102,8 @@ export default function AboutSection({ language }: AboutSectionProps) {
             >
               <Typewriter
                 lines={[
-                  '$ git clone https://github.com/tinkle-community/nofx.git',
-                  '$ cd nofx',
+                  '$ git clone https://github.com/tinkle-community/aetheris.git',
+                  '$ cd aetheris',
                   '$ chmod +x start.sh',
                   '$ ./start.sh start --build',
                   t('startupMessages1', language),

@@ -14,6 +14,7 @@ import (
 type CombinedStreamsClient struct {
 	conn        *websocket.Conn
 	mu          sync.RWMutex
+	writeMu     sync.Mutex
 	subscribers map[string]chan []byte
 	reconnect   bool
 	done        chan struct{}
@@ -99,15 +100,42 @@ func (c *CombinedStreamsClient) subscribeStreams(streams []string) error {
 		"id":     time.Now().UnixNano(),
 	}
 
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+	c.writeMu.Lock()
+	defer c.writeMu.Unlock()
 
-	if c.conn == nil {
+	c.mu.RLock()
+	conn := c.conn
+	c.mu.RUnlock()
+
+	if conn == nil {
 		return fmt.Errorf("WebSocket未连接")
 	}
 
 	log.Printf("订阅流: %v", streams)
-	return c.conn.WriteJSON(subscribeMsg)
+	return conn.WriteJSON(subscribeMsg)
+}
+
+// UnsubscribeStreams 取消订阅多个流
+func (c *CombinedStreamsClient) UnsubscribeStreams(streams []string) error {
+	unsubscribeMsg := map[string]interface{}{
+		"method": "UNSUBSCRIBE",
+		"params": streams,
+		"id":     time.Now().UnixNano(),
+	}
+
+	c.writeMu.Lock()
+	defer c.writeMu.Unlock()
+
+	c.mu.RLock()
+	conn := c.conn
+	c.mu.RUnlock()
+
+	if conn == nil {
+		return fmt.Errorf("WebSocket未连接")
+	}
+
+	log.Printf("取消订阅流: %v", streams)
+	return conn.WriteJSON(unsubscribeMsg)
 }
 
 func (c *CombinedStreamsClient) readMessages() {
@@ -164,9 +192,23 @@ func (c *CombinedStreamsClient) handleCombinedMessage(message []byte) {
 func (c *CombinedStreamsClient) AddSubscriber(stream string, bufferSize int) <-chan []byte {
 	ch := make(chan []byte, bufferSize)
 	c.mu.Lock()
+	if oldCh, exists := c.subscribers[stream]; exists {
+		close(oldCh) // 关闭旧通道以允许旧的接收协程优雅退出
+	}
 	c.subscribers[stream] = ch
 	c.mu.Unlock()
 	return ch
+}
+
+// RemoveSubscriber 移除订阅者并关闭通道
+func (c *CombinedStreamsClient) RemoveSubscriber(stream string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if ch, exists := c.subscribers[stream]; exists {
+		close(ch)
+		delete(c.subscribers, stream)
+	}
 }
 
 func (c *CombinedStreamsClient) handleReconnect() {
@@ -180,12 +222,43 @@ func (c *CombinedStreamsClient) handleReconnect() {
 	if err := c.Connect(); err != nil {
 		log.Printf("组合流重新连接失败: %v", err)
 		go c.handleReconnect()
+		return
+	}
+
+	// 重新连接成功后，自动重新订阅所有现有活跃流
+	c.resubscribeAll()
+}
+
+func (c *CombinedStreamsClient) resubscribeAll() {
+	c.mu.RLock()
+	streams := make([]string, 0, len(c.subscribers))
+	for s := range c.subscribers {
+		streams = append(streams, s)
+	}
+	c.mu.RUnlock()
+
+	if len(streams) == 0 {
+		return
+	}
+
+	log.Printf("🔄 组合流重连成功，正在重新订阅 %d 个活跃流...", len(streams))
+	batches := c.splitIntoBatches(streams, c.batchSize)
+	for i, batch := range batches {
+		if err := c.subscribeStreams(batch); err != nil {
+			log.Printf("⚠️ 重新订阅第 %d 批失败: %v", i+1, err)
+		}
+		if i < len(batches)-1 {
+			time.Sleep(100 * time.Millisecond)
+		}
 	}
 }
 
 func (c *CombinedStreamsClient) Close() {
 	c.reconnect = false
 	close(c.done)
+
+	c.writeMu.Lock()
+	defer c.writeMu.Unlock()
 
 	c.mu.Lock()
 	defer c.mu.Unlock()

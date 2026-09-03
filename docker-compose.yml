@@ -1,53 +1,102 @@
 services:
   # Backend service (API and core logic)
-  nofx:
+  aetheris:
+    image: aetheris-backend
     build:
       context: .
       dockerfile: ./docker/Dockerfile.backend
-    container_name: nofx-trading
-    restart: unless-stopped
+    container_name: aetheris-trading
+    # always：Docker Desktop 更新会把容器当成「已停止」，unless-stopped 不会再拉起
+    restart: always
     ports:
-      - "${NOFX_BACKEND_PORT:-8080}:8080"
+      - "${AETHERIS_BACKEND_PORT:-${NOFX_BACKEND_PORT:-3636}}:3636"
     volumes:
       - ./config.json:/app/config.json:ro
       - ./config.db:/app/config.db
       - ./beta_codes.txt:/app/beta_codes.txt:ro
       - ./decision_logs:/app/decision_logs
+      - ./data:/app/data
       - ./prompts:/app/prompts
-      - /etc/localtime:/etc/localtime:ro  # Sync host time
+      - /etc/localtime:/etc/localtime:ro # Sync host time
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
-      - TZ=${NOFX_TIMEZONE:-Asia/Shanghai}  # Set timezone
-      - AI_MAX_TOKENS=4000  # AI响应的最大token数（默认2000，建议4000-8000）
-      - NOFX_ADMIN_PASSWORD=${NOFX_ADMIN_PASSWORD} # Admin password when admin_mode=true      
+      - TZ=${AETHERIS_TIMEZONE:-${NOFX_TIMEZONE:-Asia/Shanghai}} # Set timezone
+      - AI_MAX_TOKENS=32000 # AI响应的最大token数（已提升至32000以支持更長的思維鏈）
+      - NOFX_ADMIN_PASSWORD=${AETHERIS_ADMIN_PASSWORD:-${NOFX_ADMIN_PASSWORD}} # Admin password
+      - AETHERIS_ADMIN_PASSWORD=${AETHERIS_ADMIN_PASSWORD:-${NOFX_ADMIN_PASSWORD}}
+      - NOFX_IN_DOCKER=1
+      - AETHERIS_IN_DOCKER=1
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - DASHSCOPE_API_KEY=${DASHSCOPE_API_KEY:-}
+      - NVIDIA_API_KEY=${NVIDIA_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - LMSTUDIO_API_KEY=${LMSTUDIO_API_KEY:-}
+      - OMLX_API_KEY=${OMLX_API_KEY:-}
+      - DS4_API_KEY=${DS4_API_KEY:-}
+      - RTX5090_API_KEY=${RTX5090_API_KEY:-}
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     networks:
-      - nofx-network
+      - aetheris-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3636/api/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 60s
 
-  # Frontend service (static serving and proxy)
-  nofx-frontend:
+  # Frontend: production UI is web/ (Dockerfile.frontend).
+  aetheris-frontend:
+    image: aetheris-frontend
     build:
       context: .
       dockerfile: ./docker/Dockerfile.frontend
-    container_name: nofx-frontend
-    restart: unless-stopped
+    container_name: aetheris-frontend
+    restart: always
     ports:
-      - "${NOFX_FRONTEND_PORT:-3000}:80"
+      - "${AETHERIS_FRONTEND_PORT:-${NOFX_FRONTEND_PORT:-3434}}:80"
     networks:
-      - nofx-network
+      - aetheris-network
     depends_on:
-      - nofx
+      - aetheris
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 5s
 
+  aetheris-mcp:
+    image: aetheris-mcp
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.mcp
+    container_name: aetheris-mcp
+    restart: always
+    ports:
+      - "1997:1997"
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      - NOFX_ADMIN_PASSWORD=${AETHERIS_ADMIN_PASSWORD:-${NOFX_ADMIN_PASSWORD}}
+      - AETHERIS_ADMIN_PASSWORD=${AETHERIS_ADMIN_PASSWORD:-${NOFX_ADMIN_PASSWORD}}
+      - NOFX_API_URL=http://aetheris:3636
+      - AETHERIS_API_URL=http://aetheris:3636
+    networks:
+      - aetheris-network
+    depends_on:
+      - aetheris
+    healthcheck:
+      test: [ "CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:1997/sse', timeout=3)" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
 networks:
-  nofx-network:
+  aetheris-network:
     driver: bridge

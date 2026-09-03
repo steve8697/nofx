@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-05-27T15:44:18.489165128+08:00",
+  "cycle_number": 29,
+  "system_prompt": "",
+  "input_prompt": "",
+  "cot_trace": "",
+  "decision_json": "",
+  "account_state": {
+    "total_balance": 0,
+    "available_balance": 0,
+    "total_unrealized_profit": 0,
+    "position_count": 0,
+    "margin_used_pct": 0
+  },
+  "positions": null,
+  "candidate_coins": null,
+  "technical_analysis": null,
+  "price_action": null,
+  "decisions": null,
+  "execution_log": [],
+  "success": false,
+  "error_message": "构建交易上下文失败: 获取账户余额失败: Get \"https://fapi.asterdex.com/fapi/v3/balance?nonce=1779867855316690\u0026recvWindow=50000\u0026signature=0xa4ba0a90e528599c534bf9323c0dd70de2ca8813267fd26279e3597beeff6ad8470c19fcce1839b208c681ccd4d1e664dba5fc027dcf7577ca08ecb32de028811b\u0026signer=0x80002Dc36f9CF734a47d5CD4B51ad0200278fEbc\u0026timestamp=1779867855316\u0026user=0x399200C86E1E0Fb1240b6Bce3a78fa7079B26FfD\": unexpected EOF"
+}

@@ -11,6 +11,30 @@ export interface SystemStatus {
   stop_until: string
   last_reset_time: string
   ai_provider: string
+  risk_halted?: boolean
+  consecutive_wait?: number
+  daily_pnl?: number
+  injected_skills?: string[]
+  operator_pause_opens?: boolean
+  operator_pause_actor?: string
+  operator_pause_until?: string
+  operator_note_count?: number
+}
+
+export interface OperatorEvent {
+  id: number
+  ts: string
+  actor: string
+  action: string
+  note: string
+  expires_at?: string | null
+}
+
+export interface OperatorDirective {
+  pause_opens: boolean
+  pause_until?: string | null
+  pause_actor?: string
+  notes: OperatorEvent[]
 }
 
 export interface AccountInfo {
@@ -47,6 +71,7 @@ export interface DecisionAction {
   quantity: number
   leverage: number
   price: number
+  reasoning?: string
   order_id: number
   timestamp: string
   success: boolean
@@ -71,17 +96,38 @@ export interface DecisionRecord {
   positions: any[]
   candidate_coins: string[]
   decisions: DecisionAction[]
+  technical_analysis?: Record<string, TechnicalAnalysis>
+  price_action?: Record<string, PriceAction>
   execution_log: string[]
   success: boolean
   error_message?: string
 }
 
 export interface Statistics {
-  total_cycles: number
-  successful_cycles: number
-  failed_cycles: number
-  total_open_positions: number
-  total_close_positions: number
+  total_trades: number
+  win_rate: number
+  profit_factor: number
+  total_pnl: number
+  max_drawdown: number
+  avg_profit: number
+  avg_loss: number
+  trades_by_symbol: Record<string, { count: number; pnl: number }>
+}
+
+export interface TechnicalAnalysis {
+  TrendState: string
+  RSIState: string
+  VolumeState: string
+  SignalScore: number
+  volume_zscore?: number
+}
+
+export interface PriceAction {
+  UpperWickRatio: number
+  LowerWickRatio: number
+  BodyRatio: number
+  DistToEMA20: number
+  CandleType: string
 }
 
 // AI Trading相关类型
@@ -101,9 +147,23 @@ export interface AIModel {
   name: string
   provider: string
   enabled: boolean
-  apiKey?: string
+  apiKey?: string  // 安全修复：返回遮蔽值 '***' 而不是实际密钥
   customApiUrl?: string
   customModelName?: string
+  envKey?: string
+  hasApiKey?: boolean
+}
+
+export interface ModelProvider {
+  id: string
+  name: string
+  base_url: string
+  env_key: string
+  default_model: string
+  suggested_models?: string[]
+  local?: boolean
+  timeout_seconds?: number
+  notes?: string
 }
 
 export interface Exchange {
@@ -111,12 +171,11 @@ export interface Exchange {
   name: string
   type: 'cex' | 'dex'
   enabled: boolean
+  testnet?: boolean
+  // 安全修复：返回遮蔽值 '***' 而不是实际密钥
   apiKey?: string
   secretKey?: string
-  testnet?: boolean
-  // Hyperliquid 特定字段
   hyperliquidWalletAddr?: string
-  // Aster 特定字段
   asterUser?: string
   asterSigner?: string
   asterPrivateKey?: string
@@ -146,6 +205,9 @@ export interface UpdateModelConfigRequest {
       api_key: string
       custom_api_url?: string
       custom_model_name?: string
+      env_key?: string
+      name?: string
+      provider?: string
     }
   }
 }
@@ -197,6 +259,7 @@ export interface TraderConfigData {
   trading_symbols: string
   custom_prompt: string
   override_base_prompt: boolean
+  system_prompt_template?: string
   is_cross_margin: boolean
   use_coin_pool: boolean
   use_oi_top: boolean

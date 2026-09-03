@@ -1,8 +1,8 @@
-# 🤝 为 NOFX 做贡献
+# 🤝 为 AETHERIS 做贡献
 
 **语言：** [English](../../../CONTRIBUTING.md) | [中文](CONTRIBUTING.md)
 
-感谢您有兴趣为 NOFX 做贡献！本文档提供了为项目做贡献的指南和工作流程。
+感谢您有兴趣为 AETHERIS 做贡献！本文档提供了为项目做贡献的指南和工作流程。
 
 ---
 
@@ -81,11 +81,11 @@
 ```bash
 # 在 GitHub 上 Fork 仓库
 # 然后 clone 你的 fork
-git clone https://github.com/YOUR_USERNAME/nofx.git
-cd nofx
+git clone https://github.com/YOUR_USERNAME/aetheris.git
+cd aetheris
 
 # 添加 upstream remote
-git remote add upstream https://github.com/tinkle-community/nofx.git
+git remote add upstream https://github.com/tinkle-community/aetheris.git
 ```
 
 ### 2. 创建功能分支
@@ -143,7 +143,7 @@ sudo apt-get install libta-lib0-dev
 go test ./...
 
 # 构建后端
-go build -o nofx
+go build -o aetheris
 
 # 以开发模式运行前端
 cd web
@@ -312,7 +312,7 @@ const TC = (props) => {
 ### 文件结构
 
 ```
-NOFX/
+AETHERIS/
 ├── cmd/               # 主应用程序
 ├── internal/          # 私有代码
 │   ├── exchange/      # 交易所适配器
@@ -440,7 +440,7 @@ docs: update Docker deployment guide
 
 ### 工作方式
 
-1. 查看[悬赏 issue](https://github.com/tinkle-community/nofx/labels/bounty)
+1. 查看[悬赏 issue](https://github.com/tinkle-community/aetheris/labels/bounty)
 2. 评论认领（先到先得）
 3. 在截止日期前完成工作
 4. 提交 PR 并填写悬赏认领部分
@@ -458,8 +458,8 @@ docs: update Docker deployment guide
 
 ## ❓ 问题？
 
-- **一般问题：** 加入我们的 [Telegram 社区](https://t.me/nofx_dev_community)
-- **技术问题：** 开启[讨论](https://github.com/tinkle-community/nofx/discussions)
+- **一般问题：** 加入我们的 [Telegram 社区](https://t.me/aetheris_dev_community)
+- **技术问题：** 开启[讨论](https://github.com/tinkle-community/aetheris/discussions)
 - **安全问题：** 查看[安全政策](../../../SECURITY.md)
 - **Bug 报告：** 使用 [Bug 报告模板](../../../.github/ISSUE_TEMPLATE/bug_report.md)
 
@@ -476,6 +476,6 @@ docs: update Docker deployment guide
 
 ## 🙏 感谢你！
 
-你的贡献让 NOFX 变得更好。我们感谢你的时间和努力！
+你的贡献让 AETHERIS 变得更好。我们感谢你的时间和努力！
 
 **编码愉快！🚀**

@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-05-27T12:04:25.530475758+08:00",
+  "cycle_number": 7,
+  "system_prompt": "",
+  "input_prompt": "",
+  "cot_trace": "",
+  "decision_json": "",
+  "account_state": {
+    "total_balance": 0,
+    "available_balance": 0,
+    "total_unrealized_profit": 0,
+    "position_count": 0,
+    "margin_used_pct": 0
+  },
+  "positions": null,
+  "candidate_coins": null,
+  "technical_analysis": null,
+  "price_action": null,
+  "decisions": null,
+  "execution_log": [],
+  "success": false,
+  "error_message": "构建交易上下文失败: 获取账户余额失败: Get \"https://fapi.asterdex.com/fapi/v3/balance?nonce=1779854655518526\u0026recvWindow=50000\u0026signature=0xfc96458bf0fdbf9951faa9d25c4f90d2fd24cb82f32911e567ee6569f6861f767be3281a741cf89c5f7a20e792dcc4c45330e983ee77c502bdb3aa222b3c95391c\u0026signer=0x80002Dc36f9CF734a47d5CD4B51ad0200278fEbc\u0026timestamp=1779854655518\u0026user=0x399200C86E1E0Fb1240b6Bce3a78fa7079B26FfD\": http2: timeout awaiting response headers"
+}

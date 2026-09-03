@@ -1,14 +1,14 @@
-# 🏗️ NOFX Architecture Documentation
+# 🏗️ AETHERIS Architecture Documentation
 
 **Language:** [English](README.md) | [中文](README.zh-CN.md)
 
-Technical documentation for developers who want to understand NOFX internals.
+Technical documentation for developers who want to understand AETHERIS internals.
 
 ---
 
 ## 📋 Overview
 
-NOFX is a full-stack AI trading platform with:
+AETHERIS is a full-stack AI trading platform with:
 - **Backend:** Go (Gin framework, SQLite)
 - **Frontend:** React/TypeScript (Vite, TailwindCSS)
 - **Architecture:** Microservice-inspired modular design
@@ -18,7 +18,7 @@ NOFX is a full-stack AI trading platform with:
 ## 📁 Project Structure
 
 ```
-nofx/
+aetheris/
 ├── main.go                          # Program entry (multi-trader manager)
 ├── config.json                      # ~~Multi-trader config~~ (Now via web interface)
 ├── trading.db                       # SQLite database (traders, models, exchanges)
@@ -486,8 +486,8 @@ trader/binance_futures_test.go
 
 ```bash
 # Backend
-go build -o nofx
-./nofx
+go build -o aetheris
+./aetheris
 
 # Frontend
 cd web
@@ -555,11 +555,11 @@ cd web && npm run build
 
 **Want to contribute?**
 - Read [Contributing Guide](../../CONTRIBUTING.md)
-- Check [Open Issues](https://github.com/tinkle-community/nofx/issues)
-- Join [Telegram Community](https://t.me/nofx_dev_community)
+- Check [Open Issues](https://github.com/tinkle-community/aetheris/issues)
+- Join [Telegram Community](https://t.me/aetheris_dev_community)
 
 **Need clarification?**
-- Open a [GitHub Discussion](https://github.com/tinkle-community/nofx/discussions)
+- Open a [GitHub Discussion](https://github.com/tinkle-community/aetheris/discussions)
 - Ask in Telegram
 
 ---

@@ -96,8 +96,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ env.REGISTRY_GHCR }}/${{ needs.prepare.outputs.image_base }}/nofx-${{ matrix.image_suffix }}
-            ${{ secrets.DOCKERHUB_USERNAME && format('{0}/nofx-{1}', secrets.DOCKERHUB_USERNAME, matrix.image_suffix) || '' }}
+            ${{ env.REGISTRY_GHCR }}/${{ needs.prepare.outputs.image_base }}/aetheris-${{ matrix.image_suffix }}
+            ${{ secrets.DOCKERHUB_USERNAME && format('{0}/aetheris-{1}', secrets.DOCKERHUB_USERNAME, matrix.image_suffix) || '' }}
           tags: |
             type=ref,event=branch,suffix=-${{ matrix.arch_tag }}
             type=semver,pattern={{version}},suffix=-${{ matrix.arch_tag }}
@@ -162,7 +162,7 @@ jobs:
 
           # GHCR manifest (使用小写仓库名)
           REPO_LOWER="${{ needs.prepare.outputs.image_base }}"
-          GHCR_IMAGE="${{ env.REGISTRY_GHCR }}/${REPO_LOWER}/nofx-${{ matrix.image_suffix }}"
+          GHCR_IMAGE="${{ env.REGISTRY_GHCR }}/${REPO_LOWER}/aetheris-${{ matrix.image_suffix }}"
 
           echo "📦 Creating manifest for ${{ matrix.image_suffix }}..."
           echo "Repository: ${REPO_LOWER}"
@@ -183,7 +183,7 @@ jobs:
 
           # Docker Hub manifest (如果配置了)
           if [[ -n "${{ secrets.DOCKERHUB_USERNAME }}" ]]; then
-            DOCKERHUB_IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/nofx-${{ matrix.image_suffix }}"
+            DOCKERHUB_IMAGE="${{ secrets.DOCKERHUB_USERNAME }}/aetheris-${{ matrix.image_suffix }}"
             docker buildx imagetools create -t "${DOCKERHUB_IMAGE}:${REF_NAME}" \
               "${DOCKERHUB_IMAGE}:${REF_NAME}-amd64" \
               "${DOCKERHUB_IMAGE}:${REF_NAME}-arm64" || true

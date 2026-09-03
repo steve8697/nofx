@@ -6,17 +6,15 @@ import type {
   CreateTraderRequest,
   AIModel,
   Exchange,
+  ModelProvider,
 } from '../types'
 import { useLanguage } from '../contexts/LanguageContext'
 import { t, type Language } from '../i18n/translations'
 import { useAuth } from '../contexts/AuthContext'
 import { getExchangeIcon } from './ExchangeIcons'
-import { getModelIcon } from './ModelIcons'
 import { TraderConfigModal } from './TraderConfigModal'
 import {
   Bot,
-  Brain,
-  Landmark,
   BarChart3,
   Trash2,
   Plus,
@@ -24,6 +22,8 @@ import {
   AlertTriangle,
   BookOpen,
   HelpCircle,
+  LayoutGrid,
+  List,
 } from 'lucide-react'
 
 // 获取友好的AI模型名称
@@ -35,6 +35,8 @@ function getModelDisplayName(modelId: string): string {
       return 'Qwen'
     case 'claude':
       return 'Claude'
+    case 'custom':
+      return 'Custom'
     default:
       return modelId.toUpperCase()
   }
@@ -46,6 +48,201 @@ function getShortName(fullName: string): string {
   return parts.length > 1 ? parts[parts.length - 1] : fullName
 }
 
+interface AITraderCardProps {
+  trader: TraderInfo;
+  isRunning: boolean;
+  language: Language;
+  onTraderSelect?: (id: string) => void;
+  handleToggleTrader: (id: string, isRunning: boolean) => void;
+  handleSyncBalance: (id: string) => void;
+  handleEditTrader: (id: string) => void;
+  handleDeleteTrader: (id: string) => void;
+  getModelDisplayName: (model: string) => string;
+  getExchangeIcon: (exchange: string, size?: any) => any;
+  t: any;
+}
+
+function AITraderCard({
+  trader,
+  isRunning,
+  language,
+  onTraderSelect,
+  handleToggleTrader,
+  handleSyncBalance,
+  handleEditTrader,
+  handleDeleteTrader,
+  getModelDisplayName,
+  getExchangeIcon,
+  t
+}: AITraderCardProps) {
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+  const [glowX, setGlowX] = useState(50);
+  const [glowY, setGlowY] = useState(50);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const xc = x / rect.width - 0.5;
+    const yc = y / rect.height - 0.5;
+    setRotateX(-yc * 12);
+    setRotateY(xc * 12);
+    setGlowX((x / rect.width) * 100);
+    setGlowY((y / rect.height) * 100);
+  };
+
+  const handleMouseLeave = () => {
+    setRotateX(0);
+    setRotateY(0);
+    setIsHovered(false);
+  };
+
+  return (
+    <div
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        transform: `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(${isHovered ? 1.025 : 1}, ${isHovered ? 1.025 : 1}, 1)`,
+        transition: isHovered ? 'transform 0.08s cubic-bezier(0.25, 1, 0.5, 1)' : 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)',
+        transformStyle: 'preserve-3d',
+      }}
+      className={`glass-card p-6 flex flex-col justify-between relative overflow-hidden ${
+        isRunning ? 'border border-white/20' : 'border border-white/5'
+      }`}
+    >
+      {/* 霓虹滑鼠追隨光暈 (Mouse Glow Overlay) */}
+      {isHovered && (
+        <div 
+          className="absolute inset-0 pointer-events-none transition-opacity duration-300"
+          style={{
+            background: `radial-gradient(circle 120px at ${glowX}% ${glowY}%, rgba(255, 255, 255, 0.04), transparent)`,
+            zIndex: 1,
+          }}
+        />
+      )}
+
+      {/* 雷射發光條 */}
+      {isRunning && (
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-white/40 to-transparent animate-pulse z-10"></div>
+      )}
+
+      <div style={{ transform: 'translateZ(20px)', transformStyle: 'preserve-3d' }}>
+        {/* Top Row: Icon & Status */}
+        <div className="flex items-start justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div
+              className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-500 ${
+                isRunning 
+                  ? 'bg-white border border-white text-black' 
+                  : 'bg-white/5 border border-white/10 text-gray-400'
+              }`}
+            >
+              <Bot className="w-6 h-6" />
+            </div>
+            <div>
+              <div
+                className="font-bold text-base md:text-lg text-[#EAECEF] hover:text-white transition-colors cursor-pointer"
+                onClick={() => onTraderSelect?.(trader.trader_id)}
+              >
+                {trader.trader_name}
+              </div>
+              <div
+                className="text-xs font-mono uppercase tracking-wider mt-0.5"
+                style={{
+                  color: '#8E8E93',
+                }}
+              >
+                {getModelDisplayName(trader.ai_model)}
+              </div>
+            </div>
+          </div>
+
+          {/* Status Pulse */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/40 border border-white/5">
+            <span className={isRunning ? 'pulse-dot-green' : 'pulse-dot-red'}></span>
+            <span className="text-[10px] font-bold font-mono tracking-wide" style={{ color: isRunning ? '#0ECB81' : '#F6465D' }}>
+              {isRunning ? 'RUNNING' : 'STOPPED'}
+            </span>
+          </div>
+        </div>
+
+        {/* Stats & Details Grid */}
+        <div className="grid grid-cols-2 gap-3 py-4 border-t border-b border-white/5 mb-5 font-mono text-xs">
+          <div>
+            <div className="text-[10px] text-gray-500 tracking-wider mb-0.5 uppercase">Exchange</div>
+            <div className="text-[#EAECEF] font-semibold flex items-center gap-1.5">
+              {getExchangeIcon(trader.exchange_id || '', { width: 14, height: 14 })}
+              {trader.exchange_id?.toUpperCase()}
+            </div>
+          </div>
+          <div>
+            <div className="text-[10px] text-gray-500 tracking-wider mb-0.5 uppercase">PnL Status</div>
+            <div className="text-[#EAECEF] font-semibold flex items-center gap-1.5">
+              <span className={isRunning ? 'text-[#0ECB81]' : 'text-gray-400'}>
+                {isRunning ? '✦ ACTIVE' : '■ INACTIVE'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Actions Grid */}
+      <div className="grid grid-cols-2 gap-2.5 pt-2 relative z-10" style={{ transform: 'translateZ(10px)' }}>
+        <button
+          onClick={() => onTraderSelect?.(trader.trader_id)}
+          className="px-3 py-2 rounded-xl text-xs font-bold transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-1.5 bg-white/5 hover:bg-white/10 text-white border border-white/10 btn-cyber"
+        >
+          <BarChart3 className="w-3.5 h-3.5" />
+          {t('view', language)}
+        </button>
+
+        <button
+          onClick={() =>
+            handleToggleTrader(
+              trader.trader_id,
+              trader.is_running || false
+            )
+          }
+          className={`px-3 py-2 rounded-xl text-xs font-bold transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-1.5 border btn-cyber bg-white/5 hover:bg-white/10 text-white border-white/10`}
+        >
+          <span>
+            {isRunning
+              ? t('stop', language)
+              : t('start', language)}
+          </span>
+        </button>
+
+        <button
+          onClick={() => handleSyncBalance(trader.trader_id)}
+          className="px-3 py-2 rounded-xl text-xs font-bold transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-1.5 bg-white/5 hover:bg-white/10 text-white border border-white/10 btn-cyber col-span-2"
+        >
+          {t('syncBalance', language)}
+        </button>
+
+        <button
+          onClick={() => handleEditTrader(trader.trader_id)}
+          disabled={isRunning}
+          className="px-3 py-2 rounded-xl text-xs font-bold transition-all duration-300 hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 bg-white/5 hover:bg-white/10 text-white border border-white/10 btn-cyber"
+        >
+          <span>✏️ {t('edit', language)}</span>
+        </button>
+
+        <button
+          onClick={() => handleDeleteTrader(trader.trader_id)}
+          className="px-3 py-2 rounded-xl text-xs font-bold transition-all duration-300 hover:scale-[1.02] flex items-center justify-center gap-1.5 bg-white/5 hover:bg-white/10 text-white border border-white/10 btn-cyber"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+          {t('delete', language) || '刪除'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 interface AITradersPageProps {
   onTraderSelect?: (traderId: string) => void
 }
@@ -54,6 +251,7 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
   const { language } = useLanguage()
   const { user, token } = useAuth()
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [showEditModal, setShowEditModal] = useState(false)
   const [showModelModal, setShowModelModal] = useState(false)
   const [showExchangeModal, setShowExchangeModal] = useState(false)
@@ -64,6 +262,7 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
   const [allModels, setAllModels] = useState<AIModel[]>([])
   const [allExchanges, setAllExchanges] = useState<Exchange[]>([])
   const [supportedModels, setSupportedModels] = useState<AIModel[]>([])
+  const [modelProviders, setModelProviders] = useState<ModelProvider[]>([])
   const [supportedExchanges, setSupportedExchanges] = useState<Exchange[]>([])
   const [userSignalSource, setUserSignalSource] = useState<{
     coinPoolUrl: string
@@ -72,6 +271,25 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
     coinPoolUrl: '',
     oiTopUrl: '',
   })
+
+  const getModelShowName = (modelId: string) => {
+    // 优先匹配完整 ID
+    let model = allModels?.find((m) => m.id === modelId)
+    
+    // 找不到时，剥离用户前缀进行匹配
+    if (!model) {
+      const provider = modelId.includes('_') ? modelId.split('_').pop() : modelId
+      model = allModels?.find((m) => m.id === provider || m.provider === provider || m.id.split('_').pop() === provider)
+    }
+
+    if (model) {
+      if (model.customModelName && model.customModelName.trim() !== '') {
+        return model.customModelName
+      }
+      return model.name
+    }
+    return getModelDisplayName(modelId)
+  }
 
   const { data: traders, mutate: mutateTraders } = useSWR<TraderInfo[]>(
     user && token ? 'traders' : null,
@@ -85,12 +303,14 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
       if (!user || !token) {
         // 未登录时只加载公开的支持模型和交易所
         try {
-          const [supportedModels, supportedExchanges] = await Promise.all([
+          const [supportedModels, supportedExchanges, providers] = await Promise.all([
             api.getSupportedModels(),
             api.getSupportedExchanges(),
+            api.getModelProviders().catch(() => []),
           ])
           setSupportedModels(supportedModels)
           setSupportedExchanges(supportedExchanges)
+          setModelProviders(providers)
         } catch (err) {
           console.error('Failed to load supported configs:', err)
         }
@@ -103,16 +323,19 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
           exchangeConfigs,
           supportedModels,
           supportedExchanges,
+          providers,
         ] = await Promise.all([
           api.getModelConfigs(),
           api.getExchangeConfigs(),
           api.getSupportedModels(),
           api.getSupportedExchanges(),
+          api.getModelProviders().catch(() => []),
         ])
         setAllModels(modelConfigs)
         setAllExchanges(exchangeConfigs)
         setSupportedModels(supportedModels)
         setSupportedExchanges(supportedExchanges)
+        setModelProviders(providers)
 
         // 加载用户信号源配置
         try {
@@ -136,7 +359,10 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
   const configuredExchanges = allExchanges || []
 
   // 只在创建交易员时使用已启用且配置完整的
-  const enabledModels = allModels?.filter((m) => m.enabled && m.apiKey) || []
+  const enabledModels =
+    allModels?.filter(
+      (m) => m.enabled && (m.hasApiKey || !!m.apiKey || !!m.envKey)
+    ) || []
   const enabledExchanges =
     allExchanges?.filter((e) => {
       if (!e.enabled) return false
@@ -243,6 +469,7 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
         trading_symbols: data.trading_symbols,
         custom_prompt: data.custom_prompt,
         override_base_prompt: data.override_base_prompt,
+        system_prompt_template: data.system_prompt_template,
         is_cross_margin: data.is_cross_margin,
         use_coin_pool: data.use_coin_pool,
         use_oi_top: data.use_oi_top,
@@ -267,6 +494,28 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
     } catch (error) {
       console.error('Failed to delete trader:', error)
       alert(t('deleteTraderFailed', language))
+    }
+  }
+
+  const handleReloadPrompts = async () => {
+    try {
+      const res = await api.reloadPrompts()
+      alert(
+        `${t('reloadPrompts', language)}: ${(res.templates || []).join(', ') || 'ok'}`
+      )
+    } catch (error) {
+      console.error('Failed to reload prompts:', error)
+      alert(t('operationFailed', language))
+    }
+  }
+
+  const handleSyncBalance = async (traderId: string) => {
+    try {
+      await api.syncBalance(traderId)
+      mutateTraders()
+    } catch (error) {
+      console.error('Failed to sync balance:', error)
+      alert(t('operationFailed', language))
     }
   }
 
@@ -302,35 +551,22 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
     if (!confirm(t('confirmDeleteModel', language))) return
 
     try {
-      const updatedModels =
-        allModels?.map((m) =>
-          m.id === modelId
-            ? {
-                ...m,
-                apiKey: '',
-                customApiUrl: '',
-                customModelName: '',
-                enabled: false,
-              }
-            : m
-        ) || []
-
-      const request = {
-        models: Object.fromEntries(
-          updatedModels.map((model) => [
-            model.provider, // 使用 provider 而不是 id
-            {
-              enabled: model.enabled,
-              api_key: model.apiKey || '',
-              custom_api_url: model.customApiUrl || '',
-              custom_model_name: model.customModelName || '',
-            },
-          ])
-        ),
-      }
-
-      await api.updateModelConfigs(request)
-      setAllModels(updatedModels)
+      const existing = allModels?.find((m) => m.id === modelId)
+      await api.updateModelConfigs({
+        models: {
+          [modelId]: {
+            enabled: false,
+            api_key: '',
+            custom_api_url: '',
+            custom_model_name: '',
+            env_key: '',
+            provider: existing?.provider,
+            name: existing?.name,
+          },
+        },
+      })
+      const refreshedModels = await api.getModelConfigs()
+      setAllModels(refreshedModels)
       setShowModelModal(false)
       setEditingModel(null)
     } catch (error) {
@@ -343,62 +579,23 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
     modelId: string,
     apiKey: string,
     customApiUrl?: string,
-    customModelName?: string
+    customModelName?: string,
+    extra?: { envKey?: string; provider?: string; name?: string }
   ) => {
     try {
-      // 创建或更新用户的模型配置
-      const existingModel = allModels?.find((m) => m.id === modelId)
-      let updatedModels
-
-      // 找到要配置的模型（优先从已配置列表，其次从支持列表）
-      const modelToUpdate =
-        existingModel || supportedModels?.find((m) => m.id === modelId)
-      if (!modelToUpdate) {
-        alert(t('modelNotExist', language))
-        return
-      }
-
-      if (existingModel) {
-        // 更新现有配置
-        updatedModels =
-          allModels?.map((m) =>
-            m.id === modelId
-              ? {
-                  ...m,
-                  apiKey,
-                  customApiUrl: customApiUrl || '',
-                  customModelName: customModelName || '',
-                  enabled: true,
-                }
-              : m
-          ) || []
-      } else {
-        // 添加新配置
-        const newModel = {
-          ...modelToUpdate,
-          apiKey,
-          customApiUrl: customApiUrl || '',
-          customModelName: customModelName || '',
-          enabled: true,
-        }
-        updatedModels = [...(allModels || []), newModel]
-      }
-
-      const request = {
-        models: Object.fromEntries(
-          updatedModels.map((model) => [
-            model.provider, // 使用 provider 而不是 id
-            {
-              enabled: model.enabled,
-              api_key: model.apiKey || '',
-              custom_api_url: model.customApiUrl || '',
-              custom_model_name: model.customModelName || '',
-            },
-          ])
-        ),
-      }
-
-      await api.updateModelConfigs(request)
+      await api.updateModelConfigs({
+        models: {
+          [modelId]: {
+            enabled: true,
+            api_key: apiKey,
+            custom_api_url: customApiUrl || '',
+            custom_model_name: customModelName || '',
+            env_key: extra?.envKey || '',
+            provider: extra?.provider,
+            name: extra?.name,
+          },
+        },
+      })
 
       // 重新获取用户配置以确保数据同步
       const refreshedModels = await api.getModelConfigs()
@@ -477,16 +674,16 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
           allExchanges?.map((e) =>
             e.id === exchangeId
               ? {
-                  ...e,
-                  apiKey,
-                  secretKey,
-                  testnet,
-                  hyperliquidWalletAddr,
-                  asterUser,
-                  asterSigner,
-                  asterPrivateKey,
-                  enabled: true,
-                }
+                ...e,
+                apiKey,
+                secretKey,
+                testnet,
+                hyperliquidWalletAddr,
+                asterUser,
+                asterSigner,
+                asterPrivateKey,
+                enabled: true,
+              }
               : e
           ) || []
       } else {
@@ -530,7 +727,6 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
       setAllExchanges(refreshedExchanges)
 
       setShowExchangeModal(false)
-      setEditingExchange(null)
     } catch (error) {
       console.error('Failed to save exchange config:', error)
       alert(t('saveConfigFailed', language))
@@ -562,76 +758,60 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0">
-        <div className="flex items-center gap-3 md:gap-4">
+    <div className="space-y-6 md:space-y-8 animate-fade-in relative z-10">
+      {/* 🌠 控制中心 Header - Atelier Slate 沉静社论風格 */}
+      <div className="sharp-card p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border border-white/5 relative ">
+        <div className="flex items-center gap-3 md:gap-4 z-10">
           <div
-            className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center"
-            style={{
-              background: 'linear-gradient(135deg, #F0B90B 0%, #FCD535 100%)',
-              boxShadow: '0 4px 14px rgba(240, 185, 11, 0.4)',
-            }}
+            className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-[#17181D] border border-white/10"
           >
-            <Bot className="w-5 h-5 md:w-6 md:h-6" style={{ color: '#000' }} />
+            <Bot className="w-5 h-5 md:w-6 md:h-6 text-[#ECEBE6]" />
           </div>
           <div>
             <h1
-              className="text-xl md:text-2xl font-bold flex items-center gap-2"
-              style={{ color: '#EAECEF' }}
+              className="text-xl md:text-2xl font-serif font-bold flex items-center gap-2.5 text-[#ECEBE6]"
             >
               {t('aiTraders', language)}
               <span
-                className="text-xs font-normal px-2 py-1 rounded"
-                style={{
-                  background: 'rgba(240, 185, 11, 0.15)',
-                  color: '#F0B90B',
-                }}
+                className="text-[9px] font-mono px-2 py-0.5 border border-white/10 text-[#9C9B96] bg-white/[0.02]"
               >
-                {traders?.length || 0} {t('active', language)}
+                {traders?.filter((tr) => tr.is_running).length || 0} {t('active', language)}
               </span>
             </h1>
-            <p className="text-xs" style={{ color: '#848E9C' }}>
-              {t('manageAITraders', language)}
+            <p className="text-xs font-mono text-[#5E5D58] mt-0.5">
+              {t('manageAITraders', language)} • AUTONOMOUS AGENTS POOL
             </p>
           </div>
         </div>
 
-        <div className="flex gap-2 md:gap-3 w-full md:w-auto overflow-x-auto flex-wrap md:flex-nowrap">
+        {/* 控制面板按鈕群 (Sharp Minimal Slate Buttons) */}
+        <div className="flex gap-2 w-full lg:w-auto overflow-x-auto flex-wrap lg:flex-nowrap pb-1 lg:pb-0 z-10 font-mono text-xs">
           <button
             onClick={handleAddModel}
-            className="px-3 md:px-4 py-2 rounded text-xs md:text-sm font-semibold transition-all hover:scale-105 flex items-center gap-1 md:gap-2 whitespace-nowrap"
-            style={{
-              background: '#2B3139',
-              color: '#EAECEF',
-              border: '1px solid #474D57',
-            }}
+            className="px-3 py-2 text-xs transition-all flex items-center gap-1.5 whitespace-nowrap bg-[#17181D] hover:bg-white/5 text-[#ECEBE6] border border-white/10"
           >
-            <Plus className="w-3 h-3 md:w-4 md:h-4" />
+            <Plus className="w-3.5 h-3.5 text-[#9C9B96]" />
             {t('aiModels', language)}
           </button>
 
           <button
             onClick={handleAddExchange}
-            className="px-3 md:px-4 py-2 rounded text-xs md:text-sm font-semibold transition-all hover:scale-105 flex items-center gap-1 md:gap-2 whitespace-nowrap"
-            style={{
-              background: '#2B3139',
-              color: '#EAECEF',
-              border: '1px solid #474D57',
-            }}
+            className="px-3 py-2 text-xs transition-all flex items-center gap-1.5 whitespace-nowrap bg-[#17181D] hover:bg-white/5 text-[#ECEBE6] border border-white/10"
           >
-            <Plus className="w-3 h-3 md:w-4 md:h-4" />
+            <Plus className="w-3.5 h-3.5 text-[#9C9B96]" />
             {t('exchanges', language)}
           </button>
 
           <button
+            onClick={handleReloadPrompts}
+            className="px-3 py-2 text-xs transition-all whitespace-nowrap bg-[#17181D] hover:bg-white/5 text-[#ECEBE6] border border-white/10"
+          >
+            {t('reloadPrompts', language)}
+          </button>
+
+          <button
             onClick={() => setShowSignalSourceModal(true)}
-            className="px-3 md:px-4 py-2 rounded text-xs md:text-sm font-semibold transition-all hover:scale-105 whitespace-nowrap"
-            style={{
-              background: '#2B3139',
-              color: '#EAECEF',
-              border: '1px solid #474D57',
-            }}
+            className="px-3 py-2 text-xs transition-all whitespace-nowrap bg-[#17181D] hover:bg-white/5 text-[#ECEBE6] border border-white/10"
           >
             📡 {t('signalSource', language)}
           </button>
@@ -641,17 +821,11 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
             disabled={
               configuredModels.length === 0 || configuredExchanges.length === 0
             }
-            className="px-3 md:px-4 py-2 rounded text-xs md:text-sm font-semibold transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 md:gap-2 whitespace-nowrap"
-            style={{
-              background:
-                configuredModels.length > 0 && configuredExchanges.length > 0
-                  ? '#F0B90B'
-                  : '#2B3139',
-              color:
-                configuredModels.length > 0 && configuredExchanges.length > 0
-                  ? '#000'
-                  : '#848E9C',
-            }}
+            className={`px-4 py-2 text-xs font-medium transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 whitespace-nowrap border ${
+              configuredModels.length > 0 && configuredExchanges.length > 0
+                ? 'bg-[#ECEBE6] text-[#141416] border-[#ECEBE6] font-bold'
+                : 'bg-white/5 text-[#5E5D58] border-white/5'
+            }`}
           >
             <Plus className="w-4 h-4" />
             {t('createTrader', language)}
@@ -661,31 +835,30 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
 
       {/* 信号源配置警告 */}
       {traders &&
-        traders.some((t) => t.use_coin_pool || t.use_oi_top) &&
-        !userSignalSource.coinPoolUrl &&
-        !userSignalSource.oiTopUrl && (
+        ((traders.some((t) => t.use_coin_pool) && !userSignalSource.coinPoolUrl) ||
+         (traders.some((t) => t.use_oi_top) && !userSignalSource.oiTopUrl)) && (
           <div
-            className="rounded-lg px-4 py-3 flex items-start gap-3 animate-slide-in"
+            className="rounded-xl px-4 py-3.5 flex items-start gap-3 animate-slide-in glass-card relative overflow-hidden"
             style={{
-              background: 'rgba(246, 70, 93, 0.1)',
-              border: '1px solid rgba(246, 70, 93, 0.3)',
+              background: 'rgba(246, 70, 93, 0.05)',
+              border: '1px solid rgba(246, 70, 93, 0.25)',
             }}
           >
+            <div className="absolute top-0 bottom-0 left-0 w-[3px] bg-rose-500"></div>
             <AlertTriangle
               size={20}
-              className="flex-shrink-0 mt-0.5"
-              style={{ color: '#F6465D' }}
+              className="flex-shrink-0 mt-0.5 text-rose-500 animate-pulse"
             />
             <div className="flex-1">
-              <div className="font-semibold mb-1" style={{ color: '#F6465D' }}>
+              <div className="font-semibold mb-1 text-rose-400">
                 ⚠️ {t('signalSourceNotConfigured', language)}
               </div>
-              <div className="text-sm" style={{ color: '#848E9C' }}>
+              <div className="text-xs text-gray-400 leading-relaxed">
                 <p className="mb-2">
                   {t('signalSourceWarningMessage', language)}
                 </p>
-                <p>
-                  <strong>{t('solutions', language)}</strong>
+                <p className="font-semibold text-gray-300">
+                  {t('solutions', language)}
                 </p>
                 <ul className="list-disc list-inside space-y-1 ml-2 mt-1">
                   <li>点击"📡 {t('signalSource', language)}"按钮配置API地址</li>
@@ -695,11 +868,7 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
               </div>
               <button
                 onClick={() => setShowSignalSourceModal(true)}
-                className="mt-3 px-3 py-1.5 rounded text-sm font-semibold transition-all hover:scale-105"
-                style={{
-                  background: '#F0B90B',
-                  color: '#000',
-                }}
+                className="mt-3 px-3 py-1.5 rounded-lg text-xs font-bold transition-all hover:scale-105 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/15"
               >
                 {t('configureSignalSourceNow', language)}
               </button>
@@ -707,335 +876,279 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
           </div>
         )}
 
-      {/* Configuration Status */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+      {/* Configuration Status - Luxury Minimal Studio Rows */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 pt-4">
         {/* AI Models */}
-        <div className="binance-card p-3 md:p-4">
-          <h3
-            className="text-base md:text-lg font-semibold mb-3 flex items-center gap-2"
-            style={{ color: '#EAECEF' }}
-          >
-            <Brain
-              className="w-4 h-4 md:w-5 md:h-5"
-              style={{ color: '#60a5fa' }}
-            />
-            {t('aiModels', language)}
-          </h3>
-          <div className="space-y-2 md:space-y-3">
+        <div className="space-y-4">
+          <div className="flex items-baseline justify-between border-b border-white/[0.08] pb-3">
+            <h3 className="text-xl font-playfair font-normal text-[#ECEBE6]">
+              AI <span className="luxury-gold-italic">Architectures</span>
+            </h3>
+            <span className="text-[9px] font-inter uppercase tracking-luxury text-[#7C7A75]">
+              {configuredModels.length} CONFIGURED
+            </span>
+          </div>
+          <div className="divide-y divide-white/[0.04]">
             {configuredModels.map((model) => {
               const inUse = isModelInUse(model.id)
               return (
                 <div
                   key={model.id}
-                  className={`flex items-center justify-between p-2 md:p-3 rounded transition-all ${
-                    inUse
-                      ? 'cursor-not-allowed'
-                      : 'cursor-pointer hover:bg-gray-700'
-                  }`}
-                  style={{ background: '#0B0E11', border: '1px solid #2B3139' }}
+                  className={`flex items-center justify-between py-3.5 px-1 transition-all duration-300 ${inUse
+                    ? 'opacity-40 cursor-not-allowed'
+                    : 'cursor-pointer hover:bg-white/[0.015]'
+                    }`}
                   onClick={() => handleModelClick(model.id)}
                 >
-                  <div className="flex items-center gap-2 md:gap-3">
-                    <div className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center flex-shrink-0">
-                      {getModelIcon(model.provider || model.id, {
-                        width: 28,
-                        height: 28,
-                      }) || (
-                        <div
-                          className="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-sm font-bold"
-                          style={{
-                            background:
-                              model.id === 'deepseek' ? '#60a5fa' : '#c084fc',
-                            color: '#fff',
-                          }}
-                        >
-                          {getShortName(model.name)[0]}
-                        </div>
-                      )}
-                    </div>
+                  <div className="flex items-center gap-3">
                     <div className="min-w-0">
-                      <div
-                        className="font-semibold text-sm md:text-base truncate"
-                        style={{ color: '#EAECEF' }}
-                      >
-                        {getShortName(model.name)}
+                      <div className="font-playfair font-normal text-base text-[#ECEBE6]">
+                        {model.customModelName && model.customModelName.trim() !== '' ? model.customModelName : getShortName(model.name)}
                       </div>
-                      <div className="text-xs" style={{ color: '#848E9C' }}>
-                        {inUse
-                          ? t('inUse', language)
-                          : model.enabled
-                            ? t('enabled', language)
-                            : t('configured', language)}
+                      <div className="text-[10px] font-mono tracking-wider text-[#7C7A75] mt-0.5">
+                        {model.provider?.toUpperCase() || 'PROV'} • {inUse ? 'ACTIVE IN AGENT' : model.enabled ? 'ONLINE' : 'STANDBY'}
                       </div>
                     </div>
                   </div>
-                  <div
-                    className={`w-2.5 h-2.5 md:w-3 md:h-3 rounded-full flex-shrink-0 ${model.enabled && model.apiKey ? 'bg-green-400' : 'bg-gray-500'}`}
-                  />
+                  <div className="flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full ${model.enabled && (model.hasApiKey || model.apiKey || model.envKey) ? 'bg-[#6E987E]' : 'bg-[#5E5D58]'}`} />
+                  </div>
                 </div>
               )
             })}
-            {configuredModels.length === 0 && (
-              <div
-                className="text-center py-6 md:py-8"
-                style={{ color: '#848E9C' }}
-              >
-                <Brain className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-2 opacity-50" />
-                <div className="text-xs md:text-sm">
-                  {t('noModelsConfigured', language)}
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
         {/* Exchanges */}
-        <div className="binance-card p-3 md:p-4">
-          <h3
-            className="text-base md:text-lg font-semibold mb-3 flex items-center gap-2"
-            style={{ color: '#EAECEF' }}
-          >
-            <Landmark
-              className="w-4 h-4 md:w-5 md:h-5"
-              style={{ color: '#F0B90B' }}
-            />
-            {t('exchanges', language)}
-          </h3>
-          <div className="space-y-2 md:space-y-3">
+        <div className="space-y-4">
+          <div className="flex items-baseline justify-between border-b border-white/[0.08] pb-3">
+            <h3 className="text-xl font-playfair font-normal text-[#ECEBE6]">
+              Execution <span className="luxury-gold-italic">Venues</span>
+            </h3>
+            <span className="text-[9px] font-inter uppercase tracking-luxury text-[#7C7A75]">
+              {configuredExchanges.length} CONFIGURED
+            </span>
+          </div>
+          <div className="divide-y divide-white/[0.04]">
             {configuredExchanges.map((exchange) => {
               const inUse = isExchangeInUse(exchange.id)
               return (
                 <div
                   key={exchange.id}
-                  className={`flex items-center justify-between p-2 md:p-3 rounded transition-all ${
-                    inUse
-                      ? 'cursor-not-allowed'
-                      : 'cursor-pointer hover:bg-gray-700'
-                  }`}
-                  style={{ background: '#0B0E11', border: '1px solid #2B3139' }}
+                  className={`flex items-center justify-between py-3.5 px-1 transition-all duration-300 ${inUse
+                    ? 'opacity-40 cursor-not-allowed'
+                    : 'cursor-pointer hover:bg-white/[0.015]'
+                    }`}
                   onClick={() => handleExchangeClick(exchange.id)}
                 >
-                  <div className="flex items-center gap-2 md:gap-3">
-                    <div className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center flex-shrink-0">
-                      {getExchangeIcon(exchange.id, { width: 28, height: 28 })}
-                    </div>
+                  <div className="flex items-center gap-3">
                     <div className="min-w-0">
-                      <div
-                        className="font-semibold text-sm md:text-base truncate"
-                        style={{ color: '#EAECEF' }}
-                      >
-                        {getShortName(exchange.name)}
+                      <div className="font-playfair font-normal text-base text-[#ECEBE6]">
+                        {exchange.id.toUpperCase()}
                       </div>
-                      <div className="text-xs" style={{ color: '#848E9C' }}>
-                        {exchange.type.toUpperCase()} •{' '}
-                        {inUse
-                          ? t('inUse', language)
-                          : exchange.enabled
-                            ? t('enabled', language)
-                            : t('configured', language)}
+                      <div className="text-[10px] font-mono tracking-wider text-[#7C7A75] mt-0.5">
+                        {exchange.type.toUpperCase()} • {inUse ? 'ACTIVE IN AGENT' : exchange.enabled ? 'ONLINE' : 'STANDBY'}
                       </div>
                     </div>
                   </div>
-                  <div
-                    className={`w-2.5 h-2.5 md:w-3 md:h-3 rounded-full flex-shrink-0 ${exchange.enabled && exchange.apiKey ? 'bg-green-400' : 'bg-gray-500'}`}
-                  />
+                  <div className="flex items-center gap-2">
+                    <span className={`w-1.5 h-1.5 rounded-full ${exchange.enabled && exchange.apiKey ? 'bg-[#6E987E]' : 'bg-[#5E5D58]'}`} />
+                  </div>
                 </div>
               )
             })}
-            {configuredExchanges.length === 0 && (
-              <div
-                className="text-center py-6 md:py-8"
-                style={{ color: '#848E9C' }}
-              >
-                <Landmark className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-2 opacity-50" />
-                <div className="text-xs md:text-sm">
-                  {t('noExchangesConfigured', language)}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
 
-      {/* Traders List */}
-      <div className="binance-card p-4 md:p-6">
-        <div className="flex items-center justify-between mb-4 md:mb-5">
+
+      {/* 🚀 Traders Grid List */}
+      <div className="glass-card p-5 md:p-8 border border-white/5 relative overflow-hidden">
+        {/* 背景裝飾 */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-white/3 to-transparent blur-[100px] pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-tr from-white/3 to-transparent blur-[100px] pointer-events-none"></div>
+
+        <div className="flex items-center justify-between mb-6 md:mb-8 relative z-10">
           <h2
-            className="text-lg md:text-xl font-bold flex items-center gap-2"
-            style={{ color: '#EAECEF' }}
+            className="text-xl md:text-2xl font-bold flex items-center gap-3 text-[#EAECEF]"
           >
             <Users
-              className="w-5 h-5 md:w-6 md:h-6"
-              style={{ color: '#F0B90B' }}
+              className="w-6 h-6 text-white shadow-sm"
             />
             {t('currentTraders', language)}
           </h2>
+
+          {/* Grid/List View Mode Toggle */}
+          <div className="flex rounded-lg p-0.5 bg-black/40 border border-white/[0.04] text-[10px] font-mono">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 font-bold ${
+                viewMode === 'grid'
+                  ? 'bg-white/10 text-white border border-white/20'
+                  : 'text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              <LayoutGrid className="w-3 h-3" />
+              <span className="hidden sm:inline">3D GRID</span>
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5 font-bold ${
+                viewMode === 'list'
+                  ? 'bg-white/10 text-white border border-white/20'
+                  : 'text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              <List className="w-3 h-3" />
+              <span className="hidden sm:inline">RADAR LIST</span>
+            </button>
+          </div>
         </div>
 
         {traders && traders.length > 0 ? (
-          <div className="space-y-3 md:space-y-4">
-            {traders.map((trader) => (
-              <div
-                key={trader.trader_id}
-                className="flex flex-col md:flex-row md:items-center justify-between p-3 md:p-4 rounded transition-all hover:translate-y-[-1px] gap-3 md:gap-4"
-                style={{ background: '#0B0E11', border: '1px solid #2B3139' }}
-              >
-                <div className="flex items-center gap-3 md:gap-4">
-                  <div
-                    className="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center flex-shrink-0"
-                    style={{
-                      background: trader.ai_model.includes('deepseek')
-                        ? '#60a5fa'
-                        : '#c084fc',
-                      color: '#fff',
-                    }}
-                  >
-                    <Bot className="w-5 h-5 md:w-6 md:h-6" />
-                  </div>
-                  <div className="min-w-0">
-                    <div
-                      className="font-bold text-base md:text-lg truncate"
-                      style={{ color: '#EAECEF' }}
-                    >
-                      {trader.trader_name}
-                    </div>
-                    <div
-                      className="text-xs md:text-sm truncate"
-                      style={{
-                        color: trader.ai_model.includes('deepseek')
-                          ? '#60a5fa'
-                          : '#c084fc',
-                      }}
-                    >
-                      {getModelDisplayName(
-                        trader.ai_model.split('_').pop() || trader.ai_model
-                      )}{' '}
-                      Model • {trader.exchange_id?.toUpperCase()}
-                    </div>
-                  </div>
-                </div>
+          viewMode === 'grid' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
+              {traders.map((trader) => (
+                <AITraderCard
+                  key={trader.trader_id}
+                  trader={trader}
+                  isRunning={trader.is_running || false}
+                  language={language}
+                  onTraderSelect={onTraderSelect}
+                  handleToggleTrader={handleToggleTrader}
+                  handleSyncBalance={handleSyncBalance}
+                  handleEditTrader={handleEditTrader}
+                  handleDeleteTrader={handleDeleteTrader}
+                  getModelDisplayName={getModelShowName}
+                  getExchangeIcon={getExchangeIcon}
+                  t={t}
+                />
+              ))}
+            </div>
+          ) : (
+            /* 📟 Tactical Telemetry Radar List Mode */
+            <div className="relative overflow-x-auto rounded-xl border border-white/5 bg-black/35 backdrop-blur-md z-10 font-mono text-xs">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-white/5 bg-white/[0.02] text-gray-500 font-bold uppercase tracking-wider">
+                    <th className="py-3.5 px-4 text-center w-16">Status</th>
+                    <th className="py-3.5 px-4">Engine Name</th>
+                    <th className="py-3.5 px-4">AI Model</th>
+                    <th className="py-3.5 px-4">Exchange Config</th>
+                    <th className="py-3.5 px-4">Asset Matrix</th>
+                    <th className="py-3.5 px-4 text-right pr-6 w-44">Operations</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {traders.map((trader) => {
+                    const isRunning = trader.is_running || false;
+                    const exchangeName = trader.exchange_id || 'Unknown';
+                    const strategyMode = trader.use_coin_pool ? 'COIN POOL' : (trader.use_oi_top ? 'OI TOP' : 'STRATEGY');
 
-                <div className="flex items-center gap-3 md:gap-4 flex-wrap md:flex-nowrap">
-                  {/* Status */}
-                  <div className="text-center">
-                    <div className="text-xs mb-1" style={{ color: '#848E9C' }}>
-                      {t('status', language)}
-                    </div>
-                    <div
-                      className={`px-2 md:px-3 py-1 rounded text-xs font-bold ${
-                        trader.is_running
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}
-                      style={
-                        trader.is_running
-                          ? {
-                              background: 'rgba(14, 203, 129, 0.1)',
-                              color: '#0ECB81',
-                            }
-                          : {
-                              background: 'rgba(246, 70, 93, 0.1)',
-                              color: '#F6465D',
-                            }
-                      }
-                    >
-                      {trader.is_running
-                        ? t('running', language)
-                        : t('stopped', language)}
-                    </div>
-                  </div>
+                    return (
+                      <tr 
+                        key={trader.trader_id}
+                        className="hover:bg-white/[0.02] transition-colors duration-200 align-middle group"
+                      >
+                        {/* Status Light */}
+                        <td className="py-4 px-4 text-center">
+                          <div className="inline-flex items-center justify-center">
+                            <span className={isRunning ? 'pulse-dot-green' : 'pulse-dot-red'}></span>
+                          </div>
+                        </td>
 
-                  {/* Actions */}
-                  <div className="flex gap-1.5 md:gap-2 flex-wrap md:flex-nowrap">
-                    <button
-                      onClick={() => onTraderSelect?.(trader.trader_id)}
-                      className="px-2 md:px-3 py-1.5 md:py-2 rounded text-xs md:text-sm font-semibold transition-all hover:scale-105 flex items-center gap-1 whitespace-nowrap"
-                      style={{
-                        background: 'rgba(99, 102, 241, 0.1)',
-                        color: '#6366F1',
-                      }}
-                    >
-                      <BarChart3 className="w-3 h-3 md:w-4 md:h-4" />
-                      {t('view', language)}
-                    </button>
+                        {/* Engine Name */}
+                        <td className="py-4 px-4 font-bold text-[#EAECEF] hover:text-white transition-colors cursor-pointer" onClick={() => onTraderSelect?.(trader.trader_id)}>
+                          <div className="flex items-center gap-2">
+                            <Bot className={`w-4 h-4 ${isRunning ? 'text-white animate-pulse' : 'text-gray-500'}`} />
+                            <span className="tracking-wide">{trader.trader_name}</span>
+                          </div>
+                        </td>
 
-                    <button
-                      onClick={() => handleEditTrader(trader.trader_id)}
-                      disabled={trader.is_running}
-                      className="px-2 md:px-3 py-1.5 md:py-2 rounded text-xs md:text-sm font-semibold transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                      style={{
-                        background: trader.is_running
-                          ? 'rgba(132, 142, 156, 0.1)'
-                          : 'rgba(255, 193, 7, 0.1)',
-                        color: trader.is_running ? '#848E9C' : '#FFC107',
-                      }}
-                    >
-                      ✏️ {t('edit', language)}
-                    </button>
+                        {/* Model */}
+                        <td className="py-4 px-4">
+                          <span 
+                            className="px-2 py-0.5 rounded text-[10px] font-bold border"
+                            style={{
+                              color: '#FFFFFF',
+                              borderColor: 'rgba(255,255,255,0.15)',
+                              background: 'rgba(255,255,255,0.03)',
+                            }}
+                          >
+                            {getModelShowName(trader.ai_model).toUpperCase()}
+                          </span>
+                        </td>
 
-                    <button
-                      onClick={() =>
-                        handleToggleTrader(
-                          trader.trader_id,
-                          trader.is_running || false
-                        )
-                      }
-                      className="px-2 md:px-3 py-1.5 md:py-2 rounded text-xs md:text-sm font-semibold transition-all hover:scale-105 whitespace-nowrap"
-                      style={
-                        trader.is_running
-                          ? {
-                              background: 'rgba(246, 70, 93, 0.1)',
-                              color: '#F6465D',
-                            }
-                          : {
-                              background: 'rgba(14, 203, 129, 0.1)',
-                              color: '#0ECB81',
-                            }
-                      }
-                    >
-                      {trader.is_running
-                        ? t('stop', language)
-                        : t('start', language)}
-                    </button>
+                        {/* Exchange */}
+                        <td className="py-4 px-4 text-gray-300">
+                          <span className="flex items-center gap-1.5">
+                            {getExchangeIcon(exchangeName.toLowerCase(), { width: 14, height: 14 }) || <span>🔌</span>}
+                            <span className="uppercase font-semibold text-[11px]">{exchangeName}</span>
+                          </span>
+                        </td>
 
-                    <button
-                      onClick={() => handleDeleteTrader(trader.trader_id)}
-                      className="px-2 md:px-3 py-1.5 md:py-2 rounded text-xs md:text-sm font-semibold transition-all hover:scale-105"
-                      style={{
-                        background: 'rgba(246, 70, 93, 0.1)',
-                        color: '#F6465D',
-                      }}
-                    >
-                      <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                        {/* Active Symbols */}
+                        <td className="py-4 px-4 text-gray-400">
+                          <span className="text-white font-bold">{strategyMode}</span>
+                        </td>
+
+                        {/* Operations */}
+                        <td className="py-4 px-4 text-right pr-6">
+                          <div className="flex items-center justify-end gap-2.5">
+                            <button
+                              onClick={() => handleToggleTrader(trader.trader_id, isRunning)}
+                              className="px-2.5 py-1 rounded text-[10px] font-bold uppercase transition-all hover:scale-105"
+                              style={
+                                isRunning
+                                  ? { background: 'rgba(246, 70, 93, 0.1)', color: '#F6465D', border: '1px solid rgba(246,70,93,0.2)' }
+                                  : { background: 'rgba(14, 203, 129, 0.1)', color: '#0ECB81', border: '1px solid rgba(14,203,129,0.2)' }
+                              }
+                            >
+                              {isRunning ? t('stop', language) : t('start', language)}
+                            </button>
+                            <button
+                              onClick={() => handleEditTrader(trader.trader_id)}
+                              className="px-2 py-1 rounded text-gray-400 hover:text-white border border-white/5 hover:border-white/20 transition-all"
+                            >
+                              ⚙️
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTrader(trader.trader_id)}
+                              className="px-2 py-1 rounded text-xs transition-all hover:scale-105 bg-[#f6465d]/5 text-[#f6465d] border border-[#f6465d]/10 hover:bg-[#f6465d]/10"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )
         ) : (
           <div
-            className="text-center py-12 md:py-16"
-            style={{ color: '#848E9C' }}
+            className="text-center py-16 text-gray-500"
           >
-            <Bot className="w-16 h-16 md:w-24 md:h-24 mx-auto mb-3 md:mb-4 opacity-50" />
-            <div className="text-base md:text-lg font-semibold mb-2">
+            <Bot className="w-24 h-24 mx-auto mb-4 opacity-30" />
+            <div className="text-lg font-bold mb-2">
               {t('noTraders', language)}
             </div>
-            <div className="text-xs md:text-sm mb-3 md:mb-4">
+            <div className="text-xs mb-4">
               {t('createFirstTrader', language)}
             </div>
             {(configuredModels.length === 0 ||
               configuredExchanges.length === 0) && (
-              <div className="text-xs md:text-sm text-yellow-500">
-                {configuredModels.length === 0 &&
-                configuredExchanges.length === 0
-                  ? t('configureModelsAndExchangesFirst', language)
-                  : configuredModels.length === 0
-                    ? t('configureModelsFirst', language)
-                    : t('configureExchangesFirst', language)}
-              </div>
-            )}
+                <div className="text-xs text-white font-semibold">
+                  {configuredModels.length === 0 &&
+                    configuredExchanges.length === 0
+                    ? t('configureModelsAndExchangesFirst', language)
+                    : configuredModels.length === 0
+                      ? t('configureModelsFirst', language)
+                      : t('configureExchangesFirst', language)}
+                </div>
+              )}
           </div>
         )}
       </div>
@@ -1073,6 +1186,7 @@ export function AITradersPage({ onTraderSelect }: AITradersPageProps) {
         <ModelConfigModal
           allModels={supportedModels}
           configuredModels={allModels}
+          providers={modelProviders}
           editingModelId={editingModel}
           onSave={handleSaveModelConfig}
           onDelete={handleDeleteModelConfig}
@@ -1136,7 +1250,7 @@ function Tooltip({
         <div
           className="absolute z-10 px-3 py-2 text-sm rounded-lg shadow-lg w-64 left-1/2 transform -translate-x-1/2 bottom-full mb-2"
           style={{
-            background: '#2B3139',
+            background: '#1E2329',
             color: '#EAECEF',
             border: '1px solid #474D57',
           }}
@@ -1149,7 +1263,7 @@ function Tooltip({
               height: 0,
               borderLeft: '6px solid transparent',
               borderRight: '6px solid transparent',
-              borderTop: '6px solid #2B3139',
+              borderTop: '6px solid #1E2329',
             }}
           />
         </div>
@@ -1181,10 +1295,10 @@ function SignalSourceModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div
-        className="bg-gray-800 rounded-lg p-6 w-full max-w-lg relative"
-        style={{ background: '#1E2329' }}
+        className="rounded-xl p-6 w-full max-w-lg relative border border-white/10"
+        style={{ background: '#161A1E' }}
       >
         <h3 className="text-xl font-bold mb-4" style={{ color: '#EAECEF' }}>
           📡 {t('signalSourceConfig', language)}
@@ -1203,10 +1317,10 @@ function SignalSourceModal({
               value={coinPool}
               onChange={(e) => setCoinPool(e.target.value)}
               placeholder="https://api.example.com/coinpool"
-              className="w-full px-3 py-2 rounded"
+              className="w-full px-3 py-2 rounded border"
               style={{
                 background: '#0B0E11',
-                border: '1px solid #2B3139',
+                borderColor: '#2B3139',
                 color: '#EAECEF',
               }}
             />
@@ -1242,13 +1356,13 @@ function SignalSourceModal({
           <div
             className="p-4 rounded"
             style={{
-              background: 'rgba(240, 185, 11, 0.1)',
-              border: '1px solid rgba(240, 185, 11, 0.2)',
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
             }}
           >
             <div
               className="text-sm font-semibold mb-2"
-              style={{ color: '#F0B90B' }}
+              style={{ color: '#FFFFFF' }}
             >
               ℹ️ {t('information', language)}
             </div>
@@ -1270,8 +1384,8 @@ function SignalSourceModal({
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 rounded text-sm font-semibold"
-              style={{ background: '#F0B90B', color: '#000' }}
+              className="flex-1 px-4 py-2 rounded text-sm font-semibold hover:bg-gray-200 transition-colors"
+              style={{ background: '#FFFFFF', color: '#000' }}
             >
               {t('save', language)}
             </button>
@@ -1284,8 +1398,8 @@ function SignalSourceModal({
 
 // Model Configuration Modal Component
 function ModelConfigModal({
-  allModels,
   configuredModels,
+  providers,
   editingModelId,
   onSave,
   onDelete,
@@ -1294,55 +1408,98 @@ function ModelConfigModal({
 }: {
   allModels: AIModel[]
   configuredModels: AIModel[]
+  providers: ModelProvider[]
   editingModelId: string | null
   onSave: (
     modelId: string,
     apiKey: string,
     baseUrl?: string,
-    modelName?: string
+    modelName?: string,
+    extra?: { envKey?: string; provider?: string; name?: string }
   ) => void
   onDelete: (modelId: string) => void
   onClose: () => void
   language: Language
 }) {
-  const [selectedModelId, setSelectedModelId] = useState(editingModelId || '')
-  const [apiKey, setApiKey] = useState('')
-  const [baseUrl, setBaseUrl] = useState('')
-  const [modelName, setModelName] = useState('')
+  const editing = editingModelId
+    ? configuredModels?.find((m) => m.id === editingModelId)
+    : undefined
+  const [presetId, setPresetId] = useState(
+    editing?.provider || providers[0]?.id || 'custom'
+  )
+  const [apiKey, setApiKey] = useState(editing?.apiKey || '')
+  const [envKey, setEnvKey] = useState(editing?.envKey || '')
+  const [baseUrl, setBaseUrl] = useState(editing?.customApiUrl || '')
+  const [modelName, setModelName] = useState(editing?.customModelName || '')
+  const [probed, setProbed] = useState<string[]>([])
+  const [probeError, setProbeError] = useState('')
+  const [probing, setProbing] = useState(false)
 
-  // 获取当前编辑的模型信息 - 编辑时从已配置的模型中查找，新建时从所有支持的模型中查找
-  const selectedModel = editingModelId
-    ? configuredModels?.find((m) => m.id === selectedModelId)
-    : allModels?.find((m) => m.id === selectedModelId)
+  const preset = providers.find((p) => p.id === presetId)
 
-  // 如果是编辑现有模型，初始化API Key、Base URL和Model Name
   useEffect(() => {
-    if (editingModelId && selectedModel) {
-      setApiKey(selectedModel.apiKey || '')
-      setBaseUrl(selectedModel.customApiUrl || '')
-      setModelName(selectedModel.customModelName || '')
-    }
-  }, [editingModelId, selectedModel])
+    if (editing) return
+    if (!preset) return
+    setBaseUrl(preset.base_url || '')
+    setEnvKey(preset.env_key || '')
+    if (preset.default_model) setModelName(preset.default_model)
+    setProbed(preset.suggested_models || [])
+    setProbeError('')
+  }, [presetId, editing, preset])
+
+  const canSave =
+    !!presetId &&
+    (!!apiKey.trim() || !!envKey.trim() || editing?.hasApiKey || editing?.apiKey === '***')
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!selectedModelId || !apiKey.trim()) return
-
-    onSave(
-      selectedModelId,
-      apiKey.trim(),
-      baseUrl.trim() || undefined,
-      modelName.trim() || undefined
-    )
+    if (!canSave) return
+    const id =
+      editingModelId || `${Date.now()}_${presetId}`
+    onSave(id, apiKey.trim(), baseUrl.trim() || undefined, modelName.trim() || undefined, {
+      envKey: envKey.trim(),
+      provider: presetId,
+      name: preset?.name || presetId,
+    })
   }
 
-  // 可选择的模型列表（所有支持的模型）
-  const availableModels = allModels || []
+  const handleProbe = async () => {
+    setProbing(true)
+    setProbeError('')
+    try {
+      const result = await api.probeModels({
+        model_id: editingModelId || undefined,
+        provider: presetId,
+        base_url: baseUrl.trim(),
+        api_key: apiKey.trim(),
+        env_key: envKey.trim(),
+      })
+      if (!result.ok) {
+        setProbeError(result.error || 'probe failed')
+        setProbed([])
+        return
+      }
+      setProbed(result.models || [])
+      if (!modelName && result.models && result.models.length > 0) {
+        setModelName(result.models[0])
+      }
+    } catch (err: any) {
+      setProbeError(err?.message || 'probe failed')
+    } finally {
+      setProbing(false)
+    }
+  }
+
+  const inputStyle = {
+    background: '#0B0E11',
+    border: '1px solid #2B3139',
+    color: '#EAECEF',
+  } as const
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div
-        className="bg-gray-800 rounded-lg p-6 w-full max-w-lg relative"
+        className="bg-gray-800 rounded-lg p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto"
         style={{ background: '#1E2329' }}
       >
         <div className="flex items-center justify-between mb-4">
@@ -1369,165 +1526,152 @@ function ModelConfigModal({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {!editingModelId && (
-            <div>
-              <label
-                className="block text-sm font-semibold mb-2"
-                style={{ color: '#EAECEF' }}
-              >
-                {t('selectModel', language)}
+          <div>
+            <label className="block text-sm font-semibold mb-2" style={{ color: '#EAECEF' }}>
+              {t('providerPreset', language)}
+            </label>
+            <select
+              value={presetId}
+              onChange={(e) => setPresetId(e.target.value)}
+              className="w-full px-3 py-2 rounded"
+              style={inputStyle}
+              required
+            >
+              {(providers.length ? providers : [{ id: 'custom', name: 'Custom' } as ModelProvider]).map(
+                (p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                    {p.local ? ' (local)' : ''}
+                  </option>
+                )
+              )}
+            </select>
+            {editingModelId && (
+              <div className="text-xs mt-1" style={{ color: '#848E9C' }}>
+                id: {editingModelId}
+              </div>
+            )}
+          </div>
+
+          {preset?.notes && (
+            <div className="text-xs p-3 rounded" style={{ background: '#0B0E11', color: '#F0B90B' }}>
+              {preset.notes}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-semibold mb-2" style={{ color: '#EAECEF' }}>
+              API Key
+            </label>
+            <input
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder={t('enterAPIKey', language)}
+              className="w-full px-3 py-2 rounded"
+              style={inputStyle}
+            />
+            <div className="text-xs mt-1" style={{ color: '#848E9C' }}>
+              {t('apiKeyOrEnvHint', language)}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold mb-2" style={{ color: '#EAECEF' }}>
+              {t('envKey', language)}
+            </label>
+            <input
+              type="text"
+              value={envKey}
+              onChange={(e) => setEnvKey(e.target.value)}
+              placeholder="NVIDIA_API_KEY"
+              className="w-full px-3 py-2 rounded"
+              style={inputStyle}
+            />
+            <div className="text-xs mt-1" style={{ color: '#848E9C' }}>
+              {t('envKeyHint', language)}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold mb-2" style={{ color: '#EAECEF' }}>
+              {t('customBaseURL', language)}
+            </label>
+            <input
+              type="text"
+              value={baseUrl}
+              onChange={(e) => setBaseUrl(e.target.value)}
+              placeholder={t('customBaseURLPlaceholder', language)}
+              className="w-full px-3 py-2 rounded"
+              style={inputStyle}
+            />
+            <div className="text-xs mt-1" style={{ color: '#848E9C' }}>
+              {t('leaveBlankForDefault', language)}
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-semibold" style={{ color: '#EAECEF' }}>
+                Model
               </label>
+              <button
+                type="button"
+                onClick={handleProbe}
+                disabled={probing}
+                className="text-xs px-2 py-1 rounded"
+                style={{ background: '#2B3139', color: '#EAECEF' }}
+              >
+                {probing ? '...' : t('fetchModels', language)}
+              </button>
+            </div>
+            {probed.length > 0 ? (
               <select
-                value={selectedModelId}
-                onChange={(e) => setSelectedModelId(e.target.value)}
-                className="w-full px-3 py-2 rounded"
-                style={{
-                  background: '#0B0E11',
-                  border: '1px solid #2B3139',
-                  color: '#EAECEF',
-                }}
-                required
+                value={modelName}
+                onChange={(e) => setModelName(e.target.value)}
+                className="w-full px-3 py-2 rounded mb-2"
+                style={inputStyle}
               >
                 <option value="">{t('pleaseSelectModel', language)}</option>
-                {availableModels.map((model) => (
-                  <option key={model.id} value={model.id}>
-                    {getShortName(model.name)} ({model.provider})
+                {probed.map((id) => (
+                  <option key={id} value={id}>
+                    {id}
                   </option>
                 ))}
               </select>
+            ) : null}
+            <input
+              type="text"
+              value={modelName}
+              onChange={(e) => setModelName(e.target.value)}
+              placeholder="deepseek-chat / qwen3.8-27b / google/gemma-4-12b"
+              className="w-full px-3 py-2 rounded"
+              style={inputStyle}
+            />
+            {probeError && (
+              <div className="text-xs mt-1" style={{ color: '#F6465D' }}>
+                {probeError}
+              </div>
+            )}
+          </div>
+
+          <div
+            className="p-4 rounded"
+            style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+            }}
+          >
+            <div className="text-sm font-semibold mb-2" style={{ color: '#FFFFFF' }}>
+              ℹ️ {t('information', language)}
             </div>
-          )}
-
-          {selectedModel && (
-            <div
-              className="p-4 rounded"
-              style={{ background: '#0B0E11', border: '1px solid #2B3139' }}
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 flex items-center justify-center">
-                  {getModelIcon(selectedModel.provider || selectedModel.id, {
-                    width: 32,
-                    height: 32,
-                  }) || (
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold"
-                      style={{
-                        background:
-                          selectedModel.id === 'deepseek'
-                            ? '#60a5fa'
-                            : '#c084fc',
-                        color: '#fff',
-                      }}
-                    >
-                      {selectedModel.name[0]}
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <div className="font-semibold" style={{ color: '#EAECEF' }}>
-                    {getShortName(selectedModel.name)}
-                  </div>
-                  <div className="text-xs" style={{ color: '#848E9C' }}>
-                    {selectedModel.provider} • {selectedModel.id}
-                  </div>
-                </div>
-              </div>
+            <div className="text-xs space-y-1" style={{ color: '#848E9C' }}>
+              <div>{t('modelConfigInfo1', language)}</div>
+              <div>{t('modelConfigInfo2', language)}</div>
+              <div>{t('modelConfigInfo4', language)}</div>
+              <div>{t('modelConfigInfo3', language)}</div>
             </div>
-          )}
-
-          {selectedModel && (
-            <>
-              <div>
-                <label
-                  className="block text-sm font-semibold mb-2"
-                  style={{ color: '#EAECEF' }}
-                >
-                  API Key
-                </label>
-                <input
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  placeholder={t('enterAPIKey', language)}
-                  className="w-full px-3 py-2 rounded"
-                  style={{
-                    background: '#0B0E11',
-                    border: '1px solid #2B3139',
-                    color: '#EAECEF',
-                  }}
-                  required
-                />
-              </div>
-
-              <div>
-                <label
-                  className="block text-sm font-semibold mb-2"
-                  style={{ color: '#EAECEF' }}
-                >
-                  {t('customBaseURL', language)}
-                </label>
-                <input
-                  type="url"
-                  value={baseUrl}
-                  onChange={(e) => setBaseUrl(e.target.value)}
-                  placeholder={t('customBaseURLPlaceholder', language)}
-                  className="w-full px-3 py-2 rounded"
-                  style={{
-                    background: '#0B0E11',
-                    border: '1px solid #2B3139',
-                    color: '#EAECEF',
-                  }}
-                />
-                <div className="text-xs mt-1" style={{ color: '#848E9C' }}>
-                  {t('leaveBlankForDefault', language)}
-                </div>
-              </div>
-
-              <div>
-                <label
-                  className="block text-sm font-semibold mb-2"
-                  style={{ color: '#EAECEF' }}
-                >
-                  Model Name (可选)
-                </label>
-                <input
-                  type="text"
-                  value={modelName}
-                  onChange={(e) => setModelName(e.target.value)}
-                  placeholder="例如: deepseek-chat, qwen3-max, gpt-5"
-                  className="w-full px-3 py-2 rounded"
-                  style={{
-                    background: '#0B0E11',
-                    border: '1px solid #2B3139',
-                    color: '#EAECEF',
-                  }}
-                />
-                <div className="text-xs mt-1" style={{ color: '#848E9C' }}>
-                  留空使用默认模型名称
-                </div>
-              </div>
-
-              <div
-                className="p-4 rounded"
-                style={{
-                  background: 'rgba(240, 185, 11, 0.1)',
-                  border: '1px solid rgba(240, 185, 11, 0.2)',
-                }}
-              >
-                <div
-                  className="text-sm font-semibold mb-2"
-                  style={{ color: '#F0B90B' }}
-                >
-                  ℹ️ {t('information', language)}
-                </div>
-                <div className="text-xs space-y-1" style={{ color: '#848E9C' }}>
-                  <div>{t('modelConfigInfo1', language)}</div>
-                  <div>{t('modelConfigInfo2', language)}</div>
-                  <div>{t('modelConfigInfo3', language)}</div>
-                </div>
-              </div>
-            </>
-          )}
+          </div>
 
           <div className="flex gap-3 mt-6">
             <button
@@ -1540,9 +1684,9 @@ function ModelConfigModal({
             </button>
             <button
               type="submit"
-              disabled={!selectedModel || !apiKey.trim()}
-              className="flex-1 px-4 py-2 rounded text-sm font-semibold disabled:opacity-50"
-              style={{ background: '#F0B90B', color: '#000' }}
+              disabled={!canSave}
+              className="flex-1 px-4 py-2 rounded text-sm font-semibold disabled:opacity-50 hover:bg-gray-200 transition-colors"
+              style={{ background: '#FFFFFF', color: '#000' }}
             >
               {t('saveConfig', language)}
             </button>
@@ -1702,8 +1846,9 @@ function ExchangeConfigModal({
                 onClick={() => setShowGuide(true)}
                 className="px-3 py-2 rounded text-sm font-semibold transition-all hover:scale-105 flex items-center gap-2"
                 style={{
-                  background: 'rgba(240, 185, 11, 0.1)',
-                  color: '#F0B90B',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  color: '#FFFFFF',
+                  border: '1px solid rgba(255, 255, 255, 0.15)',
                 }}
               >
                 <BookOpen className="w-4 h-4" />
@@ -1965,13 +2110,13 @@ function ExchangeConfigModal({
                       <div
                         className="p-4 rounded"
                         style={{
-                          background: 'rgba(240, 185, 11, 0.1)',
-                          border: '1px solid rgba(240, 185, 11, 0.2)',
+                          background: 'rgba(255, 255, 255, 0.04)',
+                          border: '1px solid rgba(255, 255, 255, 0.08)',
                         }}
                       >
                         <div
                           className="text-sm font-semibold mb-2"
-                          style={{ color: '#F0B90B' }}
+                          style={{ color: '#FFFFFF' }}
                         >
                           {t('whitelistIP', language)}
                         </div>
@@ -1993,7 +2138,7 @@ function ExchangeConfigModal({
                           >
                             <code
                               className="flex-1 text-sm font-mono"
-                              style={{ color: '#F0B90B' }}
+                              style={{ color: '#FFFFFF' }}
                             >
                               {serverIP.public_ip}
                             </code>
@@ -2002,8 +2147,8 @@ function ExchangeConfigModal({
                               onClick={() => handleCopyIP(serverIP.public_ip)}
                               className="px-3 py-1 rounded text-xs font-semibold transition-all hover:scale-105"
                               style={{
-                                background: 'rgba(240, 185, 11, 0.2)',
-                                color: '#F0B90B',
+                                background: 'rgba(255, 255, 255, 0.08)',
+                                color: '#FFFFFF',
                               }}
                             >
                               {copiedIP
@@ -2052,14 +2197,14 @@ function ExchangeConfigModal({
                 <>
                   <div>
                     <label
-                      className="block text-sm font-semibold mb-2 flex items-center gap-2"
+                      className="text-sm font-semibold mb-2 flex items-center gap-2"
                       style={{ color: '#EAECEF' }}
                     >
                       {t('user', language)}
                       <Tooltip content={t('asterUserDesc', language)}>
                         <HelpCircle
                           className="w-4 h-4 cursor-help"
-                          style={{ color: '#F0B90B' }}
+                          style={{ color: '#848E9C' }}
                         />
                       </Tooltip>
                     </label>
@@ -2080,14 +2225,14 @@ function ExchangeConfigModal({
 
                   <div>
                     <label
-                      className="block text-sm font-semibold mb-2 flex items-center gap-2"
+                      className="text-sm font-semibold mb-2 flex items-center gap-2"
                       style={{ color: '#EAECEF' }}
                     >
                       {t('signer', language)}
                       <Tooltip content={t('asterSignerDesc', language)}>
                         <HelpCircle
                           className="w-4 h-4 cursor-help"
-                          style={{ color: '#F0B90B' }}
+                          style={{ color: '#848E9C' }}
                         />
                       </Tooltip>
                     </label>
@@ -2102,20 +2247,19 @@ function ExchangeConfigModal({
                         border: '1px solid #2B3139',
                         color: '#EAECEF',
                       }}
-                      required
                     />
                   </div>
 
                   <div>
                     <label
-                      className="block text-sm font-semibold mb-2 flex items-center gap-2"
+                      className="text-sm font-semibold mb-2 flex items-center gap-2"
                       style={{ color: '#EAECEF' }}
                     >
                       {t('privateKey', language)}
                       <Tooltip content={t('asterPrivateKeyDesc', language)}>
                         <HelpCircle
                           className="w-4 h-4 cursor-help"
-                          style={{ color: '#F0B90B' }}
+                          style={{ color: '#848E9C' }}
                         />
                       </Tooltip>
                     </label>
@@ -2130,7 +2274,6 @@ function ExchangeConfigModal({
                         border: '1px solid #2B3139',
                         color: '#EAECEF',
                       }}
-                      required
                     />
                   </div>
                 </>
@@ -2143,7 +2286,7 @@ function ExchangeConfigModal({
                     checked={testnet}
                     onChange={(e) => setTestnet(e.target.checked)}
                     className="form-checkbox rounded"
-                    style={{ accentColor: '#F0B90B' }}
+                    style={{ accentColor: '#FFFFFF' }}
                   />
                   <span style={{ color: '#EAECEF' }}>
                     {t('useTestnet', language)}
@@ -2157,13 +2300,13 @@ function ExchangeConfigModal({
               <div
                 className="p-4 rounded"
                 style={{
-                  background: 'rgba(240, 185, 11, 0.1)',
-                  border: '1px solid rgba(240, 185, 11, 0.2)',
+                  background: 'rgba(255, 255, 255, 0.03)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
                 }}
               >
                 <div
                   className="text-sm font-semibold mb-2"
-                  style={{ color: '#F0B90B' }}
+                  style={{ color: '#FFFFFF' }}
                 >
                   <span className="inline-flex items-center gap-1">
                     <AlertTriangle className="w-4 h-4" />{' '}
@@ -2193,28 +2336,9 @@ function ExchangeConfigModal({
             </button>
             <button
               type="submit"
-              disabled={
-                !selectedExchange ||
-                (selectedExchange.id === 'binance' &&
-                  (!apiKey.trim() || !secretKey.trim())) ||
-                (selectedExchange.id === 'okx' &&
-                  (!apiKey.trim() ||
-                    !secretKey.trim() ||
-                    !passphrase.trim())) ||
-                (selectedExchange.id === 'hyperliquid' && !apiKey.trim()) || // 只验证私钥，钱包地址可选
-                (selectedExchange.id === 'aster' &&
-                  (!asterUser.trim() ||
-                    !asterSigner.trim() ||
-                    !asterPrivateKey.trim())) ||
-                (selectedExchange.type === 'cex' &&
-                  selectedExchange.id !== 'hyperliquid' &&
-                  selectedExchange.id !== 'aster' &&
-                  selectedExchange.id !== 'binance' &&
-                  selectedExchange.id !== 'okx' &&
-                  (!apiKey.trim() || !secretKey.trim()))
-              }
-              className="flex-1 px-4 py-2 rounded text-sm font-semibold disabled:opacity-50"
-              style={{ background: '#F0B90B', color: '#000' }}
+              disabled={false}
+              className="flex-1 px-4 py-2 rounded text-sm font-semibold disabled:opacity-50 hover:bg-gray-200 transition-colors"
+              style={{ background: '#FFFFFF', color: '#000' }}
             >
               {t('saveConfig', language)}
             </button>
@@ -2238,7 +2362,7 @@ function ExchangeConfigModal({
                 className="text-xl font-bold flex items-center gap-2"
                 style={{ color: '#EAECEF' }}
               >
-                <BookOpen className="w-6 h-6" style={{ color: '#F0B90B' }} />
+                <BookOpen className="w-6 h-6" style={{ color: '#FFFFFF' }} />
                 {t('binanceSetupGuide', language)}
               </h3>
               <button

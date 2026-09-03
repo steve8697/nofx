@@ -1,0 +1,40 @@
+{
+  "timestamp": "2025-12-15T15:03:31.104337+08:00",
+  "cycle_number": 2,
+  "system_prompt": "Mock System Prompt",
+  "input_prompt": "Mock User Prompt",
+  "cot_trace": "Mock Thought Process: Data is visible.",
+  "decision_json": "[\n  {\n    \"symbol\": \"BTCUSDT\",\n    \"action\": \"wait\",\n    \"reasoning\": \"Mock decision for verification\"\n  }\n]",
+  "account_state": {
+    "total_balance": 0,
+    "available_balance": 0,
+    "total_unrealized_profit": -10000,
+    "position_count": 0,
+    "margin_used_pct": 0
+  },
+  "positions": null,
+  "candidate_coins": [
+    "BTCUSDT"
+  ],
+  "technical_analysis": {},
+  "price_action": {},
+  "decisions": [
+    {
+      "action": "wait",
+      "symbol": "BTCUSDT",
+      "quantity": 0,
+      "leverage": 0,
+      "price": 0,
+      "reasoning": "Mock decision for verification",
+      "order_id": 0,
+      "timestamp": "2025-12-05T05:15:32.237+08:00",
+      "success": true,
+      "error": ""
+    }
+  ],
+  "execution_log": [
+    "✓ BTCUSDT wait 成功"
+  ],
+  "success": true,
+  "error_message": ""
+}

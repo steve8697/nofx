@@ -1,8 +1,8 @@
-# 🤝 Contributing to NOFX
+# 🤝 Contributing to AETHERIS
 
 **Language:** [English](CONTRIBUTING.md) | [中文](docs/i18n/zh-CN/CONTRIBUTING.md)
 
-Thank you for your interest in contributing to NOFX! This document provides guidelines and workflows for contributing to the project.
+Thank you for your interest in contributing to AETHERIS! This document provides guidelines and workflows for contributing to the project.
 
 ---
 
@@ -81,11 +81,11 @@ Before submitting a PR, please check the following:
 ```bash
 # Fork the repository on GitHub
 # Then clone your fork
-git clone https://github.com/YOUR_USERNAME/nofx.git
-cd nofx
+git clone https://github.com/YOUR_USERNAME/aetheris.git
+cd aetheris
 
 # Add upstream remote
-git remote add upstream https://github.com/tinkle-community/nofx.git
+git remote add upstream https://github.com/tinkle-community/aetheris.git
 ```
 
 ### 2. Create a Feature Branch
@@ -143,7 +143,7 @@ sudo apt-get install libta-lib0-dev
 go test ./...
 
 # Build backend
-go build -o nofx
+go build -o aetheris
 
 # Run frontend in dev mode
 cd web
@@ -312,7 +312,7 @@ const TC = (props) => {
 ### File Structure
 
 ```
-NOFX/
+AETHERIS/
 ├── cmd/               # Main applications
 ├── internal/          # Private code
 │   ├── exchange/      # Exchange adapters
@@ -440,7 +440,7 @@ Reviewers will check:
 
 ### How It Works
 
-1. Check [open bounty issues](https://github.com/tinkle-community/nofx/labels/bounty)
+1. Check [open bounty issues](https://github.com/tinkle-community/aetheris/labels/bounty)
 2. Comment to claim (first come, first served)
 3. Complete work within deadline
 4. Submit PR with bounty claim section filled
@@ -458,8 +458,8 @@ Reviewers will check:
 
 ## ❓ Questions?
 
-- **General questions:** Join our [Telegram Community](https://t.me/nofx_dev_community)
-- **Technical questions:** Open a [Discussion](https://github.com/tinkle-community/nofx/discussions)
+- **General questions:** Join our [Telegram Community](https://t.me/aetheris_dev_community)
+- **Technical questions:** Open a [Discussion](https://github.com/tinkle-community/aetheris/discussions)
 - **Security issues:** See [Security Policy](SECURITY.md)
 - **Bug reports:** Use [Bug Report Template](.github/ISSUE_TEMPLATE/bug_report.md)
 
@@ -476,6 +476,6 @@ Reviewers will check:
 
 ## 🙏 Thank You!
 
-Your contributions make NOFX better for everyone. We appreciate your time and effort!
+Your contributions make AETHERIS better for everyone. We appreciate your time and effort!
 
 **Happy coding! 🚀**

@@ -1,8 +1,8 @@
-# 📘 NOFX User Guides
+# 📘 AETHERIS User Guides
 
 **Language:** [English](README.md) | [中文](README.zh-CN.md)
 
-Comprehensive guides to help you use NOFX effectively.
+Comprehensive guides to help you use AETHERIS effectively.
 
 ---
 
@@ -44,8 +44,8 @@ sudo apt-get install libta-lib0-dev
 - Timeout is set to 120 seconds
 
 **Issue: Frontend can't connect**
-- Ensure backend is running (http://localhost:8080)
-- Check if port 8080 is available
+- Ensure backend is running (http://localhost:3636)
+- Check if port 3636 is available
 - Check browser console for errors
 
 ---
@@ -129,9 +129,9 @@ Run multiple AI models simultaneously:
 ## 🆘 Need Help?
 
 **Can't find what you need?**
-- 💬 [Telegram Community](https://t.me/nofx_dev_community)
-- 🐛 [GitHub Issues](https://github.com/tinkle-community/nofx/issues)
-- 🐦 [Twitter @nofx_ai](https://x.com/nofx_ai)
+- 💬 [Telegram Community](https://t.me/aetheris_dev_community)
+- 🐛 [GitHub Issues](https://github.com/tinkle-community/aetheris/issues)
+- 🐦 [Twitter @aetheris_ai](https://x.com/aetheris_ai)
 
 ---
 

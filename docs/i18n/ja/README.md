@@ -1,4 +1,4 @@
-# 🤖 NOFX - Agentic Trading OS
+# 🤖 AETHERIS - Agentic Trading OS
 
 [![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?style=flat&logo=go)](https://golang.org/)
 [![React](https://img.shields.io/badge/React-18+-61DAFB?style=flat&logo=react)](https://reactjs.org/)
@@ -8,13 +8,13 @@
 
 **言語:** [English](../../../README.md) | [中文](../zh-CN/README.md) | [Українська](../uk/README.md) | [Русский](../ru/README.md) | [日本語](README.md)
 
-**公式Twitter:** [@nofx_ai](https://x.com/nofx_ai)
+**公式Twitter:** [@aetheris_ai](https://x.com/aetheris_ai)
 
 ---
 
 ## 🚀 ユニバーサルAIトレーディングOS
 
-**NOFX**は、統合アーキテクチャに基づいて構築された**ユニバーサルAgenticトレーディングOS**です。暗号通貨市場において **「マルチエージェント判断 → 統一リスク管理 → 低レイテンシ実行 → ライブ/ペーパーアカウントバックテスト」** のループを成功裏に完成させ、現在この技術スタックを **株式、先物、オプション、外国為替、およびすべての金融市場** に拡大しています。
+**AETHERIS**は、統合アーキテクチャに基づいて構築された**ユニバーサルAgenticトレーディングOS**です。暗号通貨市場において **「マルチエージェント判断 → 統一リスク管理 → 低レイテンシ実行 → ライブ/ペーパーアカウントバックテスト」** のループを成功裏に完成させ、現在この技術スタックを **株式、先物、オプション、外国為替、およびすべての金融市場** に拡大しています。
 
 ### 🎯 コア機能
 
@@ -35,7 +35,7 @@
 
 **投資に関するお問い合わせ**は、TwitterでTinkleまたはZackにDMをお送りください。
 
-**パートナーシップおよび協業**については、公式Twitter [@nofx_ai](https://x.com/nofx_ai)にDMをお送りください。
+**パートナーシップおよび協業**については、公式Twitter [@aetheris_ai](https://x.com/aetheris_ai)にDMをお送りください。
 
 ---
 
@@ -45,7 +45,7 @@
 
 Telegram開発者コミュニティに参加して、議論、アイデアの共有、サポートを受けましょう：
 
-**💬 [NOFX開発者コミュニティ](https://t.me/nofx_dev_community)**
+**💬 [AETHERIS開発者コミュニティ](https://t.me/aetheris_dev_community)**
 
 ---
 
@@ -53,7 +53,7 @@ Telegram開発者コミュニティに参加して、議論、アイデアの共
 
 ### 🚀 マルチ取引所対応！
 
-NOFXは現在、**3つの主要取引所**をサポートしています：Binance、Hyperliquid、Aster DEX！
+AETHERISは現在、**3つの主要取引所**をサポートしています：Binance、Hyperliquid、Aster DEX！
 
 #### **Hyperliquid取引所**
 
@@ -120,7 +120,7 @@ Binance互換の分散型無期限先物取引所！
 
 ## ✨ 現在の実装 - 暗号通貨市場
 
-NOFXは現在、以下の実証済み機能で**暗号通貨市場において完全に稼働**しています：
+AETHERISは現在、以下の実証済み機能で**暗号通貨市場において完全に稼働**しています：
 
 ### 🏆 マルチエージェント競争フレームワーク
 - **ライブエージェントバトル**: QwenとDeepSeekモデルがリアルタイム取引で競争
@@ -182,7 +182,7 @@ NOFXは現在、以下の実証済み機能で**暗号通貨市場において�
 ## 🏗️ 技術アーキテクチャ
 
 ```
-nofx/
+aetheris/
 ├── main.go                          # プログラムエントリ（マルチトレーダーマネージャー）
 ├── config.json                      # 設定ファイル（APIキー、マルチトレーダー設定）
 │
@@ -355,8 +355,8 @@ sudo apt-get install libta-lib0-dev
 ### 2. プロジェクトをクローン
 
 ```bash
-git clone https://github.com/tinkle-community/nofx.git
-cd nofx
+git clone https://github.com/tinkle-community/aetheris.git
+cd aetheris
 ```
 
 ### 3. 依存関係をインストール
@@ -456,7 +456,7 @@ cp config.json.example config.json
   "use_default_coins": true,
   "coin_pool_api_url": "",
   "oi_top_api_url": "",
-  "api_server_port": 8080
+  "api_server_port": 3636
 }
 ```
 
@@ -487,7 +487,7 @@ cp config.json.example config.json
 
 #### 🔷 代替：Hyperliquid取引所の使用
 
-**NOFXはHyperliquidもサポート** - 分散型無期限先物取引所。Binanceの代わりにHyperliquidを使用するには：
+**AETHERISはHyperliquidもサポート** - 分散型無期限先物取引所。Binanceの代わりにHyperliquidを使用するには：
 
 **ステップ1**: Ethereum秘密鍵を取得（Hyperliquid認証用）
 
@@ -516,7 +516,7 @@ cp config.json.example config.json
     }
   ],
   "use_default_coins": true,
-  "api_server_port": 8080
+  "api_server_port": 3636
 }
 ```
 
@@ -531,7 +531,7 @@ cp config.json.example config.json
 
 #### 🔶 代替：Aster DEX取引所の使用
 
-**NOFXはAster DEXもサポート** - Binance互換の分散型無期限先物取引所！
+**AETHERISはAster DEXもサポート** - Binance互換の分散型無期限先物取引所！
 
 **なぜAsterを選ぶ？**
 - 🎯 Binance互換API（簡単な移行）
@@ -572,7 +572,7 @@ cp config.json.example config.json
     }
   ],
   "use_default_coins": true,
-  "api_server_port": 8080,
+  "api_server_port": 3636,
   "leverage": {
     "btc_eth_leverage": 5,
     "altcoin_leverage": 5
@@ -630,7 +630,7 @@ cp config.json.example config.json
   "use_default_coins": true,
   "coin_pool_api_url": "",
   "oi_top_api_url": "",
-  "api_server_port": 8080
+  "api_server_port": 3636
 }
 ```
 
@@ -666,7 +666,7 @@ cp config.json.example config.json
 | `use_default_coins` | 組み込みコインリストを使用<br>**✨ スマートデフォルト：`true`**（v2.0.2+）<br>API URLが提供されていない場合自動有効化 | `true`または省略 | ❌ いいえ<br>（オプション、自動デフォルト） |
 | `coin_pool_api_url` | カスタムコインプールAPI<br>*`use_default_coins: false`の場合のみ必要* | `""`（空） | ❌ いいえ |
 | `oi_top_api_url` | 建玉API<br>*オプション補足データ* | `""`（空） | ❌ いいえ |
-| `api_server_port` | Webダッシュボードポート | `8080` | ✅ はい |
+| `api_server_port` | Webダッシュボードポート | `3636` | ✅ はい |
 
 **デフォルト取引コイン**（`use_default_coins: true`の場合）：
 - BTC、ETH、SOL、BNB、XRP、DOGE、ADA、HYPE
@@ -781,10 +781,10 @@ cp config.json.example config.json
 
 ```bash
 # プログラムをビルド（初回のみ、またはコード変更後）
-go build -o nofx
+go build -o aetheris
 
 # バックエンドを起動
-./nofx
+./aetheris
 ```
 
 **表示されるべきもの：**
@@ -792,7 +792,7 @@ go build -o nofx
 ```
 🚀 启动自动交易系统...
 ✓ Trader [my_trader] 已初始化
-✓ API服务器启动在端口 8080
+✓ API服务器启动在端口 3636
 📊 开始交易监控...
 ```
 
@@ -802,7 +802,7 @@ go build -o nofx
 |--------------|----------|
 | `invalid API key` | config.jsonのBinance APIキーを確認 |
 | `TA-Lib not found` | `brew install ta-lib`を実行（macOS） |
-| `port 8080 already in use` | config.jsonの`api_server_port`を変更 |
+| `port 3636 already in use` | config.jsonの`api_server_port`を変更 |
 | `DeepSeek API error` | DeepSeek APIキーと残高を確認 |
 
 **✅ バックエンドが正しく実行されているとき：**
@@ -876,7 +876,7 @@ Webブラウザを開いて次にアクセス：
 
 ```bash
 # 新しいターミナルウィンドウで
-curl http://localhost:8080/health
+curl http://localhost:3636/health
 ```
 
 戻り値：`{"status":"ok"}`
@@ -1181,8 +1181,8 @@ sudo apt-get install libta-lib0-dev
 ### 4. フロントエンドがバックエンドに接続できない
 
 **解決策**:
-- バックエンドが実行中であることを確認（http://localhost:8080）
-- ポート8080が占有されていないか確認
+- バックエンドが実行中であることを確認（http://localhost:3636）
+- ポート3636が占有されていないか確認
 - ブラウザコンソールでエラーを確認
 
 ### 5. コインプールAPI失敗
@@ -1317,8 +1317,8 @@ IssueとPull Requestを歓迎します！
 
 
 ### 🐛 技術サポート
-- **GitHub Issues**: [Issueを提出](https://github.com/tinkle-community/nofx/issues)
-- **開発者コミュニティ**: [Telegramグループ](https://t.me/nofx_dev_community)
+- **GitHub Issues**: [Issueを提出](https://github.com/tinkle-community/aetheris/issues)
+- **開発者コミュニティ**: [Telegramグループ](https://t.me/aetheris_dev_community)
 
 ---
 
@@ -1340,4 +1340,4 @@ IssueとPull Requestを歓迎します！
 
 ## ⭐ Star履歴
 
-[![Star履歴チャート](https://api.star-history.com/svg?repos=tinkle-community/nofx&type=Date)](https://star-history.com/#tinkle-community/nofx&Date)
+[![Star履歴チャート](https://api.star-history.com/svg?repos=tinkle-community/aetheris&type=Date)](https://star-history.com/#tinkle-community/aetheris&Date)

@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+/* Minimal overrides on top of tailwind + theme.css */
+
+#root {
+  height: 100vh;
+}
+
+/* Table polish */
+table {
+  border-collapse: collapse;
+}
+
+/* Focus states for future interactive elements */
+button:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* === Sci-Fi Animations & Utilities === */
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-5px); }
+  40%, 80% { transform: translateX(5px); }
+}
+
+.animate-shake {
+  animation: shake 0.25s ease-in-out;
+}
+
+@keyframes pulse-light {
+  0%, 100% { opacity: 0.8; box-shadow: 0 0 8px var(--accent); }
+  50% { opacity: 0.4; box-shadow: 0 0 2px var(--accent); }
+}
+
+.pulse-dot-green {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse-green 2s infinite;
+}
+
+.pulse-dot-red {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--red);
+  box-shadow: 0 0 6px var(--red);
+  animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-green {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--green); }
+  50% { opacity: 0.4; box-shadow: 0 0 2px var(--green); }
+}
+
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--red); }
+  50% { opacity: 0.4; box-shadow: 0 0 2px var(--red); }
+}
+
+/* Glassmorphism Panel styles matching modern UI */
+.glass-panel {
+  background: rgba(22, 26, 33, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+}
+
+.glass-panel-elevated {
+  background: rgba(28, 33, 42, 0.8);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}

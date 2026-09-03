@@ -13,7 +13,6 @@ import {
 import useSWR from 'swr'
 import { api } from '../lib/api'
 import type { CompetitionTraderData } from '../types'
-import { getTraderColor } from '../utils/traderColors'
 import { useLanguage } from '../contexts/LanguageContext'
 import { t } from '../i18n/translations'
 import { BarChart3 } from 'lucide-react'
@@ -38,9 +37,16 @@ export function ComparisonChart({ traders }: ComparisonChartProps) {
       const traderIds = traders.map((trader) => trader.trader_id)
       const batchData = await api.getEquityHistoryBatch(traderIds)
 
-      // 转换为原格式，保持与原有代码兼容
+      // ✅ 修正：適配新的資料結構（包含 initial_balance）
       return traders.map((trader) => {
-        return batchData.histories[trader.trader_id] || []
+        const traderData = batchData.histories[trader.trader_id]
+        if (!traderData) return []
+        // 如果是新格式（包含 initial_balance 和 data），返回 data
+        if (traderData.data && Array.isArray(traderData.data)) {
+          return traderData.data
+        }
+        // 兼容舊格式
+        return traderData
       })
     },
     {
@@ -134,6 +140,35 @@ export function ComparisonChart({ traders }: ComparisonChartProps) {
         return entry
       })
 
+    // ✅ 核心防禦與視覺優化：為多引擎對比圖插值一個初始起跑點 (START 基準)
+    // 所有對比引擎在起跑點的 ROI 均為 0.00%，並且以其 initial_balance 作為起點，
+    // 這使得對比折線圖能完美畫出從 Break Even 0% 往外波動發散的完整過程，解決「無聊死水平線」或單點無法繪圖的 Bug！
+    if (combined.length > 0) {
+      const startEntry: any = {
+        index: 0,
+        time: 'START',
+        timestamp: 'START_TIME',
+      }
+      
+      traders.forEach((trader) => {
+        // 從第一個 combined 元素中推斷 initial_balance
+        // initial_balance = equity / (1 + pnl_pct/100)
+        const firstPointEquity = combined[0][`${trader.trader_id}_equity`]
+        const firstPointPnlPct = combined[0][`${trader.trader_id}_pnl_pct`]
+        
+        let initialBal = 1000 // 預設防禦
+        if (firstPointEquity !== undefined && firstPointPnlPct !== undefined) {
+          const safePct = 1 + (firstPointPnlPct / 100)
+          initialBal = safePct > 0 ? (firstPointEquity / safePct) : firstPointEquity
+        }
+        
+        startEntry[`${trader.trader_id}_pnl_pct`] = 0.0
+        startEntry[`${trader.trader_id}_equity`] = initialBal
+      })
+      
+      combined.unshift(startEntry)
+    }
+
     if (combined.length > 0) {
       const lastPoint = combined[combined.length - 1]
       console.log(
@@ -141,7 +176,7 @@ export function ComparisonChart({ traders }: ComparisonChartProps) {
       )
     }
 
-    return combined
+    return combined;
   }, [allTraderHistories, traders])
 
   if (isLoading) {
@@ -194,20 +229,25 @@ export function ComparisonChart({ traders }: ComparisonChartProps) {
     return [Math.floor(minVal - padding), Math.ceil(maxVal + padding)]
   }
 
-  // 使用统一的颜色分配逻辑（与Leaderboard保持一致）
-  const traderColor = (traderId: string) => getTraderColor(traders, traderId)
+  // 使用 KRONOS QUANTUM v5.0 消光鈦金灰度色板（Stealth Monochromatic Palette）
+  const traderColor = (traderId: string) => {
+    const index = traders.findIndex((t) => t.trader_id === traderId)
+    // 高雅灰度序列：純白、鈦銀、月灰、消光灰、炭黑
+    const grayPalette = ['#ffffff', '#cccccc', '#9e9e9e', '#757575', '#494949']
+    return grayPalette[index % grayPalette.length] || '#ffffff'
+  }
 
-  // 自定义Tooltip - Binance Style
+  // 自定義Tooltip - Binance Style
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload
       return (
         <div
-          className="rounded p-3 shadow-xl"
-          style={{ background: '#1E2329', border: '1px solid #2B3139' }}
+          className="glass-card p-3.5 shadow-2xl relative overflow-hidden min-w-[170px] border border-white/10"
+          style={{ background: 'rgba(10, 10, 12, 0.95)', backdropFilter: 'blur(12px)' }}
         >
-          <div className="text-xs mb-2" style={{ color: '#848E9C' }}>
-            {data.time} - #{data.index}
+          <div className="text-[10px] font-bold font-mono text-gray-500 mb-2 uppercase tracking-wider">
+            {data.time} - SYNC #{data.index}
           </div>
           {traders.map((trader) => {
             const pnlPct = data[`${trader.trader_id}_pnl_pct`]
@@ -215,24 +255,20 @@ export function ComparisonChart({ traders }: ComparisonChartProps) {
             if (pnlPct === undefined) return null
 
             return (
-              <div key={trader.trader_id} className="mb-1.5 last:mb-0">
+              <div key={trader.trader_id} className="mb-2 last:mb-0 font-mono text-xs">
                 <div
-                  className="text-xs font-semibold mb-0.5"
+                  className="font-bold mb-0.5"
                   style={{ color: traderColor(trader.trader_id) }}
                 >
-                  {trader.trader_name}
+                  ● {trader.trader_name}
                 </div>
                 <div
-                  className="text-sm mono font-bold"
-                  style={{ color: pnlPct >= 0 ? '#0ECB81' : '#F6465D' }}
+                  className="font-bold flex items-center gap-1.5"
+                  style={{ color: pnlPct >= 0 ? '#ffffff' : '#8e8e93' }}
                 >
-                  {pnlPct >= 0 ? '+' : ''}
-                  {pnlPct.toFixed(2)}%
-                  <span
-                    className="text-xs ml-2 font-normal"
-                    style={{ color: '#848E9C' }}
-                  >
-                    ({equity?.toFixed(2)} USDT)
+                  <span>{pnlPct >= 0 ? '▲' : '▼'} {pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(2)}%</span>
+                  <span className="text-[10px] font-normal text-gray-400">
+                    ({equity?.toFixed(0)} USDT)
                   </span>
                 </div>
               </div>
@@ -259,27 +295,32 @@ export function ComparisonChart({ traders }: ComparisonChartProps) {
   return (
     <div>
       <div
+        className="my-2 relative overflow-hidden rounded-xl bg-black/10 border border-white/[0.02]"
         style={{
           borderRadius: '8px',
           overflow: 'hidden',
           position: 'relative',
         }}
       >
-        {/* NOFX Watermark */}
+        {/* Tech Grid Backdrop */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.002)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.002)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none opacity-30"></div>
+
+        {/* KRONOS QUANTUM Watermark */}
         <div
           style={{
             position: 'absolute',
             top: '20px',
             right: '20px',
-            fontSize: '24px',
+            fontSize: '12px',
             fontWeight: 'bold',
-            color: 'rgba(240, 185, 11, 0.15)',
+            color: 'rgba(255, 255, 255, 0.03)',
             zIndex: 10,
             pointerEvents: 'none',
             fontFamily: 'monospace',
+            letterSpacing: '0.15em'
           }}
         >
-          NOFX
+          KRONOS QUANTUM TELEMETRY
         </div>
         <ResponsiveContainer width="100%" height={520}>
           <LineChart
@@ -287,36 +328,17 @@ export function ComparisonChart({ traders }: ComparisonChartProps) {
             margin={{ top: 20, right: 30, left: 20, bottom: 40 }}
           >
             <defs>
-              {traders.map((trader) => (
-                <linearGradient
-                  key={`gradient-${trader.trader_id}`}
-                  id={`gradient-${trader.trader_id}`}
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="5%"
-                    stopColor={traderColor(trader.trader_id)}
-                    stopOpacity={0.9}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor={traderColor(trader.trader_id)}
-                    stopOpacity={0.2}
-                  />
-                </linearGradient>
-              ))}
+              {/* Monochromatic Subtle Gradients - No neon colors */}
             </defs>
 
-            <CartesianGrid strokeDasharray="3 3" stroke="#2B3139" />
+            {/* TradingView Style Clean Grims */}
+            <CartesianGrid strokeDasharray="5 5" stroke="rgba(255, 255, 255, 0.02)" vertical={false} />
 
             <XAxis
               dataKey="time"
-              stroke="#5E6673"
-              tick={{ fill: '#848E9C', fontSize: 11 }}
-              tickLine={{ stroke: '#2B3139' }}
+              stroke="rgba(255, 255, 255, 0.08)"
+              tick={{ fill: 'rgba(255, 255, 255, 0.25)', fontSize: 10, fontFamily: 'monospace' }}
+              tickLine={{ stroke: 'rgba(255, 255, 255, 0.03)' }}
               interval={Math.floor(displayData.length / 12)}
               angle={-15}
               textAnchor="end"
@@ -324,9 +346,9 @@ export function ComparisonChart({ traders }: ComparisonChartProps) {
             />
 
             <YAxis
-              stroke="#5E6673"
-              tick={{ fill: '#848E9C', fontSize: 12 }}
-              tickLine={{ stroke: '#2B3139' }}
+              stroke="rgba(255, 255, 255, 0.08)"
+              tick={{ fill: 'rgba(255, 255, 255, 0.25)', fontSize: 10, fontFamily: 'monospace' }}
+              tickLine={{ stroke: 'rgba(255, 255, 255, 0.03)' }}
               domain={calculateYDomain()}
               tickFormatter={(value) => `${value.toFixed(1)}%`}
               width={60}
@@ -336,13 +358,14 @@ export function ComparisonChart({ traders }: ComparisonChartProps) {
 
             <ReferenceLine
               y={0}
-              stroke="#474D57"
+              stroke="rgba(255, 255, 255, 0.1)"
               strokeDasharray="5 5"
-              strokeWidth={1.5}
+              strokeWidth={1.2}
               label={{
                 value: 'Break Even',
-                fill: '#848E9C',
-                fontSize: 11,
+                fill: 'rgba(255, 255, 255, 0.2)',
+                fontSize: 10,
+                fontFamily: 'monospace',
                 position: 'right',
               }}
             />
@@ -353,20 +376,22 @@ export function ComparisonChart({ traders }: ComparisonChartProps) {
                 type="monotone"
                 dataKey={`${trader.trader_id}_pnl_pct`}
                 stroke={traderColor(trader.trader_id)}
-                strokeWidth={3}
+                strokeWidth={1.5}
+                strokeOpacity={0.85}
                 dot={
                   displayData.length < 50
-                    ? { fill: traderColor(trader.trader_id), r: 3 }
+                    ? { fill: traderColor(trader.trader_id), r: 2 }
                     : false
                 }
                 activeDot={{
-                  r: 6,
-                  fill: traderColor(trader.trader_id),
-                  stroke: '#fff',
-                  strokeWidth: 2,
+                  r: 4,
+                  fill: '#ffffff',
+                  stroke: '#020203',
+                  strokeWidth: 1.5,
                 }}
                 name={trader.trader_name}
                 connectNulls
+                isAnimationActive={false}
               />
             ))}
 
@@ -374,21 +399,30 @@ export function ComparisonChart({ traders }: ComparisonChartProps) {
               wrapperStyle={{ paddingTop: '20px' }}
               iconType="line"
               formatter={(value, entry: any) => {
-                const traderId = traders.find(
-                  (t) => value === t.trader_name
-                )?.trader_id
-                const trader = traders.find((t) => t.trader_id === traderId)
+                // If line has no name or empty, do not render a phantom legend item
+                if (!value && !entry?.dataKey) return null;
+
+                const matchedTrader = traders.find(
+                  (t) => value === t.trader_name || entry?.dataKey === `${t.trader_id}_pnl_pct`
+                );
+
+                if (!matchedTrader) {
+                  return value ? <span className="font-mono text-xs font-semibold">{value}</span> : null;
+                }
+
+                const modelTag = matchedTrader.ai_model ? matchedTrader.ai_model.split('_').pop()?.toUpperCase() : '';
                 return (
                   <span
+                    className="font-mono"
                     style={{
-                      color: entry.color,
+                      color: entry.color || '#ECEBE6',
                       fontWeight: 600,
-                      fontSize: '14px',
+                      fontSize: '12px',
                     }}
                   >
-                    {trader?.trader_name} ({trader?.ai_model.toUpperCase()})
+                    {matchedTrader.trader_name} {modelTag ? `(${modelTag})` : ''}
                   </span>
-                )
+                );
               }}
             />
           </LineChart>
@@ -397,73 +431,65 @@ export function ComparisonChart({ traders }: ComparisonChartProps) {
 
       {/* Stats */}
       <div
-        className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 pt-5"
-        style={{ borderTop: '1px solid #2B3139' }}
+        className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3.5 pt-5 text-xs font-mono"
+        style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
       >
         <div
-          className="p-2 md:p-3 rounded transition-all hover:bg-opacity-50"
-          style={{ background: 'rgba(240, 185, 11, 0.05)' }}
+          className="p-3 rounded-lg bg-white/[0.01] border border-white/[0.03] transition-all hover:bg-white/[0.02]"
+          style={{ borderLeft: '2px solid rgba(255, 255, 255, 0.2)' }}
         >
           <div
-            className="text-xs mb-1 uppercase tracking-wider"
-            style={{ color: '#848E9C' }}
+            className="text-[10px] mb-1.5 uppercase tracking-wider text-gray-500"
           >
             {t('comparisonMode', language)}
           </div>
           <div
-            className="text-sm md:text-base font-bold"
-            style={{ color: '#EAECEF' }}
+            className="font-bold text-gray-200 text-sm"
           >
             PnL %
           </div>
         </div>
         <div
-          className="p-2 md:p-3 rounded transition-all hover:bg-opacity-50"
-          style={{ background: 'rgba(240, 185, 11, 0.05)' }}
+          className="p-3 rounded-lg bg-white/[0.01] border border-white/[0.03] transition-all hover:bg-white/[0.02]"
+          style={{ borderLeft: '2px solid rgba(255, 255, 255, 0.1)' }}
         >
           <div
-            className="text-xs mb-1 uppercase tracking-wider"
-            style={{ color: '#848E9C' }}
+            className="text-[10px] mb-1.5 uppercase tracking-wider text-gray-500"
           >
             {t('dataPoints', language)}
           </div>
           <div
-            className="text-sm md:text-base font-bold mono"
-            style={{ color: '#EAECEF' }}
+            className="font-bold text-gray-200 text-sm"
           >
             {t('count', language, { count: combinedData.length })}
           </div>
         </div>
         <div
-          className="p-2 md:p-3 rounded transition-all hover:bg-opacity-50"
-          style={{ background: 'rgba(240, 185, 11, 0.05)' }}
+          className="p-3 rounded-lg bg-white/[0.01] border border-white/[0.03] transition-all hover:bg-white/[0.02]"
+          style={{ borderLeft: '2px solid rgba(255, 255, 255, 0.15)' }}
         >
           <div
-            className="text-xs mb-1 uppercase tracking-wider"
-            style={{ color: '#848E9C' }}
+            className="text-[10px] mb-1.5 uppercase tracking-wider text-gray-500"
           >
             {t('currentGap', language)}
           </div>
           <div
-            className="text-sm md:text-base font-bold mono"
-            style={{ color: currentGap > 1 ? '#F0B90B' : '#EAECEF' }}
+            className="font-bold text-sm text-white"
           >
             {currentGap.toFixed(2)}%
           </div>
         </div>
         <div
-          className="p-2 md:p-3 rounded transition-all hover:bg-opacity-50"
-          style={{ background: 'rgba(240, 185, 11, 0.05)' }}
+          className="p-3 rounded-lg bg-white/[0.01] border border-white/[0.03] transition-all hover:bg-white/[0.02]"
+          style={{ borderLeft: '2px solid rgba(255, 255, 255, 0.1)' }}
         >
           <div
-            className="text-xs mb-1 uppercase tracking-wider"
-            style={{ color: '#848E9C' }}
+            className="text-[10px] mb-1.5 uppercase tracking-wider text-gray-500"
           >
             {t('displayRange', language)}
           </div>
           <div
-            className="text-sm md:text-base font-bold mono"
-            style={{ color: '#EAECEF' }}
+            className="font-bold text-gray-200 text-sm"
           >
             {combinedData.length > MAX_DISPLAY_POINTS
               ? `${t('recent', language)} ${MAX_DISPLAY_POINTS}`

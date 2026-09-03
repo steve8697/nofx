@@ -175,10 +175,10 @@ func (t *HyperliquidTrader) GetBalance() (map[string]interface{}, error) {
 	//      原因：Spot 和 Perpetuals 是獨立帳戶，需手動 ClassTransfer 才能轉帳
 	totalWalletBalance := walletBalanceWithoutUnrealized + spotUSDCBalance
 
-	result["totalWalletBalance"] = totalWalletBalance      // 總資產（Perp + Spot）
-	result["availableBalance"] = availableBalance          // 可用餘額（僅 Perpetuals，不含 Spot）
-	result["totalUnrealizedProfit"] = totalUnrealizedPnl   // 未實現盈虧（僅來自 Perpetuals）
-	result["spotBalance"] = spotUSDCBalance                // Spot 現貨餘額（單獨返回）
+	result["totalWalletBalance"] = totalWalletBalance    // 總資產（Perp + Spot）
+	result["availableBalance"] = availableBalance        // 可用餘額（僅 Perpetuals，不含 Spot）
+	result["totalUnrealizedProfit"] = totalUnrealizedPnl // 未實現盈虧（僅來自 Perpetuals）
+	result["spotBalance"] = spotUSDCBalance              // Spot 現貨餘額（單獨返回）
 
 	log.Printf("✓ Hyperliquid 完整账户:")
 	log.Printf("  • Spot 现货余额: %.2f USDC （需手动转账到 Perpetuals 才能开仓）", spotUSDCBalance)
@@ -551,7 +551,6 @@ func (t *HyperliquidTrader) CloseShort(symbol string, quantity float64) (map[str
 
 // CancelStopOrders 取消该币种的止盈/止
 
-
 // CancelStopLossOrders 仅取消止损单（Hyperliquid 暂无法区分止损和止盈，取消所有）
 func (t *HyperliquidTrader) CancelStopLossOrders(symbol string) error {
 	// Hyperliquid SDK 的 OpenOrder 结构不暴露 trigger 字段
@@ -818,4 +817,57 @@ func absFloat(x float64) float64 {
 		return -x
 	}
 	return x
+}
+
+// GetOpenOrders 获取挂单 (Stub)
+func (t *HyperliquidTrader) GetOpenOrders(symbol string) ([]map[string]interface{}, error) {
+	// TODO: Implement real API call if needed
+	return []map[string]interface{}{}, nil
+}
+
+// GetUserTrades 获取用户成交历史
+func (t *HyperliquidTrader) GetUserTrades(symbol string, limit int) ([]map[string]interface{}, error) {
+	// Hyperliquid API userFills 返回该用户所有币种的成交，无法只过滤 symbol
+	// 我们只能获取所有然后过滤
+	fills, err := t.exchange.Info().UserFills(t.ctx, t.walletAddr)
+	if err != nil {
+		return nil, fmt.Errorf("hyperliquid get user fills error: %w", err)
+	}
+
+	var result []map[string]interface{}
+	// Hyperliquid format symbol as "BTC", "ETH" etc. (no USDT)
+	targetCoin := convertSymbolToHyperliquid(symbol)
+
+	count := 0
+	for _, fill := range fills {
+		if targetCoin != "" && fill.Coin != targetCoin {
+			continue
+		}
+
+		// 转换为 map
+		data, err := json.Marshal(fill)
+		if err != nil {
+			log.Printf("⚠️ marshal fill error: %v", err)
+			continue
+		}
+		var m map[string]interface{}
+		if err := json.Unmarshal(data, &m); err != nil {
+			log.Printf("⚠️ unmarshal fill error: %v", err)
+			continue
+		}
+
+		result = append(result, m)
+		count++
+		if limit > 0 && count >= limit {
+			break
+		}
+	}
+
+	return result, nil
+}
+
+// GetTradingFees 获取Hyperliquid手续费率
+// Hyperliquid: Maker 0.01%, Taker 0.035% (普通用户)
+func (t *HyperliquidTrader) GetTradingFees() (makerFeeRate, takerFeeRate float64) {
+	return 0.0001, 0.00035 // Maker: 0.01%, Taker: 0.035%
 }

@@ -1,4 +1,4 @@
-module nofx
+module aetheris
 
 go 1.25.0
 

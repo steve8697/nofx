@@ -13,6 +13,7 @@ import (
 type WSClient struct {
 	conn        *websocket.Conn
 	mu          sync.RWMutex
+	writeMu     sync.Mutex
 	subscribers map[string]chan []byte
 	reconnect   bool
 	done        chan struct{}
@@ -120,14 +121,18 @@ func (w *WSClient) subscribe(stream string) error {
 		"id":     time.Now().Unix(),
 	}
 
-	w.mu.RLock()
-	defer w.mu.RUnlock()
+	w.writeMu.Lock()
+	defer w.writeMu.Unlock()
 
-	if w.conn == nil {
+	w.mu.RLock()
+	conn := w.conn
+	w.mu.RUnlock()
+
+	if conn == nil {
 		return fmt.Errorf("WebSocket未连接")
 	}
 
-	err := w.conn.WriteJSON(subscribeMsg)
+	err := conn.WriteJSON(subscribeMsg)
 	if err != nil {
 		return err
 	}
@@ -194,12 +199,40 @@ func (w *WSClient) handleReconnect() {
 	if err := w.Connect(); err != nil {
 		log.Printf("重新连接失败: %v", err)
 		go w.handleReconnect()
+		return
+	}
+
+	// 重新订阅所有流
+	w.resubscribeAll()
+}
+
+func (w *WSClient) resubscribeAll() {
+	w.mu.RLock()
+	streams := make([]string, 0, len(w.subscribers))
+	for s := range w.subscribers {
+		streams = append(streams, s)
+	}
+	w.mu.RUnlock()
+
+	if len(streams) == 0 {
+		return
+	}
+
+	log.Printf("🔄 WebSocket重连成功，正在重新订阅 %d 个流...", len(streams))
+	for _, stream := range streams {
+		if err := w.subscribe(stream); err != nil {
+			log.Printf("⚠️ 重新订阅流 %s 失败: %v", stream, err)
+		}
+		time.Sleep(50 * time.Millisecond)
 	}
 }
 
 func (w *WSClient) AddSubscriber(stream string, bufferSize int) <-chan []byte {
 	ch := make(chan []byte, bufferSize)
 	w.mu.Lock()
+	if oldCh, exists := w.subscribers[stream]; exists {
+		close(oldCh) // 关闭旧通道以允许旧接收协程优雅退出
+	}
 	w.subscribers[stream] = ch
 	w.mu.Unlock()
 	return ch
@@ -207,13 +240,19 @@ func (w *WSClient) AddSubscriber(stream string, bufferSize int) <-chan []byte {
 
 func (w *WSClient) RemoveSubscriber(stream string) {
 	w.mu.Lock()
-	delete(w.subscribers, stream)
+	if ch, exists := w.subscribers[stream]; exists {
+		close(ch)
+		delete(w.subscribers, stream)
+	}
 	w.mu.Unlock()
 }
 
 func (w *WSClient) Close() {
 	w.reconnect = false
 	close(w.done)
+
+	w.writeMu.Lock()
+	defer w.writeMu.Unlock()
 
 	w.mu.Lock()
 	defer w.mu.Unlock()

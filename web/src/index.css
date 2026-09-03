@@ -11,59 +11,69 @@ html {
 }
 
 :root {
-  /* Binance Brand Colors */
-  --brand-yellow: #f0b90b;
+  /* Quantum Obsidian Brand Colors - Stealth Monochromatic Upgrade */
+  --brand-yellow: #ffffff;
   --brand-black: #000000;
-  --brand-dark-gray: #0a0a0a;
-  --brand-light-gray: #eaecef;
+  --brand-dark-gray: #020203;
+  --brand-light-gray: #e5e5ea;
   --brand-almost-white: #fafafa;
   --brand-white: #ffffff;
 
-  /* Binance Theme Colors */
-  --binance-yellow: #f0b90b;
-  --binance-yellow-dark: #c99400;
-  --binance-yellow-light: #fcd535;
-  --binance-yellow-glow: rgba(240, 185, 11, 0.2);
+  /* Theme Core Colors - Lunar Gray & Silver Telemetry */
+  --binance-yellow: #ffffff;
+  --binance-yellow-dark: #cccccc;
+  --binance-yellow-light: #ffffff;
+  --binance-yellow-glow: rgba(255, 255, 255, 0.05);
 
-  --background: #000000; /* Binance body bg */
-  --header-bg: #000000; /* Binance header bg */
-  --background-elevated: #000000;
-  --foreground: #eaecef;
-  --panel-bg: #0a0a0a;
-  --panel-bg-hover: #111111;
-  --panel-border: #1a1a1a;
-  --panel-border-hover: #2a2a2a;
+  /* Neon Advanced Theme Colors - Monochromatic Stealth Tone */
+  --neon-purple: #8e8e93;
+  --neon-purple-glow: rgba(255, 255, 255, 0.03);
+  --neon-blue: #ffffff;
+  --neon-blue-glow: rgba(255, 255, 255, 0.03);
+  --neon-green-glow: rgba(255, 255, 255, 0.03);
+  --neon-red-glow: rgba(255, 255, 255, 0.03);
 
-  /* Binance Signature Colors */
-  --binance-green: #0ecb81;
-  --binance-green-bg: rgba(14, 203, 129, 0.1);
-  --binance-green-border: rgba(14, 203, 129, 0.2);
-  --binance-red: #f6465d;
-  --binance-red-bg: rgba(246, 70, 93, 0.1);
-  --binance-red-border: rgba(246, 70, 93, 0.2);
+  --background: #141416; /* Warm Charcoal Void BG (溫潤深木炭灰) */
+  --header-bg: rgba(20, 20, 22, 0.94); /* Muted Charcoal Header */
+  --background-elevated: #1D1E22; /* Matte Slate Gray (啞光板岩灰) */
+  --foreground: #ECEBE6; /* Paper Ivory (如藝術紙印刷米白) */
+  --panel-bg: rgba(29, 30, 34, 0.85); /* Slate Charcoal Panel */
+  --panel-bg-hover: rgba(36, 37, 44, 0.95);
+  --panel-border: rgba(255, 255, 255, 0.06); /* 1px Hairline border */
+  --panel-border-hover: rgba(180, 176, 165, 0.35); /* Warm Wool Hairline */
 
-  /* UI Colors */
-  --text-primary: #eaecef;
-  --text-secondary: #848e9c;
-  --text-tertiary: #5e6673;
-  --text-disabled: #474d57;
+  /* Signature Status Colors - Morandi & Mineral Low-Saturation Tones */
+  --binance-green: #6E987E; /* Sage Mineral Green (鼠尾草灰綠) */
+  --binance-green-bg: rgba(110, 152, 126, 0.08);
+  --binance-green-border: rgba(110, 152, 126, 0.25);
+  --binance-red: #B86B65; /* Terracotta Muted Red (赤陶灰紅) */
+  --binance-red-bg: rgba(184, 107, 101, 0.08);
+  --binance-red-border: rgba(184, 107, 101, 0.25);
+  --binance-gold: #B4B0A5; /* Cashmere Warm Gray (暖羊絨灰，徹底去除俗氣土豪金) */
+  --binance-gold-bg: rgba(180, 176, 165, 0.08);
+  --binance-gold-border: rgba(180, 176, 165, 0.25);
+
+  /* UI Colors - Paper & Oatmeal Editorial Grays */
+  --text-primary: #ECEBE6; /* Paper Ivory */
+  --text-secondary: #9C9B96; /* Oatmeal Gray */
+  --text-tertiary: #5E5D58; /* Pencil Lead Gray */
+  --text-disabled: #403F3B;
+  --luxury-gold: #C5A880; /* Pale Champagne Gold */
+  --luxury-gold-subtle: rgba(197, 168, 128, 0.15);
 
   /* Chart Colors */
-  --grid-stroke: #1a1a1a;
-  --axis-tick: #5e6673;
-  --ref-line: #474d57;
+  --grid-stroke: #222329;
+  --axis-tick: #7C7B76;
+  --ref-line: #383940;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md:
-    0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg:
-    0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-  --shadow-xl:
-    0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+  /* Shadows - Subtle Atmospheric Shadow */
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.8);
 
   font-family:
-    'Inter',
+    'Plus Jakarta Sans',
     -apple-system,
     BlinkMacSystemFont,
     'Segoe UI',
@@ -78,19 +88,388 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: 'tnum';
-  font-variant-numeric: tabular-nums;
+
+  /* Luxury Editorial Typography (designprompts.dev/luxury inspired) */
+}
+
+.font-playfair {
+  font-family: 'Playfair Display', Georgia, serif !important;
+}
+
+.font-garamond {
+  font-family: 'Cormorant Garamond', Georgia, serif !important;
+}
+
+.font-inter {
+  font-family: 'Inter', sans-serif !important;
+}
+
+.tracking-luxury {
+  letter-spacing: 0.28em !important;
+}
+
+.luxury-gold-italic {
+  font-family: 'Playfair Display', serif !important;
+  font-style: italic !important;
+  color: #C5A880 !important;
+}
+
+.hairline-b {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: var(--background);
+  background-color: #141416;
+  background-image: 
+    radial-gradient(circle at 18% 15%, rgba(180, 176, 165, 0.03) 0%, transparent 55%),
+    radial-gradient(circle at 82% 85%, rgba(110, 152, 126, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(20, 20, 25, 0.4) 0%, transparent 70%);
+  background-size: 100% 100%;
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+/* 使用 GPU 渲染圖層提升背景格線動畫 */
+body::before {
+  content: '';
+  position: fixed;
+  top: -36px;
+  left: -36px;
+  right: -36px;
+  bottom: -36px;
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.008) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.008) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: -1;
+  pointer-events: none;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  animation: matrix-shift-optimized 90s linear infinite;
+}
+
+@keyframes matrix-shift-optimized {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(40px, 40px, 0);
+  }
 }
 
 #root {
   width: 100%;
   margin: 0 auto;
+}
+
+/* Sovereign Atelier Slate Architectural Geometry & Liquid Caustics Frosted Glass */
+.sharp-card, .glass-card {
+  background: rgba(18, 19, 23, 0.38) !important; /* 真正的薄透液態玻璃 (38% 不透明度) */
+  backdrop-filter: blur(12px) saturate(180%) !important; /* 晶瑩薄霧穿透，後方 3D 結構清晰可見 */
+  -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.16) !important; /* 頂部受光折射高光邊 */
+  border-left: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+  border-radius: 0px !important; /* 純直角建築感 */
+  box-shadow: 
+    0 20px 50px -10px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important; /* 內層玻璃折射切邊光 */
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0); /* Promote to dedicated GPU compositor layer */
+  will-change: transform, background;
+}
+
+/* 窗格上的液態水波微光 (Interactive Liquid Caustic Highlight) */
+.sharp-card::before, .glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(255, 255, 255, 0.08),
+    rgba(197, 168, 128, 0.03) 35%,
+    transparent 65%
+  );
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sharp-card:hover::before, .glass-card:hover::before {
+  opacity: 1;
+}
+
+.sharp-card:hover, .glass-card:hover {
+  background: rgba(22, 23, 29, 0.48) !important;
+  border-top-color: rgba(255, 255, 255, 0.28) !important;
+  border-left-color: rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 
+    0 24px 60px -12px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
+}
+
+/* 直角按鈕與晶片 (黑灰階文青質感) */
+.sharp-chip {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-radius: 0px !important;
+  transition: all 0.2s ease !important;
+  color: #9C9B96 !important;
+}
+.sharp-chip:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #ECEBE6 !important;
+}
+.sharp-chip.active {
+  background: #24252C !important;
+  border-color: #B4B0A5 !important;
+  color: #ECEBE6 !important;
+  box-shadow: none !important;
+}
+
+/* 全息卡片內按鈕科幻重塑 */
+.glass-card button, .binance-card button {
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.06em;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px)) !important;
+}
+
+.glass-card button:hover:not(:disabled), .binance-card button:hover:not(:disabled) {
+  transform: translateY(-1.5px) scale(1.02) !important;
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.15) !important;
+  filter: brightness(1.2) contrast(1.1);
+}
+
+.glass-card button::before, .binance-card button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.15),
+    transparent
+  );
+  transition: 0.5s;
+}
+
+.glass-card button:hover::before, .binance-card button:hover::before {
+  left: 100%;
+}
+
+/* KRONOS QUANTUM Cyberpunk 核心戰術按鈕樣式 */
+.btn-cyber {
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 0px !important; /* 拔除原本圓角，釋放純粹切角的鋒利感 */
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px)) !important;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+  z-index: 2;
+  letter-spacing: 0.08em !important;
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  color: #8e8e93 !important;
+  border: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+.btn-cyber::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent) !important;
+  transition: 0.5s !important;
+  pointer-events: none !important;
+}
+
+.btn-cyber:hover::before {
+  left: 100% !important;
+}
+
+.btn-cyber:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.025) !important;
+  background-color: #ffffff !important;
+  color: #020203 !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.25) !important;
+}
+
+/* 各顏色專屬高飽和霓虹光暈 - 全面改裝為純白反色 */
+.btn-cyber-cyan, .btn-cyber-rose, .btn-cyber-emerald, .btn-cyber-purple {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  color: #8e8e93 !important;
+  border: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+.btn-cyber-cyan:hover:not(:disabled),
+.btn-cyber-rose:hover:not(:disabled),
+.btn-cyber-emerald:hover:not(:disabled),
+.btn-cyber-purple:hover:not(:disabled) {
+  background-color: #ffffff !important;
+  color: #020203 !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.25) !important;
+}
+
+/* 全息玻璃掃描光束特效 - 消光灰化與極淡化 */
+.glass-card::after, .binance-card::after, .binance-card-no-hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200%; /* 拉長以便進行 transform 位移 */
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.005) 5%,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.005) 45%,
+    rgba(255, 255, 255, 0) 50%,
+    
+    rgba(255, 255, 255, 0) 50%,
+    rgba(255, 255, 255, 0.005) 55%,
+    rgba(255, 255, 255, 0.04) 75%,
+    rgba(255, 255, 255, 0.005) 95%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 100% 100%;
+  opacity: 0.015;
+  pointer-events: none;
+  border-radius: inherit;
+  /* 提升為 GPU 渲染圖層，避免 Repaint */
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  animation: holographic-scan-optimized 15s linear infinite;
+  z-index: 1;
+}
+
+@keyframes holographic-scan-optimized {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, -50%, 0);
+  }
+}
+
+.glass-card-hover:hover {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.8), inset 0 0 12px rgba(255, 255, 255, 0.01) !important;
+  transform: translateY(-3px) !important;
+}
+
+.neon-border-gold, .neon-border-purple {
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.02), inset 0 0 15px rgba(255, 255, 255, 0.01) !important;
+}
+.neon-border-gold:hover, .neon-border-purple:hover {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.08), inset 0 0 20px rgba(255, 255, 255, 0.03) !important;
+}
+
+.glow-button-gold, .glow-button-purple {
+  background: #ffffff !important;
+  color: #020203 !important;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid #ffffff !important;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+.glow-button-gold:hover:not(:disabled), .glow-button-purple:hover:not(:disabled) {
+  transform: translateY(-1.5px) scale(1.015) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.15) !important;
+}
+.glow-button-gold:active:not(:disabled), .glow-button-purple:active:not(:disabled) {
+  transform: translateY(0) scale(0.98) !important;
+}
+
+.pulse-dot-green {
+  position: relative;
+  display: inline-flex;
+  height: 8px;
+  width: 8px;
+  border-radius: 9999px;
+  background-color: #0ecb81;
+}
+.pulse-dot-green::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  border-radius: 9999px;
+  background-color: #0ecb81;
+  animation: pulse-ring 2s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
+}
+
+.pulse-dot-red {
+  position: relative;
+  display: inline-flex;
+  height: 8px;
+  width: 8px;
+  border-radius: 9999px;
+  background-color: #f6465d;
+}
+.pulse-dot-red::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  border-radius: 9999px;
+  background-color: #f6465d;
+  animation: pulse-ring 2s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+@keyframes rotate-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-rotate-slow {
+  animation: rotate-slow 15s linear infinite;
 }
 
 /* Scrollbar - Binance style */
@@ -226,26 +605,54 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Binance Card - Enhanced */
-.binance-card {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: 4px;
-  transition: all 0.2s ease;
-  box-shadow: var(--shadow-sm);
+/* Binance Card - Unified with Translucent Frosted Liquid Glass */
+.binance-card, .binance-card-no-hover {
+  background: rgba(18, 19, 23, 0.38) !important;
+  backdrop-filter: blur(12px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-left: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+  border-radius: 0px !important;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 
+    0 20px 50px -10px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.binance-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    500px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(255, 255, 255, 0.08),
+    rgba(197, 168, 128, 0.03) 35%,
+    transparent 65%
+  );
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.binance-card:hover::before {
+  opacity: 1;
 }
 
 .binance-card:hover {
-  border-color: var(--panel-border-hover);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-
-.binance-card-no-hover {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: 4px;
-  box-shadow: var(--shadow-sm);
+  background: rgba(22, 23, 29, 0.48) !important;
+  border-top-color: rgba(255, 255, 255, 0.28) !important;
+  border-left-color: rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 
+    0 24px 60px -12px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18) !important;
 }
 
 /* Binance gradient backgrounds */
@@ -260,10 +667,10 @@ button:disabled {
 .binance-gradient-subtle {
   background: linear-gradient(
     135deg,
-    rgba(240, 185, 11, 0.15) 0%,
-    rgba(252, 213, 53, 0.05) 100%
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.005) 100%
   );
-  border: 1px solid rgba(240, 185, 11, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .binance-glow {
@@ -299,7 +706,7 @@ button:disabled {
   background-image: linear-gradient(
     90deg,
     transparent,
-    rgba(240, 185, 11, 0.05),
+    rgba(255, 255, 255, 0.03),
     transparent
   );
   background-size: 200% 100%;
@@ -317,12 +724,12 @@ button:disabled {
   padding: 0.625rem 1.25rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(240, 185, 11, 0.3);
+  box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
 }
 
 .btn-binance:hover {
   background: var(--binance-yellow-light);
-  box-shadow: 0 4px 8px rgba(240, 185, 11, 0.4);
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.15);
   transform: translateY(-2px);
 }
 
@@ -343,7 +750,7 @@ button:disabled {
 }
 
 .btn-outline:hover {
-  background: rgba(240, 185, 11, 0.1);
+  background: rgba(255, 255, 255, 0.05);
   border-color: var(--binance-yellow-light);
 }
 
@@ -377,7 +784,7 @@ tr:last-child {
 }
 
 tr:hover {
-  background: rgba(240, 185, 11, 0.03);
+  background: rgba(255, 255, 255, 0.015);
 }
 
 /* Badge/Chip styles */
@@ -393,8 +800,8 @@ tr:hover {
 }
 
 .badge-yellow {
-  background: rgba(240, 185, 11, 0.1);
-  border-color: rgba(240, 185, 11, 0.3);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
   color: var(--binance-yellow);
 }
 
@@ -458,49 +865,49 @@ tr:hover {
 
 /* Stat card enhancements */
 .stat-card {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: 4px;
+  background: #1D1E22 !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 0px !important;
   padding: 1.25rem;
   transition: all 0.2s ease;
   position: relative;
-  overflow: hidden;
-}
-
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--binance-yellow),
-    transparent
-  );
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.stat-card:hover::before {
-  opacity: 1;
 }
 
 .stat-card:hover {
-  border-color: rgba(240, 185, 11, 0.3);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border-color: rgba(180, 176, 165, 0.35) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5) !important;
   transform: translateY(-2px);
 }
 
 /* Chart container */
 .chart-container {
-  background: var(--panel-bg);
-  border: 1px solid var(--panel-border);
-  border-radius: 4px;
+  background: #1D1E22 !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 0px !important;
   padding: 1.25rem;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 全域直角與黑灰階文青覆蓋 (Global Sharp & Atelier Slate Overrides) */
+input, select, textarea {
+  border-radius: 0px !important;
+  background-color: #17181D !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #ECEBE6 !important;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(180, 176, 165, 0.5) !important;
+  outline: none !important;
+}
+
+/* 消除所有圓角彈窗與浮動選單 */
+.modal-content, [role="dialog"], .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-lg {
+  border-radius: 0px !important;
+}
+
+/* AILearning 與其他模組的霓虹漸變色強制調校為沉靜灰階 */
+.bg-gradient-to-r, .bg-gradient-to-br, .bg-gradient-to-tr {
+  border-radius: 0px !important;
 }
 
 /* Responsive utilities */

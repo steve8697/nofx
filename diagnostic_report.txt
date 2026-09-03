@@ -1,0 +1,94 @@
+current_price = 86388.10, current_ema20 = 86492.996, current_macd = -105.673, current_macd_signal = -104.238, current_macd_hist = -1.435, current_rsi (7 period) = 39.997
+15m_ema20 = 86738.781, 15m_macd = -188.945, 15m_macd_signal = -173.474, 15m_macd_hist = -15.471, 15m_rsi (14 period) = 35.993
+
+Global Market Data: N/A (Using Binance local data only)
+Market Sentiment: Extreme Fear (16)
+
+In addition, here is the latest BTCUSDT open interest and funding rate for perps:
+
+Open Interest: Latest: 90231.72 Average: 90141.49
+
+Funding Rate: 9.34e-05
+
+BuySellRatio: 0.346 (34.6% 主动买入量 / 总成交量, 卖方较强)
+
+🌊 Order Flow Analysis (CVD):
+  Divergence: None
+  Absorption State: None
+  Current CVD Delta Sum: -1021.66
+
+Technical Analysis Summary (Logic Hardened):
+
+Multi-Timeframe Data:
+  15m: MACD=-188.9454, Hist=-15.4713
+  1h:  MACD=-149.8787, Hist=-116.4682
+  4h:  MACD=-842.2411, Hist=24.3686
+Trend State: Bearish (MACD/EMA)
+RSI State: Neutral
+Volume State: Low
+Divergence: None (Automated Detection)
+MACD Histogram State: Expansion
+Momentum Reversal: None
+
+📊 Market Structure (SMC Analysis):
+  Trend: Bullish
+  ⚠️ Break of Structure (BOS): Bearish
+  Fair Value Gaps (FVG):
+    - Bearish FVG @ 86550.00 - 86763.60
+    - Bearish FVG @ 86793.40 - 86894.80
+    - Bullish FVG @ 86717.80 - 86894.80
+  Order Blocks (Support/Resistance):
+    - Bearish OB @ 87689.70 - 87835.30 (Standard)
+
+Price Action Analysis (Based on 1h Candle):
+
+Candle Type: Bullish Harami
+Upper Wick Ratio: 0.772 (Pinbar > 0.6)
+Lower Wick Ratio: 0.037 (Pinbar > 0.6)
+Body Ratio: 0.192 (Doji < 0.2)
+Distance to EMA20: -0.71%
+
+Intraday series (3‑minute intervals, oldest → latest):
+
+Mid prices: [86438.700, 86459.100, 86382.800, 86401.700, 86378.800, 86302.700, 86366.000, 86389.600, 86400.000, 86388.100]
+
+EMA indicators (20‑period): [86653.452, 86634.942, 86610.928, 86591.002, 86570.792, 86545.260, 86528.187, 86514.988, 86504.037, 86492.996]
+
+MACD indicators: [-98.833, -101.400, -108.342, -111.038, -113.712, -120.582, -119.541, -115.480, -110.153, -105.673]
+
+RSI indicators (7‑Period): [28.952, 32.657, 26.604, 30.336, 28.302, 22.462, 35.397, 39.768, 41.792, 39.997]
+
+RSI indicators (14‑Period): [33.669, 35.410, 32.024, 33.715, 32.655, 29.352, 35.221, 37.312, 38.257, 37.559]
+
+🌍 Macro Context (Daily Timeframe):
+  Trend State: Strong Bearish
+  Structure: Neutral
+  Key Levels: High=94555.00, Low=83786.00
+  Daily RSI: 38.54
+  Daily EMA20: 89982.90
+  Daily EMA50: 94910.93
+
+Hourly context (1‑hour timeframe):
+
+20‑Period EMA: 87002.074 vs. 50‑Period EMA: 87382.303
+
+3‑Period ATR: 437.777 vs. 14‑Period ATR: 573.771
+
+Current Volume: 549.829 vs. Average Volume: 4965.485
+
+MACD indicators: [-861.700, -822.319, -744.266, -713.975, -660.433, -605.285, -505.363, -398.622, -314.814, -305.514, -227.194, -109.071, -46.974, -33.789, 29.066, 61.818, 86.375, 120.178, 147.286, 172.646, 164.462, 157.668, 145.338, 112.117, 48.004, -12.482, -48.521, -54.274, -109.569, -149.879]
+
+RSI indicators (14‑Period): [28.217, 32.096, 40.955, 35.733, 40.253, 41.414, 50.511, 54.014, 53.234, 43.860, 53.744, 59.849, 55.254, 50.511, 56.355, 54.217, 54.163, 56.022, 56.267, 57.017, 52.644, 52.867, 51.948, 48.160, 42.545, 41.181, 43.435, 47.662, 40.098, 40.447]
+
+Longer‑term context (4‑hour timeframe):
+
+20‑Period EMA: 87824.894 vs. 50‑Period EMA: 89022.868
+
+3‑Period ATR: 969.814 vs. 14‑Period ATR: 1163.328
+
+Current Volume: 4761.651 vs. Average Volume: 25888.534
+
+MACD indicators: [-968.024, -1095.797, -1173.278, -1120.753, -1009.417, -942.401, -856.215, -830.640, -814.515, -842.241]
+
+RSI indicators (14‑Period): [31.079, 29.036, 30.174, 40.319, 45.245, 43.127, 45.128, 41.578, 40.686, 37.474]
+

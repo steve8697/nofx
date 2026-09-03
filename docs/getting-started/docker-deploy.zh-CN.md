@@ -1,6 +1,6 @@
 # 🐳 Docker 一键部署教程
 
-本教程将指导你使用 Docker 快速部署 NOFX AI 交易竞赛系统。
+本教程将指导你使用 Docker 快速部署 AETHERIS AI 交易竞赛系统。
 
 ## 📋 前置要求
 
@@ -100,7 +100,7 @@ docker compose up -d
 部署成功后，打开浏览器访问：
 
 - **Web 界面**: http://localhost:3000
-- **API 文档**: http://localhost:8080/api/health
+- **API 文档**: http://localhost:3636/api/health
 
 ## 📊 服务管理
 
@@ -171,7 +171,7 @@ docker compose up -d --build
 services:
   backend:
     ports:
-      - "8080:8080"  # 改为 "你的端口:8080"
+      - "3636:3636"  # 改为 "你的端口:3636"
 
   frontend:
     ports:
@@ -202,7 +202,7 @@ services:
 ```bash
 # .env
 TZ=Asia/Shanghai
-BACKEND_PORT=8080
+BACKEND_PORT=3636
 FRONTEND_PORT=3000
 ```
 
@@ -212,7 +212,7 @@ FRONTEND_PORT=3000
 services:
   backend:
     ports:
-      - "${BACKEND_PORT}:8080"
+      - "${BACKEND_PORT}:3636"
 ```
 
 ## 📁 数据持久化
@@ -256,7 +256,7 @@ docker compose build --no-cache
 
 ```bash
 # 查找占用端口的进程
-lsof -i :8080  # 后端端口
+lsof -i :3636  # 后端端口
 lsof -i :3000  # 前端端口
 
 # 杀死占用端口的进程
@@ -277,11 +277,11 @@ cp config.json.example config.json
 
 ```bash
 # 检查健康状态
-docker inspect nofx-backend | jq '.[0].State.Health'
-docker inspect nofx-frontend | jq '.[0].State.Health'
+docker inspect aetheris-backend | jq '.[0].State.Health'
+docker inspect aetheris-frontend | jq '.[0].State.Health'
 
 # 手动测试健康端点
-curl http://localhost:8080/api/health
+curl http://localhost:3636/api/health
 curl http://localhost:3000/health
 ```
 
@@ -292,7 +292,7 @@ curl http://localhost:3000/health
 docker compose exec frontend ping backend
 
 # 检查后端服务是否正常
-docker compose exec frontend wget -O- http://backend:8080/health
+docker compose exec frontend wget -O- http://backend:3636/health
 ```
 
 ### 清理 Docker 资源
@@ -349,7 +349,7 @@ docker system prune -a --volumes
    services:
      backend:
        ports:
-         - "127.0.0.1:8080:8080"
+         - "127.0.0.1:3636:3636"
    ```
 
 4. **定期更新镜像**
@@ -363,7 +363,7 @@ docker system prune -a --volumes
 ### 使用 Nginx 反向代理
 
 ```nginx
-# /etc/nginx/sites-available/nofx
+# /etc/nginx/sites-available/aetheris
 server {
     listen 80;
     server_name your-domain.com;
@@ -375,7 +375,7 @@ server {
     }
 
     location /api/ {
-        proxy_pass http://localhost:8080/api/;
+        proxy_pass http://localhost:3636/api/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
@@ -402,13 +402,13 @@ sudo certbot renew --dry-run
 docker swarm init
 
 # 部署堆栈
-docker stack deploy -c docker-compose.yml nofx
+docker stack deploy -c docker-compose.yml aetheris
 
 # 查看服务状态
-docker stack services nofx
+docker stack services aetheris
 
 # 扩展服务
-docker service scale nofx_backend=3
+docker service scale aetheris_backend=3
 ```
 
 ## 📈 监控与日志
@@ -449,7 +449,7 @@ services:
 
 ## 🆘 获取帮助
 
-- **GitHub Issues**: [提交问题](https://github.com/yourusername/open-nofx/issues)
+- **GitHub Issues**: [提交问题](https://github.com/yourusername/open-aetheris/issues)
 - **文档**: 查看 [README.md](README.md)
 - **社区**: 加入我们的 Discord/Telegram 群组
 
@@ -484,6 +484,6 @@ docker system prune -a             # 清理 Docker 资源
 
 ---
 
-🎉 恭喜！你已经成功部署了 NOFX AI 交易竞赛系统！
+🎉 恭喜！你已经成功部署了 AETHERIS AI 交易竞赛系统！
 
 如有问题，请查看[故障排查](#-故障排查)部分或提交 Issue。

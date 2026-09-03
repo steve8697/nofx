@@ -85,14 +85,14 @@ func (h *TelegramHook) formatMessage(entry *logrus.Entry) string {
 	if entry.HasCaller() {
 		file := entry.Caller.File
 		// 只保留相对路径
-		if idx := strings.Index(file, "nofx/"); idx >= 0 {
+		if idx := strings.Index(file, "aetheris/"); idx >= 0 {
 			file = file[idx:]
 		}
 		builder.WriteString(fmt.Sprintf("📍 位置: `%s:%d`\n", file, entry.Caller.Line))
 	} else {
 		// 如果entry没有caller，手动获取
 		if _, file, line, ok := runtime.Caller(8); ok {
-			if idx := strings.Index(file, "nofx/"); idx >= 0 {
+			if idx := strings.Index(file, "aetheris/"); idx >= 0 {
 				file = file[idx:]
 			}
 			builder.WriteString(fmt.Sprintf("📍 位置: `%s:%d`\n", file, line))

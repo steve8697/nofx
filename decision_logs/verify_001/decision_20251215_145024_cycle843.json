@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-12-15T14:50:24.226553+08:00",
+  "cycle_number": 843,
+  "system_prompt": "",
+  "input_prompt": "",
+  "cot_trace": "",
+  "decision_json": "",
+  "account_state": {
+    "total_balance": 0,
+    "available_balance": 0,
+    "total_unrealized_profit": -10000,
+    "position_count": 0,
+    "margin_used_pct": 0
+  },
+  "positions": null,
+  "candidate_coins": [
+    "BTCUSDT"
+  ],
+  "technical_analysis": null,
+  "price_action": null,
+  "decisions": null,
+  "execution_log": [],
+  "success": false,
+  "error_message": "获取AI决策失败: 调用AI API失败: AI API密钥未设置，请先调用 SetDeepSeekAPIKey() 或 SetQwenAPIKey()"
+}

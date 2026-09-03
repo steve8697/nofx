@@ -1,6 +1,6 @@
 # 🐳 Dockerワンクリックデプロイガイド
 
-このガイドは、Dockerを使用してNOFX AIトレーディング競争システムを迅速にデプロイする方法を説明します。
+このガイドは、Dockerを使用してAETHERIS AIトレーディング競争システムを迅速にデプロイする方法を説明します。
 
 ## 📋 前提条件
 
@@ -72,7 +72,7 @@ nano config.json  # または他のエディタを使用
     }
   ],
   "use_default_coins": true,
-  "api_server_port": 8080
+  "api_server_port": 3636
 }
 ```
 
@@ -95,7 +95,7 @@ docker compose up -d
 デプロイが完了したら、ブラウザを開いて以下にアクセス：
 
 - **Webインターフェース**: http://localhost:3000
-- **APIヘルスチェック**: http://localhost:8080/health
+- **APIヘルスチェック**: http://localhost:3636/health
 
 ## 📊 サービス管理
 
@@ -171,7 +171,7 @@ docker compose up -d --build
 services:
   backend:
     ports:
-      - "8080:8080"  # "your_port:8080"に変更
+      - "3636:3636"  # "your_port:3636"に変更
 
   frontend:
     ports:
@@ -202,7 +202,7 @@ services:
 ```bash
 # .env
 TZ=Asia/Tokyo
-BACKEND_PORT=8080
+BACKEND_PORT=3636
 FRONTEND_PORT=3000
 ```
 
@@ -212,7 +212,7 @@ FRONTEND_PORT=3000
 services:
   backend:
     ports:
-      - "${BACKEND_PORT}:8080"
+      - "${BACKEND_PORT}:3636"
 ```
 
 ## 📁 データの永続化
@@ -256,7 +256,7 @@ docker compose build --no-cache
 
 ```bash
 # ポートを使用しているプロセスを検索
-lsof -i :8080  # バックエンドポート
+lsof -i :3636  # バックエンドポート
 lsof -i :3000  # フロントエンドポート
 
 # プロセスを強制終了
@@ -277,11 +277,11 @@ cp config.json.example config.json
 
 ```bash
 # ヘルスステータスを確認
-docker inspect nofx-backend | jq '.[0].State.Health'
-docker inspect nofx-frontend | jq '.[0].State.Health'
+docker inspect aetheris-backend | jq '.[0].State.Health'
+docker inspect aetheris-frontend | jq '.[0].State.Health'
 
 # ヘルスエンドポイントを手動でテスト
-curl http://localhost:8080/health
+curl http://localhost:3636/health
 curl http://localhost:3000/health
 ```
 
@@ -292,7 +292,7 @@ curl http://localhost:3000/health
 docker compose exec frontend ping backend
 
 # バックエンドサービスが実行中か確認
-docker compose exec frontend wget -O- http://backend:8080/health
+docker compose exec frontend wget -O- http://backend:3636/health
 ```
 
 ### Dockerリソースをクリーン
@@ -332,7 +332,7 @@ docker system prune -a --volumes
    services:
      backend:
        ports:
-         - "127.0.0.1:8080:8080"
+         - "127.0.0.1:3636:3636"
    ```
 
 4. **イメージを定期的に更新**
@@ -346,7 +346,7 @@ docker system prune -a --volumes
 ### Nginxリバースプロキシの使用
 
 ```nginx
-# /etc/nginx/sites-available/nofx
+# /etc/nginx/sites-available/aetheris
 server {
     listen 80;
     server_name your-domain.com;
@@ -358,7 +358,7 @@ server {
     }
 
     location /api/ {
-        proxy_pass http://localhost:8080/api/;
+        proxy_pass http://localhost:3636/api/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
@@ -385,13 +385,13 @@ sudo certbot renew --dry-run
 docker swarm init
 
 # スタックをデプロイ
-docker stack deploy -c docker-compose.yml nofx
+docker stack deploy -c docker-compose.yml aetheris
 
 # サービスステータスを表示
-docker stack services nofx
+docker stack services aetheris
 
 # サービスをスケール
-docker service scale nofx_backend=3
+docker service scale aetheris_backend=3
 ```
 
 ## 📈 監視＆ロギング
@@ -432,7 +432,7 @@ services:
 
 ## 🆘 ヘルプを取得
 
-- **GitHub Issues**: [Issueを提出](https://github.com/yourusername/open-nofx/issues)
+- **GitHub Issues**: [Issueを提出](https://github.com/yourusername/open-aetheris/issues)
 - **ドキュメント**: [README.md](README.md)を確認
 - **コミュニティ**: Discord/Telegramグループに参加
 
@@ -467,6 +467,6 @@ docker system prune -a             # Dockerリソースをクリーン
 
 ---
 
-🎉 おめでとうございます！NOFX AIトレーディング競争システムのデプロイに成功しました！
+🎉 おめでとうございます！AETHERIS AIトレーディング競争システムのデプロイに成功しました！
 
 問題が発生した場合は、[トラブルシューティング](#-トラブルシューティング)セクションを確認するか、Issueを提出してください。

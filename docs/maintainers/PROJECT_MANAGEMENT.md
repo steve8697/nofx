@@ -2,7 +2,7 @@
 
 **Language:** [English](PROJECT_MANAGEMENT.md) | [中文](PROJECT_MANAGEMENT.zh-CN.md)
 
-This guide explains how we manage the NOFX project, track progress, and prioritize work.
+This guide explains how we manage the AETHERIS project, track progress, and prioritize work.
 
 ---
 
@@ -12,7 +12,7 @@ This guide explains how we manage the NOFX project, track progress, and prioriti
 
 We use **GitHub Projects (Beta)** with these boards:
 
-#### 1. **NOFX Development Board**
+#### 1. **AETHERIS Development Board**
 
 **Columns:**
 ```
@@ -316,10 +316,10 @@ We use GitHub Actions for automation:
 
 ### External (Community)
 
-- **Telegram:** [@nofx_dev_community](https://t.me/nofx_dev_community)
+- **Telegram:** [@aetheris_dev_community](https://t.me/aetheris_dev_community)
 - **GitHub Issues:** Bug reports, feature requests
 - **GitHub Discussions:** General questions, ideas
-- **Twitter:** [@nofx_ai](https://x.com/nofx_ai) - Announcements
+- **Twitter:** [@aetheris_ai](https://x.com/aetheris_ai) - Announcements
 
 ---
 
