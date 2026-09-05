@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"strconv"
 	"strings"
 
@@ -749,18 +750,12 @@ func (t *HyperliquidTrader) getSzDecimals(coin string) int {
 	return 4 // 默认精度
 }
 
-// roundToSzDecimals 将数量四舍五入到正确的精度
+// roundToSzDecimals 将数量向下取整到正确的精度 (防止超出余额或平仓超出持仓)
 func (t *HyperliquidTrader) roundToSzDecimals(coin string, quantity float64) float64 {
 	szDecimals := t.getSzDecimals(coin)
 
-	// 计算倍数（10^szDecimals）
-	multiplier := 1.0
-	for i := 0; i < szDecimals; i++ {
-		multiplier *= 10.0
-	}
-
-	// 四舍五入
-	return float64(int(quantity*multiplier+0.5)) / multiplier
+	multiplier := math.Pow10(szDecimals)
+	return math.Floor(quantity*multiplier) / multiplier
 }
 
 // roundPriceToSigfigs 将价格四舍五入到5位有效数字
