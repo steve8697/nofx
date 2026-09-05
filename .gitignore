@@ -7,6 +7,10 @@
 .claude/
 
 # 编译产物
+aetheris
+aetheris-auto
+aetheris_test
+aetheris_linux_*
 nofx-auto
 *.exe
 nofx

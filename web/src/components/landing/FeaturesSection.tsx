@@ -41,7 +41,7 @@ export default function FeaturesSection({ language }: FeaturesSectionProps) {
             className="text-4xl font-bold mb-4"
             style={{ color: 'var(--brand-light-gray)' }}
           >
-            {t('whyChooseNofx', language)}
+            {t('whyChooseAetheris', language)}
           </h2>
           <p className="text-lg" style={{ color: 'var(--text-secondary)' }}>
             {t('openCommunityDriven', language)}

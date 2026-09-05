@@ -36,7 +36,7 @@ export default function AboutSection({ language }: AboutSectionProps) {
                 className="text-sm font-semibold"
                 style={{ color: 'var(--brand-yellow)' }}
               >
-                {t('aboutNofx', language)}
+                {t('aboutAetheris', language)}
               </span>
             </motion.div>
 
@@ -44,7 +44,7 @@ export default function AboutSection({ language }: AboutSectionProps) {
               className="text-4xl font-bold"
               style={{ color: 'var(--brand-light-gray)' }}
             >
-              {t('whatIsNofx', language)}
+              {t('whatIsAetheris', language)}
             </h2>
             <p
               className="text-lg leading-relaxed"

@@ -437,7 +437,7 @@ export const translations = {
 
     // Features Section
     coreFeatures: 'Core Features',
-    whyChooseNofx: 'Why Choose AETHERIS?',
+    whyChooseAetheris: 'Why Choose AETHERIS?',
     openCommunityDriven:
       'Open source, transparent, community-driven AI trading OS',
     openSourceSelfHosted: '100% Open Source & Self-Hosted',
@@ -463,8 +463,8 @@ export const translations = {
     secureFeatures4: 'Trading log auditing',
 
     // About Section
-    aboutNofx: 'About AETHERIS',
-    whatIsNofx: 'What is AETHERIS?',
+    aboutAetheris: 'About AETHERIS',
+    whatIsAetheris: 'What is AETHERIS?',
     aetherisNotAnotherBot:
       "AETHERIS is not another trading bot, but the 'Linux' of AI trading —",
     aetherisDescription1:
@@ -514,7 +514,7 @@ export const translations = {
     strategicInvestment: '(Strategic Investment)',
 
     // Login Modal
-    accessNofxPlatform: 'Access AETHERIS Platform',
+    accessAetherisPlatform: 'Access AETHERIS Platform',
     loginRegisterPrompt:
       'Please login or register to access the full AI trading platform',
     registerNewAccount: 'Register New Account',
@@ -1118,7 +1118,7 @@ export const translations = {
 
     // Features Section
     coreFeatures: '核心功能',
-    whyChooseNofx: '为什么选择 AETHERIS？',
+    whyChooseAetheris: '为什么选择 AETHERIS？',
     openCommunityDriven: '开源、透明、社区驱动的 AI 交易操作系统',
     openSourceSelfHosted: '100% 开源与自托管',
     openSourceDesc: '你的框架，你的规则。非黑箱，支持自定义提示词和多模型。',
@@ -1140,8 +1140,8 @@ export const translations = {
     secureFeatures4: '交易日志审计',
 
     // About Section
-    aboutNofx: '关于 AETHERIS',
-    whatIsNofx: '什么是 AETHERIS？',
+    aboutAetheris: '关于 AETHERIS',
+    whatIsAetheris: '什么是 AETHERIS？',
     aetherisNotAnotherBot: "AETHERIS 不是另一个交易机器人，而是 AI 交易的 'Linux' ——",
     aetherisDescription1: "一个透明、可信任的开源 OS，提供统一的 '决策-风险-执行'",
     aetherisDescription2: '层，支持所有资产类别。',
@@ -1185,7 +1185,7 @@ export const translations = {
     strategicInvestment: '(战略投资)',
 
     // Login Modal
-    accessNofxPlatform: '访问 AETHERIS 平台',
+    accessAetherisPlatform: '访问 AETHERIS 平台',
     loginRegisterPrompt: '请选择登录或注册以访问完整的 AI 交易平台',
     registerNewAccount: '注册新账号',
 
