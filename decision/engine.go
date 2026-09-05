@@ -6,7 +6,6 @@ import (
 	"log"
 	"math"
 	"aetheris/config"
-	"aetheris/logger"
 	"aetheris/market"
 	"aetheris/mcp"
 	"aetheris/pool"
@@ -447,11 +446,7 @@ func buildSystemPrompt(accountEquity float64, btcEthLeverage, altcoinLeverage in
 	// 0-4: 正常标准
 	// 5-7: 降级探测 (3个周期) -> 尝试寻找被略过的机会
 	// 8-14: 恢复正常 (7个周期) -> 避免长期低标准
-	// 15-19: 正常 (进入下一个循环)
-	// 20-22: 再次降级探测...
 
-	cyclePos := consecutiveWait % 15
-	isProbePhase := consecutiveWait >= 5 && (cyclePos >= 5 && cyclePos <= 7)
 
 	// 确保promptRules不为nil（必须在使用前检查）
 	if promptRules == nil {
@@ -485,27 +480,9 @@ func buildSystemPrompt(accountEquity float64, btcEthLeverage, altcoinLeverage in
 		maxBtcEthSize = minPositionSizeHighPrice
 	}
 
-	if isProbePhase {
-		log.Printf("⚠️ 检测到连续 %d 次wait（探测阶段 %d/7），正在动态调整System Prompt阈值...", consecutiveWait, cyclePos)
-
-		// 动态放宽开仓信心度门槛（由65分微调至55分，允许微仓位试探）
-		templateContent = strings.ReplaceAll(templateContent, "信心度 <65", "信心度 <55")
-		templateContent = strings.ReplaceAll(templateContent, "信心度 65-74", "信心度 55-65")
-		templateContent = strings.ReplaceAll(templateContent, "信心度 ≥65", "信心度 ≥55")
-		templateContent = strings.ReplaceAll(templateContent, "信心度 <70", "信心度 <60")
-		templateContent = strings.ReplaceAll(templateContent, "信心度 70-79", "信心度 60-70")
-		templateContent = strings.ReplaceAll(templateContent, "信心度≥80", "信心度≥75")
-
-		extraNotice := fmt.Sprintf("# ⚠️ 特殊模式：分析瘫痪周期性探测 (连续Wait: %d | 阶段: %d/7)\n**开仓信心度门槛暂降至 55（微仓试探）。此调整将在本轮探测结束（阶段>7）后自动恢复正常。**\n**强制风控：在探测期内，所有开仓必须严格执行微仓位（0.5%%-1%% Risk）试探，禁止重仓。**\n\n", consecutiveWait, cyclePos)
-		templateContent = extraNotice + templateContent
-	} else if consecutiveWait >= 8 {
-		// 非探测阶段，且wait时间较长，提供中性描述避免正反馈循环
-		log.Printf("ℹ️ 连续wait已达 %d 周期，处于正常标准观察期 (下一次探测在 +%d 周期后)",
-			consecutiveWait, 15-cyclePos+5)
-		// 🔧 修正（v5.6.0）：移除"市场可能缺乏良好机会"的暗示性语言，
-		// 避免 AI 将系统提示解读为权威判断而形成 wait → 更 wait 的正反馈死循环。
-		extraNotice := fmt.Sprintf("# ℹ️ 连续观察中 (连续Wait: %d)\n**请以正常评分标准独立评估当前市场。每个周期都是独立决策，不受之前 wait 次数影响。**\n**如果指标达标且信心度≥65，应正常开仓，不要因为之前连续 wait 就降低开仓意愿。**\n(下一次低门槛探测将在 %d 个周期后自动触发)\n\n",
-			consecutiveWait, (15-cyclePos+5)%15)
+	if consecutiveWait >= 20 {
+		log.Printf("ℹ️ 检测到连续 %d 次wait（≥60分钟），注入理性试探提醒...", consecutiveWait)
+		extraNotice := fmt.Sprintf("# ℹ️ 市场持续观察状态 (连续Wait: %d 周期 / %d 分钟)\n**请保持客观冷静评估。每个周期都是独立决策，不受历史连续 wait 次数影响。**\n**若出现符合系统标准且信心度 ≥65 的信号，允许采用微仓位（0.5%%-1%% 风险）试探开仓，避免过度分析导致踏空；但严禁在不符合客观标准的劣质震荡中勉强开仓。**\n\n", consecutiveWait, consecutiveWait*3)
 		templateContent = extraNotice + templateContent
 	}
 
@@ -646,42 +623,6 @@ func buildUserPrompt(ctx *Context) string {
 		sb.WriteString("Do NOT be stubborn. Adapt to the exchange constraints immediately.\n\n")
 	}
 
-	// 📉 注入近期交易结果 (Reflection Loop)
-	// 让AI看到自己过去的“战绩” (PnL)，从而反思策略
-	if ctx.Performance != nil {
-		if perf, ok := ctx.Performance.(*logger.PerformanceAnalysis); ok && len(perf.RecentTrades) > 0 {
-			sb.WriteString("# 📉 近期交易结果 (Reflection)\n")
-			// RecentTrades 已经是倒序（最新的在前）
-			count := 0
-			for _, trade := range perf.RecentTrades {
-				if count >= 5 { // 只显示最近5笔
-					break
-				}
-
-				// 格式: ETHUSDT LONG: Entry 3000 -> Exit 3050 (+1.66%) | Time: 10:00-14:00 | Reason: ...
-				pnlSign := "+"
-				if trade.PnLPct < 0 {
-					pnlSign = "" // 负号自带
-				}
-
-				// 简化的理由
-				reason := trade.Reasoning
-				if reason == "" {
-					reason = "无理由"
-				}
-
-				sb.WriteString(fmt.Sprintf("- %s %s: Entry %.2f -> Exit %.2f (%s%.2f%%) | PnL: %.2f | Time: %s | Reason: %s\n",
-					trade.Symbol, strings.ToUpper(trade.Side),
-					trade.OpenPrice, trade.ClosePrice,
-					pnlSign, trade.PnLPct,
-					trade.PnL,
-					trade.CloseTime.Format("15:04"),
-					reason))
-				count++
-			}
-			sb.WriteString("\n")
-		}
-	}
 
 	// BTC 市场（添加整数关口计算）
 	if btcData, hasBTC := ctx.MarketDataMap["BTCUSDT"]; hasBTC {
@@ -776,7 +717,7 @@ func buildUserPrompt(ctx *Context) string {
 		sb.WriteString(fmt.Sprintf("Current Profit: +%.2f%%.\n", pnl))
 		sb.WriteString("Your Persona: **The Portfolio Risk Manager**.\n")
 		sb.WriteString("Objective: Protect Gains. Do not give back profits.\n")
-		sb.WriteString("Rule: Reduce Risk. Take partial profits early.\n\n")
+		sb.WriteString("Rule: Protect capital with dynamic trailing stops. Let validated trends run to targets.\n\n")
 	} else {
 		sb.WriteString("\n⚖️ **STATUS: BALANCED MODE (平衡模式)** ⚖️\n")
 		sb.WriteString("Current Status: BREAK-EVEN Zone.\n")
@@ -830,6 +771,9 @@ func buildUserPrompt(ctx *Context) string {
 		// 交易频率提醒（信息提示，非强制禁令）
 		if ctx.TradeHistory.TradesInHour >= 3 {
 			sb.WriteString("💡 交易频率提醒：过去1小时已交易3+次，请注意手续费成本累积\n")
+		}
+		if ctx.TradeHistory.ConsecutiveLoss >= 2 {
+			sb.WriteString("💡 提示：当前硬风控冷静期已结束，系统已允许正常决策，请依据客观市场结构独立评估，无需自我施加暂停\n")
 		}
 
 	}

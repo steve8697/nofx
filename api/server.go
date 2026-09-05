@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -17,6 +18,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -30,6 +32,8 @@ type Server struct {
 	backtestManager *backtest.BacktestManager
 	database        *config.Database
 	port            int
+	httpServer      *http.Server
+	mu              sync.Mutex
 }
 
 // NewServer 创建API服务器
@@ -2341,9 +2345,29 @@ func (s *Server) Start() error {
 	log.Printf("  • GET  /api/decisions/latest?trader_id=xxx - 指定trader的最新决策")
 	log.Printf("  • GET  /api/statistics?trader_id=xxx - 指定trader的统计信息")
 	log.Printf("  • GET  /api/performance?trader_id=xxx - 指定trader的AI学习表现分析")
-	log.Println()
+	s.mu.Lock()
+	s.httpServer = &http.Server{
+		Addr:    addr,
+		Handler: s.router,
+	}
+	s.mu.Unlock()
 
-	return s.router.Run(addr)
+	err := s.httpServer.ListenAndServe()
+	if err != nil && err != http.ErrServerClosed {
+		return err
+	}
+	return nil
+}
+
+// Shutdown 优雅关闭服务器
+func (s *Server) Shutdown(ctx context.Context) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.httpServer != nil {
+		log.Println("⏹ 正在优雅关闭 API 服务器...")
+		return s.httpServer.Shutdown(ctx)
+	}
+	return nil
 }
 
 // handleGetPromptTemplates 获取所有系统提示词模板列表

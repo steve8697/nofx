@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -16,6 +17,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -379,11 +381,22 @@ func main() {
 	<-sigChan
 	fmt.Println()
 	fmt.Println()
-	log.Println("📛 收到退出信号，正在停止所有trader...")
+	log.Println("📛 收到退出信号，正在执行优雅停机...")
 	log.Println("ℹ️  不把 is_running 写成 0：这是进程被杀，不是用户在 UI 点停止。容器回来后按数据库标记恢复。")
-	wsMonitor.Close()
+
+	// 1. 先優雅停止 API 伺服器，拒絕新外部請求
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	if err := apiServer.Shutdown(shutdownCtx); err != nil {
+		log.Printf("⚠️ API伺服器關閉異常: %v", err)
+	}
+
+	// 2. 並行停止所有交易員（等待進行中的決策或下單安全收尾）
 	traderManager.StopAll()
 
+	// 3. 關閉行情監控器
+	wsMonitor.Close()
+
 	fmt.Println()
-	fmt.Println("👋 感谢使用AI交易系统！")
+	fmt.Println("👋 感谢使用AETHERIS交易系统！")
 }

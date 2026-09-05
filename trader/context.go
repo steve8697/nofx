@@ -62,7 +62,12 @@ func NewContextBuilder(trader Trader, decisionLogger *logger.DecisionLogger, con
 		log.Printf("⚠️ 加载持仓状态失败: %v", err)
 	} else {
 		if loadedState.FirstSeenTimes != nil {
-			firstSeenTimes = loadedState.FirstSeenTimes
+			// 🔥 防誤平倉保護：重啟時為所有既有持倉重新給予 60 秒寬限期
+			// 將歷史加載的 firstSeenTimes 更新為當前啟動時間，避免重啟 30 秒內因網絡抖動或未對賬完成誤觸發孤兒市價強平
+			nowMs := startTime.UnixMilli()
+			for k := range loadedState.FirstSeenTimes {
+				firstSeenTimes[k] = nowMs
+			}
 		}
 		consecutiveLoss = loadedState.ConsecutiveLosses
 		dailyPnL = loadedState.DailyLoss

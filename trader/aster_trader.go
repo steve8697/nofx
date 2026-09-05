@@ -831,9 +831,26 @@ func (t *AsterTrader) CloseLong(symbol string, quantity float64) (map[string]int
 	// 檢查訂單狀態，IOC 可能部分成交或完全未成交
 	status, _ := result["status"].(string)
 	if status == "EXPIRED" || status == "CANCELED" {
-		log.Printf("  ⚠️ IOC平倉訂單未完全成交，嘗試市價平倉...")
-		// 如果 IOC 失敗，回退到市價單
-		return t.closeLongMarket(symbol, quantity)
+		var executedQty float64
+		if eq, ok := result["executedQty"]; ok {
+			switch v := eq.(type) {
+			case string:
+				executedQty, _ = strconv.ParseFloat(v, 64)
+			case float64:
+				executedQty = v
+			}
+		}
+		remainingQty := quantity - executedQty
+		if remainingQty <= 1e-8 {
+			log.Printf("✓ IOC 平多倉完全成交 (狀態: %s, 數量: %s)", status, qtyStr)
+			if err := t.CancelAllOrders(symbol); err != nil {
+				log.Printf("  ⚠ 取消掛單失敗: %v", err)
+			}
+			return result, nil
+		}
+		log.Printf("  ⚠️ IOC平倉訂單未完全成交 (已成交: %.8f, 剩餘: %.8f)，嘗試市價平剩餘倉位...", executedQty, remainingQty)
+		// 如果 IOC 失敗或未全部成交，以剩餘數量回退到市價單
+		return t.closeLongMarket(symbol, remainingQty)
 	}
 
 	log.Printf("✓ 平多仓成功: %s 数量: %s (狀態: %s)", symbol, qtyStr, status)
@@ -928,9 +945,26 @@ func (t *AsterTrader) CloseShort(symbol string, quantity float64) (map[string]in
 	// 檢查訂單狀態，IOC 可能部分成交或完全未成交
 	status, _ := result["status"].(string)
 	if status == "EXPIRED" || status == "CANCELED" {
-		log.Printf("  ⚠️ IOC平倉訂單未完全成交，嘗試市價平倉...")
-		// 如果 IOC 失敗，回退到市價單
-		return t.closeShortMarket(symbol, quantity)
+		var executedQty float64
+		if eq, ok := result["executedQty"]; ok {
+			switch v := eq.(type) {
+			case string:
+				executedQty, _ = strconv.ParseFloat(v, 64)
+			case float64:
+				executedQty = v
+			}
+		}
+		remainingQty := quantity - executedQty
+		if remainingQty <= 1e-8 {
+			log.Printf("✓ IOC 平空倉完全成交 (狀態: %s, 數量: %s)", status, qtyStr)
+			if err := t.CancelAllOrders(symbol); err != nil {
+				log.Printf("  ⚠ 取消掛單失敗: %v", err)
+			}
+			return result, nil
+		}
+		log.Printf("  ⚠️ IOC平倉訂單未完全成交 (已成交: %.8f, 剩餘: %.8f)，嘗試市價平剩餘倉位...", executedQty, remainingQty)
+		// 如果 IOC 失敗或未全部成交，以剩餘數量回退到市價單
+		return t.closeShortMarket(symbol, remainingQty)
 	}
 
 	log.Printf("✓ 平空仓成功: %s 数量: %s (狀態: %s)", symbol, qtyStr, status)

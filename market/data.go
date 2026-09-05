@@ -1835,7 +1835,12 @@ func Format(data *Data) string {
 		sb.WriteString("\n")
 	}
 
-	sb.WriteString(fmt.Sprintf("Funding Rate: %.2e\n\n", data.FundingRate))
+	fundingRatePct := data.FundingRate * 100
+	rateNote := ""
+	if math.Abs(fundingRatePct) >= 0.1 {
+		rateNote = " ⚠️ 资金费率偏高，注意结算成本与挤压风险"
+	}
+	sb.WriteString(fmt.Sprintf("Funding Rate: %+.4f%% (8h: %.2e)%s\n\n", fundingRatePct, data.FundingRate, rateNote))
 
 	// BuySellRatio（买卖比例）- 明确标记，便于AI识别
 	if data.BuySellRatio > 0 {

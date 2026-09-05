@@ -511,11 +511,33 @@ func (tm *TraderManager) StartAll() {
 // Docker / SIGTERM 走这里；用户点停止必须走 API UpdateTraderStatus(false)。
 func (tm *TraderManager) StopAll() {
 	tm.mu.RLock()
-	defer tm.mu.RUnlock()
-
-	log.Println("⏹  停止所有Trader（仅进程内，保留 is_running 以便容器重启后恢复）...")
+	traders := make([]*trader.AutoTrader, 0, len(tm.traders))
 	for _, t := range tm.traders {
-		t.Stop()
+		traders = append(traders, t)
+	}
+	tm.mu.RUnlock()
+
+	log.Printf("⏹  並行停止所有Trader（共 %d 個，僅進程內，保留 is_running 以便容器重啟後恢復）...", len(traders))
+	var wg sync.WaitGroup
+	for _, t := range traders {
+		wg.Add(1)
+		go func(tr *trader.AutoTrader) {
+			defer wg.Done()
+			tr.Stop()
+		}(t)
+	}
+
+	done := make(chan struct{})
+	go func() {
+		wg.Wait()
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		log.Println("✓ 所有 Trader 已安全停止")
+	case <-time.After(7 * time.Second):
+		log.Println("⚠️ 停止 Trader 超時 (7s)，部分協程仍在退出中")
 	}
 }
 
