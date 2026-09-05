@@ -121,6 +121,8 @@ type AutoTrader struct {
 	userID               string                  // 用户ID
 	stopOnce             sync.Once               // 🔒 保護 stopMonitorCh 不會被重複關閉
 	lastPlaybooks        []string                // 最近一轮注入的 skills
+	cycleMu              sync.Mutex              // 🔒 確保同一 Trader 實例單循環互斥，Stop() 等待正在進行的下單循環
+	promptMu             sync.RWMutex            // 🔒 保護 customPrompt 和 overrideBasePrompt 的並發安全
 }
 
 // NewAutoTrader 创建自动交易器
@@ -393,6 +395,11 @@ func (at *AutoTrader) Stop() {
 		close(at.stopMonitorCh) // 通知监控goroutine停止
 	})
 	at.monitorWg.Wait()     // 等待监控goroutine结束
+
+	// 🛡️ 確保當前正在執行的下單/決策循環完全結束，防止熱重載時新舊 Trader 雙實例並發下單
+	at.cycleMu.Lock()
+	at.cycleMu.Unlock()
+
 	log.Println("⏹ 自动交易系统停止")
 }
 
@@ -414,6 +421,9 @@ func (at *AutoTrader) SetTrader(t Trader) {
 
 // RunCycle 执行一次完整的交易周期 (公开用于回测)
 func (at *AutoTrader) RunCycle() (errRet error) {
+	at.cycleMu.Lock()
+	defer at.cycleMu.Unlock()
+
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("❌ [%s] RunCycle 捕获严重 panic: %v\n堆栈:\n%s", at.name, r, debug.Stack())
@@ -525,7 +535,13 @@ func (at *AutoTrader) RunCycle() (errRet error) {
 	// 5. 调用AI获取完整决策
 	log.Printf("🤖 正在请求AI分析并决策... [模板: %s]", at.systemPromptTemplate)
 
-	decisionResult, decisionErr := decision.GetFullDecisionWithCustomPrompt(ctx, at.mcpClient, at.customPrompt, at.overrideBasePrompt, at.systemPromptTemplate)
+	at.promptMu.RLock()
+	customPrompt := at.customPrompt
+	overridePrompt := at.overrideBasePrompt
+	templateName := at.systemPromptTemplate
+	at.promptMu.RUnlock()
+
+	decisionResult, decisionErr := decision.GetFullDecisionWithCustomPrompt(ctx, at.mcpClient, customPrompt, overridePrompt, templateName)
 	if decisionResult != nil && len(decisionResult.Playbooks) > 0 {
 		at.lastPlaybooks = decisionResult.Playbooks
 	}
@@ -871,21 +887,29 @@ func (at *AutoTrader) GetExchange() string {
 
 // SetCustomPrompt 设置自定义交易策略prompt
 func (at *AutoTrader) SetCustomPrompt(prompt string) {
+	at.promptMu.Lock()
+	defer at.promptMu.Unlock()
 	at.customPrompt = prompt
 }
 
 // SetOverrideBasePrompt 设置是否覆盖基础prompt
 func (at *AutoTrader) SetOverrideBasePrompt(override bool) {
+	at.promptMu.Lock()
+	defer at.promptMu.Unlock()
 	at.overrideBasePrompt = override
 }
 
 // SetSystemPromptTemplate 设置系统提示词模板
 func (at *AutoTrader) SetSystemPromptTemplate(templateName string) {
+	at.promptMu.Lock()
+	defer at.promptMu.Unlock()
 	at.systemPromptTemplate = templateName
 }
 
 // GetSystemPromptTemplate 获取当前系统提示词模板名称
 func (at *AutoTrader) GetSystemPromptTemplate() string {
+	at.promptMu.RLock()
+	defer at.promptMu.RUnlock()
 	return at.systemPromptTemplate
 }
 

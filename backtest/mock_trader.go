@@ -33,12 +33,16 @@ type MockOrder struct {
 func NewMockTrader(initialUSDT float64, timeProvider utils.TimeProvider) *MockTrader {
 	return &MockTrader{
 		Balance: map[string]interface{}{
-			"total_equity":      initialUSDT,
-			"available_balance": initialUSDT,
-			"total_pnl":         0.0,
-			"total_pnl_pct":     0.0,
-			"position_count":    0,
-			"margin_used_pct":   0.0,
+			"total_equity":          initialUSDT,
+			"available_balance":     initialUSDT,
+			"total_pnl":             0.0,
+			"total_pnl_pct":         0.0,
+			"position_count":        0,
+			"margin_used_pct":       0.0,
+			// Dual casing support for context.go
+			"totalWalletBalance":    initialUSDT,
+			"availableBalance":      initialUSDT,
+			"totalUnrealizedProfit": 0.0,
 		},
 		Positions:    make(map[string]map[string]interface{}),
 		Orders:       make([]MockOrder, 0),
@@ -109,9 +113,15 @@ func (m *MockTrader) OpenLong(symbol string, quantity float64, leverage int) (ma
 		"entry_price":       price,
 		"mark_price":        price,
 		"unrealized_profit": 0.0,
-		"leverage":          leverage,
+		"leverage":          float64(leverage),
 		"stop_loss":         0.0,
 		"take_profit":       0.0,
+		// Dual casing & context.go compatibility
+		"positionAmt":      quantity,
+		"entryPrice":       price,
+		"markPrice":        price,
+		"unRealizedProfit": 0.0,
+		"liquidationPrice": 0.0,
 	}
 	m.Positions[symbol] = pos
 
@@ -144,9 +154,15 @@ func (m *MockTrader) OpenShort(symbol string, quantity float64, leverage int) (m
 		"entry_price":       price,
 		"mark_price":        price,
 		"unrealized_profit": 0.0,
-		"leverage":          leverage,
+		"leverage":          float64(leverage),
 		"stop_loss":         0.0,
 		"take_profit":       0.0,
+		// Dual casing & context.go compatibility
+		"positionAmt":      quantity,
+		"entryPrice":       price,
+		"markPrice":        price,
+		"unRealizedProfit": 0.0,
+		"liquidationPrice": 0.0,
 	}
 	m.Positions[symbol] = pos
 
@@ -167,6 +183,7 @@ func (m *MockTrader) CloseLong(symbol string, quantity float64) (map[string]inte
 	// Handle partial close
 	if quantity < currentQty {
 		pos["position_amt"] = currentQty - quantity
+		pos["positionAmt"] = currentQty - quantity
 	} else {
 		delete(m.Positions, symbol)
 	}
@@ -196,6 +213,7 @@ func (m *MockTrader) CloseShort(symbol string, quantity float64) (map[string]int
 	// Handle partial close
 	if quantity < currentQty {
 		pos["position_amt"] = currentQty - quantity
+		pos["positionAmt"] = currentQty - quantity
 	} else {
 		delete(m.Positions, symbol)
 	}

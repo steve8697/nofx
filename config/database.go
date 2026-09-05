@@ -29,8 +29,12 @@ func NewDatabase(dbPath string) (*Database, error) {
 		return nil, fmt.Errorf("打开数据库失败: %w", err)
 	}
 
-	// 🚀 啟用 WAL 模式並設置忙碌超時，修復本機多併發寫入鎖定問題
-	_, err = db.Exec("PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000;")
+	// 🚀 配置 SQLite 連接池：限制為單一連接，徹底消除並發寫入導致的 database is locked
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(1)
+
+	// 🚀 啟用 WAL 模式並設置忙碌超時與 NORMAL 同步，修復本機多併發寫入鎖定問題
+	_, err = db.Exec("PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; PRAGMA synchronous=NORMAL;")
 	if err != nil {
 		db.Close()
 		return nil, fmt.Errorf("配置 SQLite 失敗: %w", err)

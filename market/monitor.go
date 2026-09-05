@@ -423,7 +423,12 @@ func (m *WSMonitor) GetCurrentKlines(symbol string, _time string) ([]Kline, erro
 }
 
 func (m *WSMonitor) Close() {
-	m.wsClient.Close()
+	if m.combinedClient != nil {
+		m.combinedClient.Close()
+	}
+	if m.wsClient != nil {
+		m.wsClient.Close()
+	}
 	close(m.alertsChan)
 }
 

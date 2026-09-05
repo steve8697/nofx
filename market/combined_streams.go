@@ -42,8 +42,18 @@ func (c *CombinedStreamsClient) Connect() error {
 	}
 
 	c.mu.Lock()
+	if c.conn != nil {
+		c.conn.Close()
+	}
 	c.conn = conn
 	c.mu.Unlock()
+
+	// 🛡️ 心跳保活：設置 ReadDeadline 與 PongHandler，徹底消除半開連線靜默假死
+	conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+	conn.SetPongHandler(func(string) error {
+		conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		return nil
+	})
 
 	log.Println("组合流WebSocket连接成功")
 	go c.readMessages()
@@ -218,21 +228,44 @@ func (c *CombinedStreamsClient) RemoveSubscriber(stream string) {
 }
 
 func (c *CombinedStreamsClient) handleReconnect() {
-	if !c.reconnect {
+	backoff := 3 * time.Second
+	maxBackoff := 60 * time.Second
+
+	for {
+		c.mu.RLock()
+		reconn := c.reconnect
+		c.mu.RUnlock()
+		if !reconn {
+			return
+		}
+
+		select {
+		case <-c.done:
+			return
+		case <-time.After(backoff):
+		}
+
+		c.mu.RLock()
+		reconn = c.reconnect
+		c.mu.RUnlock()
+		if !reconn {
+			return
+		}
+
+		log.Printf("组合流尝试重新连接 (退避: %v)...", backoff)
+		if err := c.Connect(); err != nil {
+			log.Printf("组合流重新连接失败: %v", err)
+			backoff *= 2
+			if backoff > maxBackoff {
+				backoff = maxBackoff
+			}
+			continue
+		}
+
+		// 重新连接成功后，自动重新订阅所有现有活跃流
+		c.resubscribeAll()
 		return
 	}
-
-	log.Println("组合流尝试重新连接...")
-	time.Sleep(3 * time.Second)
-
-	if err := c.Connect(); err != nil {
-		log.Printf("组合流重新连接失败: %v", err)
-		go c.handleReconnect()
-		return
-	}
-
-	// 重新连接成功后，自动重新订阅所有现有活跃流
-	c.resubscribeAll()
 }
 
 func (c *CombinedStreamsClient) resubscribeAll() {
