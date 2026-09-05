@@ -463,6 +463,9 @@ func (at *AutoTrader) RunCycle() (errRet error) {
 		return fmt.Errorf("构建交易上下文失败: %w", err)
 	}
 
+	// 🔄 同步最新 dailyPnL（將被動平倉在 Build 期間偵測到的損益即時同步給 AutoTrader）
+	at.dailyPnL = at.contextBuilder.GetDailyPnL()
+
 	// 保存账户状态快照
 	record.AccountState = logger.AccountSnapshot{
 		TotalBalance:          ctx.Account.TotalEquity,
@@ -710,8 +713,7 @@ func (at *AutoTrader) RunCycle() (errRet error) {
 						fmt.Sscanf(pnlStr, "%f", &realizedPnl)
 					}
 
-					at.dailyPnL += realizedPnl
-					at.contextBuilder.UpdateDailyPnL(at.dailyPnL) // ✅ 同步到持久化
+					at.dailyPnL = at.contextBuilder.AddDailyPnL(realizedPnl)
 					log.Printf("💰 更新 Daily PnL: %.4f (Total: %.4f)", realizedPnl, at.dailyPnL)
 
 					at.contextBuilder.RecordTrade(true, realizedPnl > 0)

@@ -30,7 +30,18 @@ func (t *FuturesTrader) GetOrderProtection(symbol string, positionSide string) (
 
 		orderPosSide := string(order.PositionSide) // LONG, SHORT, or BOTH
 		if orderPosSide != positionSide {
-			continue
+			// 🛡️ 關鍵修復：單向持倉模式（One-Way Mode）下訂單 PositionSide 為 BOTH
+			// 根據買賣方向精確匹配：多單平倉保護必為 SELL，空單平倉保護必為 BUY
+			if orderPosSide == "BOTH" {
+				if positionSide == "LONG" && order.Side != futures.SideTypeSell {
+					continue
+				}
+				if positionSide == "SHORT" && order.Side != futures.SideTypeBuy {
+					continue
+				}
+			} else {
+				continue
+			}
 		}
 
 		// 解析止损价格

@@ -147,6 +147,15 @@ func (de *DecisionExecutor) executeOpenLongWithRecord(decision *decision.Decisio
 		actionRecord.Quantity = quantity
 	}
 
+	// 🛡️ 最小名义价值检查（Binance / Aster 要求至少 >= 5.0 USDT）
+	minNotional := 5.0
+	if decision.Symbol == "BTCUSDT" || decision.Symbol == "ETHUSDT" {
+		minNotional = 15.0
+	}
+	if decision.PositionSizeUSD < minNotional {
+		return fmt.Errorf("❌ 开多仓名义价值 %.2f USDT 低于交易所最低要求 %.2f USDT", decision.PositionSizeUSD, minNotional)
+	}
+
 	// 设置仓位模式
 	if err := de.trader.SetMarginMode(decision.Symbol, de.config.IsCrossMargin); err != nil {
 		log.Printf("  ⚠️ 设置仓位模式失败: %v", err)
@@ -166,40 +175,38 @@ func (de *DecisionExecutor) executeOpenLongWithRecord(decision *decision.Decisio
 
 	log.Printf("  ✓ 开仓成功，订单ID: %v, 数量: %.4f", order["orderId"], quantity)
 
-	// ✅ 驗證實際開倉數量（防止數量精度問題導致開倉失敗）
-	time.Sleep(500 * time.Millisecond) // 等待交易所處理訂單
-	actualPositions, posErr := de.trader.GetPositions()
-	if posErr == nil {
-		var actualPosition map[string]interface{}
+	// ✅ 驗證實際開倉數量（包含 3 次輪詢重試，適配交易所持倉索引延遲）
+	var actualPosition map[string]interface{}
+	var actualQuantity float64
+	for attempt := 1; attempt <= 3; attempt++ {
+		de.sleepFunc(time.Duration(attempt*500) * time.Millisecond)
+		actualPositions, posErr := de.trader.GetPositions()
+		if posErr != nil {
+			log.Printf("  ⚠️ 获取持仓列表重试 (%d/3): %v", attempt, posErr)
+			continue
+		}
 		for _, pos := range actualPositions {
 			if pos["symbol"] == decision.Symbol && pos["side"] == "long" {
 				actualPosition = pos
 				break
 			}
 		}
-
-		if actualPosition == nil {
-			log.Printf("  ⚠️ 警告：開倉後未找到實際持倉，可能開倉失敗或數量過小被四舍五入為0")
-			return fmt.Errorf("開倉後未找到實際持倉，請檢查數量精度或開倉金額")
-		}
-
-		actualQuantity := 0.0
-		if qty, ok := actualPosition["positionAmt"].(float64); ok {
-			if qty < 0 {
-				actualQuantity = -qty
-			} else {
-				actualQuantity = qty
+		if actualPosition != nil {
+			if qty, ok := actualPosition["positionAmt"].(float64); ok {
+				actualQuantity = math.Abs(qty)
+			}
+			if actualQuantity >= 0.0001 {
+				break
 			}
 		}
+	}
 
-		if actualQuantity < 0.0001 {
-			log.Printf("  ⚠️ 警告：實際開倉數量過小(%.8f)，可能被四舍五入為0，建議增加開倉金額", actualQuantity)
-			return fmt.Errorf("實際開倉數量過小(%.8f)，請增加開倉金額", actualQuantity)
-		}
-
+	if actualPosition != nil && actualQuantity >= 0.0001 {
 		log.Printf("  ✓ 驗證成功：實際持倉數量=%.8f", actualQuantity)
-		// 使用實際持倉數量設置止損止盈
 		quantity = actualQuantity
+	} else {
+		// ⚠️ 若多次輪詢仍未索引到，使用下單時的預估數量繼續設置止盈止損，避免倉位處於無保護裸奔狀態
+		log.Printf("  ⚠️ 警告：開倉後交易所持倉索引延遲，使用預估數量 %.4f 設置防護掛單", quantity)
 	}
 
 	// 记录开仓时间
@@ -371,6 +378,15 @@ func (de *DecisionExecutor) executeOpenShortWithRecord(decision *decision.Decisi
 		actionRecord.Quantity = quantity
 	}
 
+	// 🛡️ 最小名义价值检查（Binance / Aster 要求至少 >= 5.0 USDT）
+	minNotional := 5.0
+	if decision.Symbol == "BTCUSDT" || decision.Symbol == "ETHUSDT" {
+		minNotional = 15.0
+	}
+	if decision.PositionSizeUSD < minNotional {
+		return fmt.Errorf("❌ 开空仓名义价值 %.2f USDT 低于交易所最低要求 %.2f USDT", decision.PositionSizeUSD, minNotional)
+	}
+
 	// 设置仓位模式
 	if err := de.trader.SetMarginMode(decision.Symbol, de.config.IsCrossMargin); err != nil {
 		log.Printf("  ⚠️ 设置仓位模式失败: %v", err)
@@ -390,40 +406,38 @@ func (de *DecisionExecutor) executeOpenShortWithRecord(decision *decision.Decisi
 
 	log.Printf("  ✓ 开仓成功，订单ID: %v, 数量: %.4f", order["orderId"], quantity)
 
-	// ✅ 驗證實際開倉數量（防止數量精度問題導致開倉失敗）
-	time.Sleep(500 * time.Millisecond) // 等待交易所處理訂單
-	actualPositions, posErr := de.trader.GetPositions()
-	if posErr == nil {
-		var actualPosition map[string]interface{}
+	// ✅ 驗證實際開倉數量（包含 3 次輪詢重試，適配交易所持倉索引延遲）
+	var actualPosition map[string]interface{}
+	var actualQuantity float64
+	for attempt := 1; attempt <= 3; attempt++ {
+		de.sleepFunc(time.Duration(attempt*500) * time.Millisecond)
+		actualPositions, posErr := de.trader.GetPositions()
+		if posErr != nil {
+			log.Printf("  ⚠️ 获取持仓列表重试 (%d/3): %v", attempt, posErr)
+			continue
+		}
 		for _, pos := range actualPositions {
 			if pos["symbol"] == decision.Symbol && pos["side"] == "short" {
 				actualPosition = pos
 				break
 			}
 		}
-
-		if actualPosition == nil {
-			log.Printf("  ⚠️ 警告：開倉後未找到實際持倉，可能開倉失敗或數量過小被四舍五入為0")
-			return fmt.Errorf("開倉後未找到實際持倉，請檢查數量精度或開倉金額")
-		}
-
-		actualQuantity := 0.0
-		if qty, ok := actualPosition["positionAmt"].(float64); ok {
-			if qty < 0 {
-				actualQuantity = -qty
-			} else {
-				actualQuantity = qty
+		if actualPosition != nil {
+			if qty, ok := actualPosition["positionAmt"].(float64); ok {
+				actualQuantity = math.Abs(qty)
+			}
+			if actualQuantity >= 0.0001 {
+				break
 			}
 		}
+	}
 
-		if actualQuantity < 0.0001 {
-			log.Printf("  ⚠️ 警告：實際開倉數量過小(%.8f)，可能被四舍五入為0，建議增加開倉金額", actualQuantity)
-			return fmt.Errorf("實際開倉數量過小(%.8f)，請增加開倉金額", actualQuantity)
-		}
-
+	if actualPosition != nil && actualQuantity >= 0.0001 {
 		log.Printf("  ✓ 驗證成功：實際持倉數量=%.8f", actualQuantity)
-		// 使用實際持倉數量設置止損止盈
 		quantity = actualQuantity
+	} else {
+		// ⚠️ 若多次輪詢仍未索引到，使用下單時的預估數量繼續設置止盈止損，避免倉位處於無保護裸奔狀態
+		log.Printf("  ⚠️ 警告：開倉後交易所持倉索引延遲，使用預估數量 %.4f 設置防護掛單", quantity)
 	}
 
 	// 记录开仓时间
@@ -621,19 +635,45 @@ func (de *DecisionExecutor) executeUpdateStopLossWithRecord(decision *decision.D
 		return fmt.Errorf("空单止损必须高于当前价格 (当前: %.2f, 新止损: %.2f)", marketData.CurrentPrice, decision.NewStopLoss)
 	}
 
+	// 🛡️ 在取消舊止損前記錄舊止損價格，若新止損設置失敗則可用於安全回滾
+	oldSL, _, _ := de.trader.GetOrderProtection(decision.Symbol, positionSide)
+
 	// 取消旧的止损单（避免多个止损单共存）
 	if err := de.trader.CancelStopLossOrders(decision.Symbol); err != nil {
 		log.Printf("  ⚠ 取消旧止损单失败: %v", err)
 		// 不中断执行，继续设置新止损
 	}
 
-	// 调用交易所 API 修改止损
+	// 调用交易所 API 修改止损（带 3 次重试，防止网络瞬断或 429 报错）
 	quantity := math.Abs(positionAmt)
-	err = de.trader.SetStopLoss(decision.Symbol, positionSide, quantity, decision.NewStopLoss)
-	if err != nil {
-		// 🔴 P15 Fail-Safe: 如果设置止损失败，此时旧止损已被取消，仓位处于裸奔状态
-		// 必须执行 "紧急平仓" 以保护资金安全
-		log.Printf("🚨 严重错误: 修改止损失败，且旧止损已取消！正在执行紧急平仓保护... (Symbol: %s, Err: %v)", decision.Symbol, err)
+	var setErr error
+	for attempt := 1; attempt <= 3; attempt++ {
+		setErr = de.trader.SetStopLoss(decision.Symbol, positionSide, quantity, decision.NewStopLoss)
+		if setErr == nil {
+			break
+		}
+		log.Printf("  ⚠ 设置新止损失败 (尝试 %d/3): %v", attempt, setErr)
+		de.sleepFunc(time.Duration(attempt*500) * time.Millisecond)
+	}
+
+	if setErr != nil {
+		// 🛡️ 新止损设置失败时，优先尝试回滚至原止损，绝不直接市价强平盈利持仓
+		if oldSL > 0 {
+			log.Printf("⚠ 设置新止损失败，尝试回滚至原止损价格 %.4f...", oldSL)
+			var rollbackErr error
+			for rbAttempt := 1; rbAttempt <= 3; rbAttempt++ {
+				rollbackErr = de.trader.SetStopLoss(decision.Symbol, positionSide, quantity, oldSL)
+				if rollbackErr == nil {
+					log.Printf("✓ 成功回滚至原止损价格 %.4f，持仓仍受保护", oldSL)
+					return fmt.Errorf("设置新止损失败，已成功回滚至原止损: %w", setErr)
+				}
+				de.sleepFunc(time.Duration(rbAttempt*500) * time.Millisecond)
+			}
+			log.Printf("🚨 严重警告: 回滚原止损也失败: %v", rollbackErr)
+		}
+
+		// 🔴 仅在完全无法设置任何止损且仓位裸奔时，才执行紧急平仓保护
+		log.Printf("🚨 严重错误: 修改止损及回滚均失败，持仓处于无保护状态！正在执行紧急平仓保护... (Symbol: %s, Err: %v)", decision.Symbol, setErr)
 
 		var closeErr error
 		if positionSide == "LONG" {
@@ -644,11 +684,11 @@ func (de *DecisionExecutor) executeUpdateStopLossWithRecord(decision *decision.D
 
 		if closeErr != nil {
 			log.Printf("🔥 灾难性错误: 紧急平仓也失败了！！！请人工立即介入！！！(Symbol: %s, Err: %v)", decision.Symbol, closeErr)
-			return fmt.Errorf("修改止损失败 且 紧急平仓失败: %v | %v", err, closeErr)
+			return fmt.Errorf("修改止损失败 且 紧急平仓失败: %v | %v", setErr, closeErr)
 		}
 
 		log.Printf("✅ 紧急平仓成功：已清除无保护的持仓 %s", decision.Symbol)
-		return fmt.Errorf("修改止损失败，已执行紧急平仓保护: %w", err)
+		return fmt.Errorf("修改止损失败，已执行紧急平仓保护: %w", setErr)
 	}
 
 	log.Printf("  ✓ 止损已调整: %.2f (当前价格: %.2f)", decision.NewStopLoss, marketData.CurrentPrice)
@@ -707,11 +747,19 @@ func (de *DecisionExecutor) executeUpdateTakeProfitWithRecord(decision *decision
 		// 不中断执行，继续设置新止盈
 	}
 
-	// 调用交易所 API 修改止盈
+	// 调用交易所 API 修改止盈（带 3 次重试）
 	quantity := math.Abs(positionAmt)
-	err = de.trader.SetTakeProfit(decision.Symbol, positionSide, quantity, decision.NewTakeProfit)
-	if err != nil {
-		return fmt.Errorf("修改止盈失败: %w", err)
+	var setTPErr error
+	for attempt := 1; attempt <= 3; attempt++ {
+		setTPErr = de.trader.SetTakeProfit(decision.Symbol, positionSide, quantity, decision.NewTakeProfit)
+		if setTPErr == nil {
+			break
+		}
+		log.Printf("  ⚠ 设置新止盈失败 (尝试 %d/3): %v", attempt, setTPErr)
+		de.sleepFunc(time.Duration(attempt*500) * time.Millisecond)
+	}
+	if setTPErr != nil {
+		return fmt.Errorf("修改止盈失败: %w", setTPErr)
 	}
 
 	log.Printf("  ✓ 止盈已调整: %.2f (当前价格: %.2f)", decision.NewTakeProfit, marketData.CurrentPrice)

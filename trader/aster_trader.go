@@ -618,6 +618,9 @@ func (t *AsterTrader) OpenLong(symbol string, quantity float64, leverage int) (m
 	if err != nil {
 		return nil, err
 	}
+	if formattedQty <= 0 {
+		return nil, fmt.Errorf("格式化后开多仓数量为 0 (原始数量: %.8f)，低于交易所最小下单单位", quantity)
+	}
 
 	// 获取精度信息
 	prec, err := t.getPrecision(symbol)
@@ -685,6 +688,9 @@ func (t *AsterTrader) OpenShort(symbol string, quantity float64, leverage int) (
 	formattedQty, err := t.formatQuantity(symbol, quantity)
 	if err != nil {
 		return nil, err
+	}
+	if formattedQty <= 0 {
+		return nil, fmt.Errorf("格式化后开空仓数量为 0 (原始数量: %.8f)，低于交易所最小下单单位", quantity)
 	}
 
 	// 获取精度信息
@@ -760,6 +766,9 @@ func (t *AsterTrader) CloseLong(symbol string, quantity float64) (map[string]int
 	formattedQty, err := t.formatQuantity(symbol, quantity)
 	if err != nil {
 		return nil, err
+	}
+	if formattedQty <= 0 {
+		return nil, fmt.Errorf("格式化后平多仓数量为 0 (原始数量: %.8f)，低于交易所最小下单单位", quantity)
 	}
 
 	// 获取精度信息
@@ -854,6 +863,9 @@ func (t *AsterTrader) CloseShort(symbol string, quantity float64) (map[string]in
 	formattedQty, err := t.formatQuantity(symbol, quantity)
 	if err != nil {
 		return nil, err
+	}
+	if formattedQty <= 0 {
+		return nil, fmt.Errorf("格式化后平空仓数量为 0 (原始数量: %.8f)，低于交易所最小下单单位", quantity)
 	}
 
 	// 获取精度信息

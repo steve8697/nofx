@@ -647,18 +647,14 @@ func (l *DecisionLogger) calculateSharpeRatio(records []*DecisionRecord) float64
 	variance := sumSquaredDiff / float64(len(returns)-1)
 	stdDev := math.Sqrt(variance)
 
-	// 避免除以零
+	// 避免除以零或零方差（方差为0代表收益无波动或样本不足，无法评估风险调整后收益）
 	if stdDev == 0 {
-		if meanReturn > 0 {
-			return 999.0 // 无波动的正收益
-		} else if meanReturn < 0 {
-			return -999.0 // 无波动的负收益
-		}
 		return 0.0
 	}
 
 	// 计算夏普比率（假设无风险利率为0）
 	// 注：直接返回周期级别的夏普比率（非年化），正常范围 -2 到 +2
 	sharpeRatio := meanReturn / stdDev
-	return sharpeRatio
+	// 🛡️ 限制极端值在合理范围 [-3.0, 3.0]，杜绝浮点微小方差产生巨额极端值影响 AI Prompt 决策
+	return math.Max(-3.0, math.Min(3.0, sharpeRatio))
 }

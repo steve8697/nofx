@@ -241,16 +241,21 @@ func (cb *ContextBuilder) Build(callCount int, recentDecisions []decision.FullDe
 
 		// 计算盈亏百分比
 		pnlPct := 0.0
-		if side == "long" {
-			pnlPct = ((markPrice - entryPrice) / entryPrice) * 100
-		} else {
-			pnlPct = ((entryPrice - markPrice) / entryPrice) * 100
+		if entryPrice > 0 {
+			if side == "long" {
+				pnlPct = ((markPrice - entryPrice) / entryPrice) * 100
+			} else {
+				pnlPct = ((entryPrice - markPrice) / entryPrice) * 100
+			}
 		}
 
 		// 计算占用保证金（估算）
 		leverage := 10 // 默认值，实际应该从持仓信息获取
-		if lev, ok := pos["leverage"].(float64); ok {
+		if lev, ok := pos["leverage"].(float64); ok && lev > 0 {
 			leverage = int(lev)
+		}
+		if leverage <= 0 {
+			leverage = 1
 		}
 		marginUsed := (quantity * markPrice) / float64(leverage)
 		totalMarginUsed += marginUsed
@@ -608,8 +613,20 @@ func (cb *ContextBuilder) GetDailyPnL() float64 {
 
 // UpdateDailyPnL 更新当日盈亏并保存
 func (cb *ContextBuilder) UpdateDailyPnL(pnl float64) error {
+	cb.mu.Lock()
 	cb.dailyPnL = pnl
+	cb.mu.Unlock()
 	return cb.saveState()
+}
+
+// AddDailyPnL 累加当日盈亏并保存 (線程安全，避免被動平倉損益被覆蓋)
+func (cb *ContextBuilder) AddDailyPnL(pnl float64) float64 {
+	cb.mu.Lock()
+	cb.dailyPnL += pnl
+	current := cb.dailyPnL
+	cb.mu.Unlock()
+	cb.saveState()
+	return current
 }
 
 // RecordWait 记录一次wait决策（用于追踪连续wait次数）
