@@ -113,4 +113,23 @@ func TestValidatePartialCloseRemainingValue(t *testing.T) {
 	if err4 != nil {
 		t.Fatalf("兩者均充足時應該通過，但報錯: %v", err4)
 	}
+
+	// 案例 5: 倉位 $30，平倉 20% (平倉金額 $6 < $10) 與 平倉 80% (剩餘金額 $6 < $10) -> 均必須被區間攔截
+	d5Low := &Decision{
+		Symbol:          "LTCUSDT",
+		Action:          "partial_close",
+		ClosePercentage: 20.0,
+	}
+	if err := validatePartialCloseSize(d5Low, positionsBig, marketData); err == nil {
+		t.Fatalf("平倉 20%% 應該被下限攔截！")
+	}
+
+	d5High := &Decision{
+		Symbol:          "LTCUSDT",
+		Action:          "partial_close",
+		ClosePercentage: 80.0,
+	}
+	if err := validatePartialCloseSize(d5High, positionsBig, marketData); err == nil {
+		t.Fatalf("平倉 80%% 應該被上限攔截！")
+	}
 }

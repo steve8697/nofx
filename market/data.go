@@ -215,11 +215,10 @@ func Get(symbol string, provider DataProvider, le *LiquidityEngine) (*Data, erro
 	if le != nil {
 		// Use Persistent Engine
 		le.Init(symbol)
-		// Update with latest candle (using 1h or 15m?)
-		// Logic supports 15m. Let's use latest 15m candle.
-		if len(klines15m) > 0 {
-			latest15m := klines15m[len(klines15m)-1]
-			le.Update(symbol, latest15m, oiData)
+		// Update with latest confirmed closed candle (prevent lookahead repainting)
+		if len(klines15m) > 1 {
+			closed15m := klines15m[len(klines15m)-2]
+			le.Update(symbol, closed15m, oiData)
 		}
 		// Use GetTopClusters (Sorted by Volume Desc, Top 5)
 		liquidityClusters = le.GetTopClusters(symbol, currentPrice)
@@ -276,8 +275,28 @@ func Get(symbol string, provider DataProvider, le *LiquidityEngine) (*Data, erro
 		&vpvr,
 	)
 
-	// 🧠 Upgrade: Calculate SMC Analysis (Using 15m default, but could enhance with HTF)
-	techAnalysis.SMC = CalculateSMC(klines15m)
+	// 🧠 Upgrade: Calculate SMC Analysis (使用已收盤 K 線保證無未來函數，防止未收盤 K 棒造成虛假 BOS / Repainting)
+	if len(klines15m) > 1 {
+		techAnalysis.SMC = CalculateSMC(klines15m[:len(klines15m)-1])
+		if techAnalysis.SMC != nil {
+			// 拿當前實時最新市價檢驗是否打破已確認的結構
+			if techAnalysis.SMC.Structure.Trend == "Bullish" {
+				if currentPrice > techAnalysis.SMC.Structure.LastSwingHigh.Price {
+					techAnalysis.SMC.Structure.BreakOfStructure = "Bullish"
+				} else if currentPrice < techAnalysis.SMC.Structure.LastSwingLow.Price {
+					techAnalysis.SMC.Structure.BreakOfStructure = "Bearish CHoCH"
+				}
+			} else if techAnalysis.SMC.Structure.Trend == "Bearish" {
+				if currentPrice < techAnalysis.SMC.Structure.LastSwingLow.Price {
+					techAnalysis.SMC.Structure.BreakOfStructure = "Bearish"
+				} else if currentPrice > techAnalysis.SMC.Structure.LastSwingHigh.Price {
+					techAnalysis.SMC.Structure.BreakOfStructure = "Bullish CHoCH"
+				}
+			}
+		}
+	} else {
+		techAnalysis.SMC = CalculateSMC(klines15m)
+	}
 
 	// 🧠 Upgrade: Calculate Order Flow (CVD)
 	techAnalysis.OrderFlow = CalculateCVD(klines15m)

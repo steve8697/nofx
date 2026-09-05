@@ -1060,42 +1060,36 @@ func validatePartialCloseSize(d *Decision, positions []PositionInfo, marketDataM
 	closeAmt := holdAmt * (d.ClosePercentage / 100.0)
 	closeValue := closeAmt * price
 
-	// Binance 最小名义价值通常为 5-10 USDT
+	// Binance/Aster 最小名义价值通常为 5-10 USDT
 	// 这里设置 conservative 阈值为 10.0
 	const minNotional = 10.0
 
 	// 特殊处理：如果平仓比例接近 100%，则认为是全平，通常不仅受MinNotional限制(取决于是否ReduceOnly)
 	// 但如果全仓价值 < 10，平仓是可以的（清算）。
-	// 问题是 Partial Close (e.g. 50%) 生成的 Order 必须满足 MinNotional。
-
 	if d.ClosePercentage > 99.0 {
 		return nil // 全平不受此限制（只要持仓存在）
 	}
 
-	if closeValue < minNotional {
-		// 計算最低可平倉比例
-		minPercentage := (minNotional / totalValue) * 100
-		if minPercentage > 100 {
-			minPercentage = 100
-		}
-
-		return fmt.Errorf("部分平倉價值過小($%.2f < $%.1f): 交易所最小單限制(MinNotional)。"+
-			"當前持倉總價值: $%.2f。"+
-			"解決方案: (1) 使用 close_long/close_short 全平此倉位 "+
-			"(2) 或使用 hold 繼續持有 "+
-			"(3) 如果堅持部分平倉，比例至少需要 %.0f%% 才能滿足最小金額。"+
-			"禁止: 嘗試平倉比例 %.0f%% (金額 $%.2f)。",
-			closeValue, minNotional, totalValue, minPercentage, d.ClosePercentage, closeValue)
+	// 📐 嚴密數學邊界：若持倉總價值 < 2 * minNotional (20 USDT)
+	// 在數論上絕對無法拆分為兩個均 >= 10.0 的子部位（A + B = total < 20 => 必有其一 < 10）
+	// 此時禁止任何 partial_close，防止反覆報錯死鎖 AI
+	if totalValue < minNotional*2.0 {
+		return fmt.Errorf("持倉總價值過小($%.2f < $%.1f): 數學上無法拆分為兩筆均滿足交易所最小單限制(MinNotional $%.1f)的有效訂單。"+
+			"解決方案: (1) 使用 close_long/close_short 全平此倉位 (2) 或使用 hold 繼續持有全部部位",
+			totalValue, minNotional*2.0, minNotional)
 	}
 
-	// 🛡️ 防護修復：檢查平倉後剩餘持倉價值是否低於交易所最小名義價值
-	// 若剩餘部位 < minNotional，交易所將拒絕後續重新掛設的止損/止盈單，導致殘存倉位裸奔
-	remainingValue := totalValue - closeValue
-	if remainingValue > 0 && remainingValue < minNotional {
-		return fmt.Errorf("部分平倉後剩餘部位價值過小($%.2f < $%.1f): 剩餘部位將無法掛設有效止損單(MinNotional限制)。"+
-			"解決方案: (1) 使用 close_long/close_short 全平此倉位 "+
-			"(2) 或使用 hold 繼續持有全部部位",
-			remainingValue, minNotional)
+	// 📐 計算合法的平倉百分比閉區間 [minPercentage, maxPercentage]
+	minPercentage := (minNotional / totalValue) * 100.0
+	maxPercentage := ((totalValue - minNotional) / totalValue) * 100.0
+
+	if d.ClosePercentage < minPercentage || d.ClosePercentage > maxPercentage {
+		return fmt.Errorf("部分平倉比例 %.1f%% 超出交易所有效掛單區間 [%.0f%%, %.0f%%]: "+
+			"平倉金額($%.2f)與剩餘部位價值($%.2f)必須同時 ≥ 交易所最小面額($%.1f)。"+
+			"解決方案: (1) 將平倉比例調整至 %.0f%% - %.0f%% 之間 "+
+			"(2) 或使用 close_long/close_short 全平 (3) 或使用 hold 繼續持有",
+			d.ClosePercentage, minPercentage, maxPercentage, closeValue, totalValue-closeValue, minNotional,
+			math.Ceil(minPercentage), math.Floor(maxPercentage))
 	}
 
 	return nil
