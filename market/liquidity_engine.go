@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"math"
 	"os"
 	"sort"
 	"sync"
@@ -123,9 +124,15 @@ func (le *LiquidityEngine) Update(symbol string, k Kline, oi *OIData) {
 	}
 
 	// 2. Identify New Liquidity (Pivots)
-	// Let's rely on Price Action: Significant Wicks.
-	longWickUp := (k.High - k.Close) > (k.Close-k.Low)*3
-	longWickDown := (k.Close - k.Low) > (k.High-k.Close)*3
+	// Price Action: Significant Wicks using true candle body bounds
+	bodyTop := math.Max(k.Open, k.Close)
+	bodyBottom := math.Min(k.Open, k.Close)
+	bodySize := math.Max(bodyTop-bodyBottom, (k.High-k.Low)*0.05) // 防止除以0或極端十字線
+	upperWick := k.High - bodyTop
+	lowerWick := bodyBottom - k.Low
+
+	longWickUp := upperWick > bodySize*2.0 && upperWick > lowerWick*2.0
+	longWickDown := lowerWick > bodySize*2.0 && lowerWick > upperWick*2.0
 
 	if longWickUp && k.Volume > 1000 { // Arbitrary volume filter
 		// Selling pressure -> Short Liquidity (Buy Stops) pile up ABOVE the wick

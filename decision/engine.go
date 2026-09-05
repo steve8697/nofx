@@ -764,13 +764,13 @@ func buildUserPrompt(ctx *Context) string {
 	// 🧠 LLM Simulator Identity Injection (P33: Dynamic Persona)
 	pnl := ctx.Account.TotalPnLPct
 	if pnl < -2.0 {
-		sb.WriteString("\n🛑 **CRITICAL STATUS: DEPLOYING SNIPER RECOVERY TEAM (狙击手恢复小队)** 🛑\n")
+		sb.WriteString("\n🛡️ **CRITICAL STATUS: CAPITAL DEFENSE MODE (防禦避險模式)** 🛡️\n")
 		sb.WriteString(fmt.Sprintf("Current Drawdown: %.2f%%.\n", pnl))
-		sb.WriteString("Your Persona: **The Cold-Blooded Trading Sniper** (Head of the Council).\n")
-		sb.WriteString("Objective: Precision Recovery via High Quality Setups.\n")
-		sb.WriteString("Rule: **STRUCTURE FIRST**. REJECT mediocre setups. ONLY take **A+ Setups** (Score >= 75 OR Perfect Structure + OB).\n")
-		sb.WriteString("Sizing: For A+ Setups, use **NORMAL Sizing** (do not shrink). We need conviction to recover.\n")
-		sb.WriteString("Council Check: 'Is this the PERFECT shot?' If Risk Manager or Psychologist disagrees, WAIT. (寧可錯過，絕不做平庸交易)\n\n")
+		sb.WriteString("Your Persona: **The Defensive Risk Guardian & Precision Sniper**.\n")
+		sb.WriteString("Objective: Capital Preservation First. Stop bleeding and protect account equity.\n")
+		sb.WriteString("Rule: **EXTREME SELECTIVITY**. REJECT all mediocre setups. ONLY take undeniable **A+ Setups** (Score >= 80, confirmed HTF structure + clear liquidity sweep).\n")
+		sb.WriteString("Sizing: **DEFENSIVE Sizing (CUT RISK IN HALF)**. Never chase losses or revenge trade. Survival precedes recovery.\n")
+		sb.WriteString("Council Check: 'Can this trade cause further drawdown?' If any doubt exists, WAIT. (寧可錯過，絕不做勉強交易)\n\n")
 	} else if pnl > 2.0 {
 		sb.WriteString("\n🛡️ **STATUS: PROTECTIVE MODE (守成模式)** 🛡️\n")
 		sb.WriteString(fmt.Sprintf("Current Profit: +%.2f%%.\n", pnl))

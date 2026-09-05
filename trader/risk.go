@@ -12,20 +12,32 @@ const (
 	HaltNone HaltKind = iota
 	HaltDailyLoss
 	HaltDrawdown
+	HaltConsecutiveLoss
 )
 
 // RiskHaltInput 用账户快照判断是否该暂停新开仓。
 type RiskHaltInput struct {
-	DailyPnL        float64
-	InitialBalance  float64
-	TotalPnLPct     float64
-	PeakDrawdownPct float64 // 峰值高水位回撤百分比: (TotalEquity - PeakEquity) / PeakEquity * 100
-	MaxDailyLossPct float64
-	MaxDrawdownPct  float64
+	DailyPnL          float64
+	InitialBalance    float64
+	TotalPnLPct       float64
+	PeakDrawdownPct   float64 // 峰值高水位回撤百分比: (TotalEquity - PeakEquity) / PeakEquity * 100
+	MaxDailyLossPct   float64
+	MaxDrawdownPct    float64
+	ConsecutiveLosses int     // 连续亏损次数（防止 Tilt 和报复性开仓）
 }
 
 // EvaluateRiskHalt 只看数字，不碰交易所。未配置上限（<=0）视为关闭该项。
 func EvaluateRiskHalt(in RiskHaltInput) (HaltKind, string, bool) {
+	// 1. 连续亏损硬熔断：2连亏暂停45分钟，3+连亏暂停24小时
+	if in.ConsecutiveLosses >= 3 {
+		reason := fmt.Sprintf("连续亏损达到 %d 次，触发 24 小时硬熔断冷静期", in.ConsecutiveLosses)
+		return HaltConsecutiveLoss, reason, true
+	}
+	if in.ConsecutiveLosses >= 2 {
+		reason := fmt.Sprintf("连续亏损达到 %d 次，触发 45 分钟冷静期冷却", in.ConsecutiveLosses)
+		return HaltConsecutiveLoss, reason, true
+	}
+
 	if in.MaxDailyLossPct > 0 && in.InitialBalance > 0 {
 		dailyPct := (in.DailyPnL / in.InitialBalance) * 100
 		if dailyPct <= -in.MaxDailyLossPct {
@@ -46,14 +58,20 @@ func EvaluateRiskHalt(in RiskHaltInput) (HaltKind, string, bool) {
 	return HaltNone, "", false
 }
 
-// HaltUntil 日亏损暂停到下一个本地自然日 00:00；回撤按配置时长暂停。
+// HaltUntil 日亏损暂停到下一个本地自然日 00:00；连亏按梯度冷却；回撤按配置时长暂停。
 func HaltUntil(now time.Time, kind HaltKind, pause time.Duration) time.Time {
-	if pause <= 0 {
-		pause = time.Hour
-	}
 	if kind == HaltDailyLoss {
 		y, m, d := now.Date()
 		return time.Date(y, m, d+1, 0, 0, 0, 0, now.Location())
+	}
+	if kind == HaltConsecutiveLoss {
+		if pause <= 0 {
+			pause = 45 * time.Minute
+		}
+		return now.Add(pause)
+	}
+	if pause <= 0 {
+		pause = time.Hour
 	}
 	return now.Add(pause)
 }

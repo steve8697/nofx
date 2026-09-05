@@ -221,13 +221,26 @@ func analyzeMarketStructure(klines []Kline, highs, lows []SwingPoint) MarketStru
 		ms.Trend = "Bearish"
 	}
 
-	// Check for immediate BOS (Break of Structure)
+	// Check for immediate BOS (Break of Structure) or CHoCH
 	currentPrice := klines[len(klines)-1].Close
-	if ms.Trend == "Bullish" && currentPrice < lastLow.Price {
-		ms.BreakOfStructure = "Bearish" // CHOCh (Change of Character)
-	}
-	if ms.Trend == "Bearish" && currentPrice > lastHigh.Price {
-		ms.BreakOfStructure = "Bullish" // CHOCh
+	if ms.Trend == "Bullish" {
+		if currentPrice > lastHigh.Price {
+			ms.BreakOfStructure = "Bullish" // 順勢多頭突破 BOS
+		} else if currentPrice < lastLow.Price {
+			ms.BreakOfStructure = "Bearish CHoCH" // 多轉空反轉
+		}
+	} else if ms.Trend == "Bearish" {
+		if currentPrice < lastLow.Price {
+			ms.BreakOfStructure = "Bearish" // 順勢空頭突破 BOS
+		} else if currentPrice > lastHigh.Price {
+			ms.BreakOfStructure = "Bullish CHoCH" // 空轉多反轉
+		}
+	} else {
+		if currentPrice > lastHigh.Price {
+			ms.BreakOfStructure = "Bullish"
+		} else if currentPrice < lastLow.Price {
+			ms.BreakOfStructure = "Bearish"
+		}
 	}
 
 	return ms

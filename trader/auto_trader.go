@@ -807,19 +807,34 @@ func (at *AutoTrader) enforceRiskHalt(ctx *decision.Context, record *logger.Deci
 		return true
 	}
 
+	consecutiveLosses := 0
+	if ctx.TradeHistory != nil {
+		consecutiveLosses = ctx.TradeHistory.ConsecutiveLoss
+	}
+
 	kind, reason, halt := EvaluateRiskHalt(RiskHaltInput{
-		DailyPnL:        at.dailyPnL,
-		InitialBalance:  at.initialBalance,
-		TotalPnLPct:     ctx.Account.TotalPnLPct,
-		PeakDrawdownPct: ctx.Account.PeakDrawdownPct,
-		MaxDailyLossPct: at.config.MaxDailyLoss,
-		MaxDrawdownPct:  at.config.MaxDrawdown,
+		DailyPnL:          at.dailyPnL,
+		InitialBalance:    at.initialBalance,
+		TotalPnLPct:       ctx.Account.TotalPnLPct,
+		PeakDrawdownPct:   ctx.Account.PeakDrawdownPct,
+		MaxDailyLossPct:   at.config.MaxDailyLoss,
+		MaxDrawdownPct:    at.config.MaxDrawdown,
+		ConsecutiveLosses: consecutiveLosses,
 	})
 	if !halt {
 		return false
 	}
 
-	at.stopUntil = HaltUntil(at.timeProvider.Now(), kind, at.config.StopTradingTime)
+	pauseDuration := at.config.StopTradingTime
+	if kind == HaltConsecutiveLoss {
+		if consecutiveLosses >= 3 {
+			pauseDuration = 24 * time.Hour
+		} else {
+			pauseDuration = 45 * time.Minute
+		}
+	}
+
+	at.stopUntil = HaltUntil(at.timeProvider.Now(), kind, pauseDuration)
 	if err := at.contextBuilder.UpdateStopUntil(at.stopUntil); err != nil {
 		log.Printf("⚠️ 保存风控暂停截止失败: %v", err)
 	}

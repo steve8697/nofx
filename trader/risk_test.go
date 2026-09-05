@@ -85,3 +85,29 @@ func TestHaltUntilDrawdownUsesPause(t *testing.T) {
 		t.Fatalf("got %v", until)
 	}
 }
+
+func TestEvaluateRiskHaltConsecutiveLoss(t *testing.T) {
+	// 2 consecutive losses -> 45 min halt
+	kind, reason, halt := EvaluateRiskHalt(RiskHaltInput{
+		ConsecutiveLosses: 2,
+	})
+	if !halt || kind != HaltConsecutiveLoss {
+		t.Fatalf("expected consecutive loss halt, got kind=%v halt=%v, reason=%s", kind, halt, reason)
+	}
+
+	// 3 consecutive losses -> 24h halt
+	kind3, _, halt3 := EvaluateRiskHalt(RiskHaltInput{
+		ConsecutiveLosses: 3,
+	})
+	if !halt3 || kind3 != HaltConsecutiveLoss {
+		t.Fatalf("expected consecutive loss halt for 3 losses, got kind=%v", kind3)
+	}
+}
+
+func TestHaltUntilConsecutiveLossUsesPause(t *testing.T) {
+	now := time.Date(2026, 9, 2, 13, 56, 0, 0, time.UTC)
+	until := HaltUntil(now, HaltConsecutiveLoss, 45*time.Minute)
+	if until.Sub(now) != 45*time.Minute {
+		t.Fatalf("got %v, want 45m pause", until)
+	}
+}

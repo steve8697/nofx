@@ -1088,6 +1088,16 @@ func validatePartialCloseSize(d *Decision, positions []PositionInfo, marketDataM
 			closeValue, minNotional, totalValue, minPercentage, d.ClosePercentage, closeValue)
 	}
 
+	// 🛡️ 防護修復：檢查平倉後剩餘持倉價值是否低於交易所最小名義價值
+	// 若剩餘部位 < minNotional，交易所將拒絕後續重新掛設的止損/止盈單，導致殘存倉位裸奔
+	remainingValue := totalValue - closeValue
+	if remainingValue > 0 && remainingValue < minNotional {
+		return fmt.Errorf("部分平倉後剩餘部位價值過小($%.2f < $%.1f): 剩餘部位將無法掛設有效止損單(MinNotional限制)。"+
+			"解決方案: (1) 使用 close_long/close_short 全平此倉位 "+
+			"(2) 或使用 hold 繼續持有全部部位",
+			remainingValue, minNotional)
+	}
+
 	return nil
 }
 
