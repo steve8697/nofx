@@ -302,32 +302,37 @@ func (cb *ContextBuilder) Build(callCount int, recentDecisions []decision.FullDe
 	}
 
 
-	// 清理已平仓的持仓记录 — 🔒 加鎖保護整個清理循環
-	cb.mu.Lock()
+	// 清理已平仓的持仓记录 — 先快照需要清理的 keys，避免持鎖進行網絡 I/O 與不可重入死鎖
+	cb.mu.RLock()
+	var keysToClean []string
 	for key := range cb.positionFirstSeenTime {
 		if !currentPositionKeys[key] {
-			// 🟢 P18: 被動平倉偵測 (Passive Trade Detection)
-			parts := strings.Split(key, "_")
-			if len(parts) == 2 {
-				symbol := parts[0]
-				side := parts[1]
-				reason := cb.GetEntryReason(symbol, side)
-
-				// 偵測並記錄被動平倉
-				cb.detectAndLogPassiveClose(symbol, key, reason, 60)
-
-				// 清理記憶
-				cb.RemoveEntryReason(key)
-
-				// 🛡️ 清除該幣種的盈虧峰值快取，徹底消除幽靈回撤止損
-				delete(cb.peakPnLCache, symbol)
-			}
-
-			delete(cb.positionFirstSeenTime, key)
-			stateChanged = true
+			keysToClean = append(keysToClean, key)
 		}
 	}
-	cb.mu.Unlock()
+	cb.mu.RUnlock()
+
+	for _, key := range keysToClean {
+		// 🟢 P18: 被動平倉偵測 (Passive Trade Detection)
+		parts := strings.Split(key, "_")
+		if len(parts) == 2 {
+			symbol := parts[0]
+			side := parts[1]
+			reason := cb.GetEntryReason(symbol, side)
+
+			// 偵測並記錄被動平倉（外部網絡請求在無鎖狀態下進行）
+			cb.detectAndLogPassiveClose(symbol, key, reason, 60)
+
+			// 清理記憶（RemoveEntryReason 內部自帶鎖與持久化）
+			cb.RemoveEntryReason(key)
+
+			// 🛡️ 清除該幣種的盈虧峰值快取，徹底消除幽靈回撤止損
+			cb.DeletePeakPnL(symbol)
+		} else {
+			cb.DeletePositionFirstSeenTime(key)
+		}
+		stateChanged = true
+	}
 	// 3. 检查是否有状态变更，如有则保存
 	if stateChanged {
 		if err := cb.saveState(); err != nil {
@@ -533,6 +538,9 @@ func (cb *ContextBuilder) saveState() error {
 		PeakPnLCache:       peakPnLCopy,
 		DecisionHistory:    historyCopy,
 		StopUntil:          unixStopUntil(cb.stopUntil),
+	}
+	if cb.persistence == nil {
+		return nil
 	}
 	return cb.persistence.SavePositionState(state)
 }

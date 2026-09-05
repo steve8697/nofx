@@ -1,6 +1,7 @@
 package trader
 
 import (
+	"strings"
 	"testing"
 	"time"
 )
@@ -132,5 +133,51 @@ func TestContextBuilderDeletePeakPnL(t *testing.T) {
 
 	if cb.peakPnLCache["ETHUSDT"] != 5.5 {
 		t.Fatalf("expected ETHUSDT to remain untouched at 5.5, got %f", cb.peakPnLCache["ETHUSDT"])
+	}
+}
+
+func TestPassiveCloseNoDeadlock(t *testing.T) {
+	cb := &ContextBuilder{
+		positionFirstSeenTime: make(map[string]int64),
+		activeTradeReasons:    make(map[string]string),
+		peakPnLCache:          make(map[string]float64),
+	}
+
+	posKey := "BTCUSDT_long"
+	cb.positionFirstSeenTime[posKey] = 123456789
+	cb.activeTradeReasons[posKey] = "SMC Breakout"
+	cb.peakPnLCache["BTCUSDT"] = 12.5
+
+	currentPositionKeys := make(map[string]bool) // BTC 已平倉，不在當前持倉中
+
+	// 模擬 context.go 中的被動平倉清理流程
+	cb.mu.RLock()
+	var keysToClean []string
+	for key := range cb.positionFirstSeenTime {
+		if !currentPositionKeys[key] {
+			keysToClean = append(keysToClean, key)
+		}
+	}
+	cb.mu.RUnlock()
+
+	for _, key := range keysToClean {
+		parts := strings.Split(key, "_")
+		if len(parts) == 2 {
+			symbol := parts[0]
+			side := parts[1]
+			_ = cb.GetEntryReason(symbol, side)
+			cb.RemoveEntryReason(key)
+			cb.DeletePeakPnL(symbol)
+		}
+	}
+
+	if _, exists := cb.positionFirstSeenTime[posKey]; exists {
+		t.Fatalf("expected positionFirstSeenTime to be deleted")
+	}
+	if _, exists := cb.activeTradeReasons[posKey]; exists {
+		t.Fatalf("expected activeTradeReasons to be deleted")
+	}
+	if _, exists := cb.peakPnLCache["BTCUSDT"]; exists {
+		t.Fatalf("expected peakPnLCache to be deleted")
 	}
 }
