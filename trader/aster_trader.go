@@ -364,12 +364,24 @@ func (t *AsterTrader) sign(params map[string]interface{}, nonce uint64) error {
 	return nil
 }
 
-// request 发送HTTP请求（带重试机制）
+// request 发送HTTP请求（带重试机制，默认15秒超时）
 func (t *AsterTrader) request(method, endpoint string, params map[string]interface{}) ([]byte, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	return t.requestWithContext(ctx, method, endpoint, params)
+}
+
+// requestWithContext 发送HTTP请求（带上下文与重试机制）
+func (t *AsterTrader) requestWithContext(ctx context.Context, method, endpoint string, params map[string]interface{}) ([]byte, error) {
 	const maxRetries = 3
 	var lastErr error
 
 	for attempt := 1; attempt <= maxRetries; attempt++ {
+		// 检查上下文是否已取消或超时
+		if err := ctx.Err(); err != nil {
+			return nil, fmt.Errorf("请求上下文已终止: %w", err)
+		}
+
 		// 每次重试都生成新的nonce和签名
 		nonce := t.genNonce()
 		paramsCopy := make(map[string]interface{})
@@ -382,7 +394,7 @@ func (t *AsterTrader) request(method, endpoint string, params map[string]interfa
 			return nil, err
 		}
 
-		body, err := t.doRequest(method, endpoint, paramsCopy)
+		body, err := t.doRequestWithContext(ctx, method, endpoint, paramsCopy)
 		if err == nil {
 			return body, nil
 		}
@@ -395,8 +407,12 @@ func (t *AsterTrader) request(method, endpoint string, params map[string]interfa
 			strings.Contains(err.Error(), "EOF") {
 			if attempt < maxRetries {
 				waitTime := time.Duration(attempt) * time.Second
-				time.Sleep(waitTime)
-				continue
+				select {
+				case <-time.After(waitTime):
+					continue
+				case <-ctx.Done():
+					return nil, ctx.Err()
+				}
 			}
 		}
 
@@ -409,6 +425,11 @@ func (t *AsterTrader) request(method, endpoint string, params map[string]interfa
 
 // doRequest 执行实际的HTTP请求
 func (t *AsterTrader) doRequest(method, endpoint string, params map[string]interface{}) ([]byte, error) {
+	return t.doRequestWithContext(context.Background(), method, endpoint, params)
+}
+
+// doRequestWithContext 执行实际的HTTP请求（支持上下文超时与取消）
+func (t *AsterTrader) doRequestWithContext(ctx context.Context, method, endpoint string, params map[string]interface{}) ([]byte, error) {
 	fullURL := t.baseURL + endpoint
 	method = strings.ToUpper(method)
 
@@ -419,7 +440,7 @@ func (t *AsterTrader) doRequest(method, endpoint string, params map[string]inter
 		for k, v := range params {
 			form.Set(k, fmt.Sprintf("%v", v))
 		}
-		req, err := http.NewRequest("POST", fullURL, strings.NewReader(form.Encode()))
+		req, err := http.NewRequestWithContext(ctx, "POST", fullURL, strings.NewReader(form.Encode()))
 		if err != nil {
 			return nil, err
 		}
@@ -446,7 +467,7 @@ func (t *AsterTrader) doRequest(method, endpoint string, params map[string]inter
 		u, _ := url.Parse(fullURL)
 		u.RawQuery = q.Encode()
 
-		req, err := http.NewRequest(method, u.String(), nil)
+		req, err := http.NewRequestWithContext(ctx, method, u.String(), nil)
 		if err != nil {
 			return nil, err
 		}

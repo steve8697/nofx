@@ -300,45 +300,6 @@ func (cb *ContextBuilder) Build(callCount int, recentDecisions []decision.FullDe
 		})
 	}
 
-	// 👻 Ghostbuster Logic: 清理幽灵挂单 (Clean Orphaned Orders)
-	// 👻 Ghostbuster Logic: 清理幽灵挂单 (Clean Orphaned Orders)
-	// 每一个周期检查是否有 "无持仓但有挂单" 的情况
-	// ⚠️ 仅对 AsterTrader 启用 (因为 Binance/Hyperliquid 是 stub)
-	if _, ok := cb.trader.(*AsterTrader); ok {
-		log.Printf("👻 正在扫描幽灵挂单...")
-		openOrders, err := cb.trader.GetOpenOrders("")
-		if err != nil {
-			log.Printf("⚠️ 扫描挂单失败: %v", err)
-		} else {
-			ordersBySymbol := make(map[string]int)
-			for _, order := range openOrders {
-				if s, ok := order["symbol"].(string); ok {
-					ordersBySymbol[s]++
-				}
-			}
-
-			for symbol, count := range ordersBySymbol {
-				// 检查当前是否有持仓
-				hasPosition := false
-				for _, pos := range positionInfos {
-					if pos.Symbol == symbol {
-						hasPosition = true
-						break
-					}
-				}
-
-				// 如果无持仓但有挂单 -> 幽灵单！杀！
-				if !hasPosition && count > 0 {
-					log.Printf("👻 发现幽灵挂单: %s 有 %d 个挂单但无持仓 -> 正在清理...", symbol, count)
-					if err := cb.trader.CancelAllOrders(symbol); err != nil {
-						log.Printf("❌ 清理幽灵单失败 (%s): %v", symbol, err)
-					} else {
-						log.Printf("✅ 已清除 %s 的幽灵挂单", symbol)
-					}
-				}
-			}
-		}
-	}
 
 	// 清理已平仓的持仓记录 — 🔒 加鎖保護整個清理循環
 	cb.mu.Lock()
