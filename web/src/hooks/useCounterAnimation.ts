@@ -16,7 +16,10 @@ export function useCounterAnimation({
   const [count, setCount] = useState(start)
 
   useEffect(() => {
-    if (end === 0) return
+    if (end === 0) {
+      setCount(0)
+      return
+    }
 
     let startTime: number | null = null
     let animationFrame: number

@@ -223,10 +223,14 @@ restart() {
 # Monitoring: Logs
 # ------------------------------------------------------------------------
 logs() {
-    if [ -z "$2" ]; then
+    local service="$2"
+    if [ "$service" = "backend" ]; then service="aetheris"; fi
+    if [ "$service" = "frontend" ]; then service="aetheris-frontend"; fi
+    if [ "$service" = "mcp" ]; then service="aetheris-mcp"; fi
+    if [ -z "$service" ]; then
         $COMPOSE_CMD logs -f
     else
-        $COMPOSE_CMD logs -f "$2"
+        $COMPOSE_CMD logs -f "$service"
     fi
 }
 

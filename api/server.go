@@ -201,7 +201,7 @@ func (s *Server) setupRoutes() {
 func (s *Server) handleHealth(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status": "ok",
-		"time":   c.Request.Context().Value("time"),
+		"time":   time.Now().Format(time.RFC3339),
 	})
 }
 
@@ -408,18 +408,19 @@ func (s *Server) getTraderFromQuery(c *gin.Context) (*manager.TraderManager, str
 	}
 
 	if traderID == "" {
-		// 如果没有指定trader_id，返回该用户的第一个trader
-		ids := s.traderManager.GetTraderIDs()
-		if len(ids) == 0 {
-			return nil, "", fmt.Errorf("没有可用的trader")
-		}
-
-		// 获取用户的交易员列表，优先返回用户自己的交易员
+		// 获取用户的交易员列表，优先返回用户自己的第一个交易员
 		userTraders, err := s.database.GetTraders(userID)
 		if err == nil && len(userTraders) > 0 {
 			traderID = userTraders[0].ID
 		} else {
-			traderID = ids[0]
+			return nil, "", fmt.Errorf("当前用户没有可用的交易员")
+		}
+	} else {
+		// 校验该 traderID 是否属于当前用户（管理员模式或本人）
+		if !auth.IsAdminMode() {
+			if _, _, _, err := s.database.GetTraderConfig(userID, traderID); err != nil {
+				return nil, "", fmt.Errorf("交易员不存在或无访问权限")
+			}
 		}
 	}
 
@@ -1010,8 +1011,14 @@ func (s *Server) handleStartTrader(c *gin.Context) {
 
 	trader, err := s.traderManager.GetTrader(traderID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "交易员不存在"})
-		return
+		// 嘗試從資料庫載入該用戶的交易員
+		if loadErr := s.traderManager.LoadUserTraders(s.database, userID); loadErr == nil {
+			trader, err = s.traderManager.GetTrader(traderID)
+		}
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "交易员未初始化"})
+			return
+		}
 	}
 
 	// 检查交易员是否已经在运行

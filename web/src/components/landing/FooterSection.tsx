@@ -39,7 +39,7 @@ export default function FooterSection({ language }: FooterSectionProps) {
               <li>
                 <a
                   className="hover:text-[#F0B90B]"
-                  href="https://github.com/tinkle-community/aetheris"
+                  href="https://github.com/AetherisAiOS/aetheris"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -80,7 +80,7 @@ export default function FooterSection({ language }: FooterSectionProps) {
               <li>
                 <a
                   className="hover:text-[#F0B90B]"
-                  href="https://github.com/tinkle-community/aetheris/blob/main/README.md"
+                  href="https://github.com/AetherisAiOS/aetheris/blob/main/README.md"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -90,7 +90,7 @@ export default function FooterSection({ language }: FooterSectionProps) {
               <li>
                 <a
                   className="hover:text-[#F0B90B]"
-                  href="https://github.com/tinkle-community/aetheris/issues"
+                  href="https://github.com/AetherisAiOS/aetheris/issues"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -100,11 +100,11 @@ export default function FooterSection({ language }: FooterSectionProps) {
               <li>
                 <a
                   className="hover:text-[#F0B90B]"
-                  href="https://github.com/tinkle-community/aetheris/pulls"
+                  href="https://github.com/AetherisAiOS/aetheris/discussions"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Pull Requests
+                  Discussions
                 </a>
               </li>
             </ul>

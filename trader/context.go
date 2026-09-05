@@ -161,6 +161,7 @@ func (cb *ContextBuilder) ReconcileOfflineCloses() {
 				symbol := parts[0]
 				// 尝试获取成交历史 (过去24小时) 并同步累计至 dailyPnL
 				cb.detectAndLogPassiveClose(symbol, key, reason, 24*60)
+				cb.DeletePeakPnL(symbol)
 			}
 
 			// 确保无论是否匹配到成交历史，都彻底清除记忆并持久化最新真实状态
@@ -317,6 +318,9 @@ func (cb *ContextBuilder) Build(callCount int, recentDecisions []decision.FullDe
 
 				// 清理記憶
 				cb.RemoveEntryReason(key)
+
+				// 🛡️ 清除該幣種的盈虧峰值快取，徹底消除幽靈回撤止損
+				delete(cb.peakPnLCache, symbol)
 			}
 
 			delete(cb.positionFirstSeenTime, key)
@@ -1173,6 +1177,13 @@ func (cb *ContextBuilder) UpdatePeakPnLCache(cache map[string]float64) error {
 	
 	cb.mu.Unlock()
 	return cb.saveState()
+}
+
+// DeletePeakPnL 删除指定币种的盈亏峰值快取
+func (cb *ContextBuilder) DeletePeakPnL(symbol string) {
+	cb.mu.Lock()
+	delete(cb.peakPnLCache, symbol)
+	cb.mu.Unlock()
 }
 
 // GetPeakEquity 获取历史最高净值

@@ -408,6 +408,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(null)
     localStorage.removeItem('auth_token')
     localStorage.removeItem('auth_user')
+    sessionStorage.removeItem('admin_password')
   }
 
   return (

@@ -102,7 +102,7 @@ export default function AboutSection({ language }: AboutSectionProps) {
             >
               <Typewriter
                 lines={[
-                  '$ git clone https://github.com/tinkle-community/aetheris.git',
+                  '$ git clone https://github.com/AetherisAiOS/aetheris.git',
                   '$ cd aetheris',
                   '$ chmod +x start.sh',
                   '$ ./start.sh start --build',

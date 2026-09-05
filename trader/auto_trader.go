@@ -737,6 +737,10 @@ func (at *AutoTrader) RunCycle() (errRet error) {
 					// 如果獲取失敗，至少記錄是一次平倉
 					at.contextBuilder.RecordTrade(true, false)
 				}
+				// 🛡️ 全平倉成功後清除盈虧峰值快取，避免下次開同幣種時誤觸回撤止損
+				if d.Action == "close_long" || d.Action == "close_short" {
+					at.ClearPeakPnLCache(d.Symbol)
+				}
 			default:
 				// 成功执行后短暂延迟
 				time.Sleep(1 * time.Second)

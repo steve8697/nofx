@@ -146,7 +146,11 @@ check_env_configs() {
         print_info "正在自動為您設定預設密碼 'admin123' 以防後端崩潰..."
         # 寫入密碼
         if grep -q "^AETHERIS_ADMIN_PASSWORD=" .env; then
-            sed -i '' 's/^AETHERIS_ADMIN_PASSWORD=.*/AETHERIS_ADMIN_PASSWORD=admin123/' .env
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                sed -i '' 's/^AETHERIS_ADMIN_PASSWORD=.*/AETHERIS_ADMIN_PASSWORD=admin123/' .env
+            else
+                sed -i 's/^AETHERIS_ADMIN_PASSWORD=.*/AETHERIS_ADMIN_PASSWORD=admin123/' .env
+            fi
         else
             echo "AETHERIS_ADMIN_PASSWORD=admin123" >> .env
         fi

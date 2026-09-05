@@ -111,3 +111,26 @@ func TestHaltUntilConsecutiveLossUsesPause(t *testing.T) {
 		t.Fatalf("got %v, want 45m pause", until)
 	}
 }
+
+func TestContextBuilderDeletePeakPnL(t *testing.T) {
+	cb := &ContextBuilder{
+		peakPnLCache: make(map[string]float64),
+	}
+
+	cb.peakPnLCache["BTCUSDT"] = 18.0
+	cb.peakPnLCache["ETHUSDT"] = 5.5
+
+	if cb.peakPnLCache["BTCUSDT"] != 18.0 {
+		t.Fatalf("expected BTCUSDT peak to be 18.0, got %f", cb.peakPnLCache["BTCUSDT"])
+	}
+
+	cb.DeletePeakPnL("BTCUSDT")
+
+	if _, exists := cb.peakPnLCache["BTCUSDT"]; exists {
+		t.Fatalf("expected BTCUSDT peak cache to be deleted, but still exists")
+	}
+
+	if cb.peakPnLCache["ETHUSDT"] != 5.5 {
+		t.Fatalf("expected ETHUSDT to remain untouched at 5.5, got %f", cb.peakPnLCache["ETHUSDT"])
+	}
+}
