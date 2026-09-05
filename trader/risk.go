@@ -19,6 +19,7 @@ type RiskHaltInput struct {
 	DailyPnL        float64
 	InitialBalance  float64
 	TotalPnLPct     float64
+	PeakDrawdownPct float64 // 峰值高水位回撤百分比: (TotalEquity - PeakEquity) / PeakEquity * 100
 	MaxDailyLossPct float64
 	MaxDrawdownPct  float64
 }
@@ -33,8 +34,13 @@ func EvaluateRiskHalt(in RiskHaltInput) (HaltKind, string, bool) {
 			return HaltDailyLoss, reason, true
 		}
 	}
-	if in.MaxDrawdownPct > 0 && in.TotalPnLPct <= -in.MaxDrawdownPct {
-		reason := fmt.Sprintf("总回撤 %.2f%% 达到上限 -%.2f%%", in.TotalPnLPct, in.MaxDrawdownPct)
+	// 峰值高水位回撤判定（优先使用真实的 PeakDrawdownPct；若未提供则兼容回退到 TotalPnLPct）
+	effectiveDrawdown := in.PeakDrawdownPct
+	if effectiveDrawdown == 0 && in.TotalPnLPct < 0 {
+		effectiveDrawdown = in.TotalPnLPct
+	}
+	if in.MaxDrawdownPct > 0 && effectiveDrawdown <= -in.MaxDrawdownPct {
+		reason := fmt.Sprintf("峰值回撤 %.2f%% 达到上限 -%.2f%%", effectiveDrawdown, in.MaxDrawdownPct)
 		return HaltDrawdown, reason, true
 	}
 	return HaltNone, "", false

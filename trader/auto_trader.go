@@ -809,6 +809,7 @@ func (at *AutoTrader) enforceRiskHalt(ctx *decision.Context, record *logger.Deci
 		DailyPnL:        at.dailyPnL,
 		InitialBalance:  at.initialBalance,
 		TotalPnLPct:     ctx.Account.TotalPnLPct,
+		PeakDrawdownPct: ctx.Account.PeakDrawdownPct,
 		MaxDailyLossPct: at.config.MaxDailyLoss,
 		MaxDrawdownPct:  at.config.MaxDrawdown,
 	})
@@ -1181,6 +1182,11 @@ func (at *AutoTrader) checkOrphanPositions() {
 
 		// 跳过空仓位
 		if quantity == 0 || symbol == "" || side == "" {
+			continue
+		}
+
+		// 仅对机器人开立的持仓进行孤儿止损监控，避免误平用户在交易所或网页端手工开立的单子
+		if at.contextBuilder.GetEntryReason(symbol, side) == "" {
 			continue
 		}
 

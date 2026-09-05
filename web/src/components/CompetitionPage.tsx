@@ -219,7 +219,7 @@ export function CompetitionPage() {
                 <div
                   key={trader.trader_id}
                   onClick={() => handleTraderClick(trader.trader_id)}
-                  className={`py-4 px-3 transition-all duration-300 cursor-pointer hover:bg-white/[0.02] flex items-center justify-between group ${
+                  className={`stat-card-pane relative overflow-hidden py-4 px-3 transition-all duration-300 cursor-pointer hover:bg-white/[0.02] flex items-center justify-between group ${
                     isLeader ? 'bg-white/[0.015]' : ''
                   }`}
                 >
@@ -288,7 +288,7 @@ export function CompetitionPage() {
               return (
                 <div
                   key={trader.trader_id}
-                  className="p-4 rounded transition-all duration-300 hover:scale-[1.02]"
+                  className="stat-card-pane relative overflow-hidden p-4 rounded transition-all duration-300 hover:scale-[1.02]"
                   style={
                     isWinning
                       ? {

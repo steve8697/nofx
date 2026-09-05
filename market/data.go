@@ -107,9 +107,19 @@ func Get(symbol string, provider DataProvider, le *LiquidityEngine) (*Data, erro
 		}
 	}
 
-	// 4小时价格变化 = 1个4小时K线前的价格
+	// 4小时价格变化 = 16个15分钟K线前（或4个1小时K线前）的价格
 	priceChange4h := 0.0
-	if len(klines4h) >= 2 {
+	if len(klines15m) >= 17 {
+		price4hAgo := klines15m[len(klines15m)-17].Close
+		if price4hAgo > 0 {
+			priceChange4h = ((currentPrice - price4hAgo) / price4hAgo) * 100
+		}
+	} else if len(klines1h) >= 5 {
+		price4hAgo := klines1h[len(klines1h)-5].Close
+		if price4hAgo > 0 {
+			priceChange4h = ((currentPrice - price4hAgo) / price4hAgo) * 100
+		}
+	} else if len(klines4h) >= 2 {
 		price4hAgo := klines4h[len(klines4h)-2].Close
 		if price4hAgo > 0 {
 			priceChange4h = ((currentPrice - price4hAgo) / price4hAgo) * 100
@@ -163,8 +173,13 @@ func Get(symbol string, provider DataProvider, le *LiquidityEngine) (*Data, erro
 	// 计算长期数据
 	longerTermData := calculateLongerTermData(klines4h)
 
-	// 计算价格行为数据 (基于1小时K线)
-	priceActionData := calculatePriceAction(klines1h, hourlyData.EMA20)
+	// 计算价格行为数据 (🔧 修正IND-02：基于已收盘的1小时K线，避免新K线刚开盘实体极小时误判Doji/Pinbar导致重绘)
+	var priceActionData *PriceActionData
+	if len(klines1h) > 1 {
+		priceActionData = calculatePriceAction(klines1h[:len(klines1h)-1], hourlyData.EMA20)
+	} else {
+		priceActionData = calculatePriceAction(klines1h, hourlyData.EMA20)
+	}
 
 	// 计算技术分析汇总 (逻辑固化)
 	// 计算背离 (需要足够的 RSI 历史)
@@ -220,6 +235,26 @@ func Get(symbol string, provider DataProvider, le *LiquidityEngine) (*Data, erro
 		}
 	}
 
+	// --- Upgrade: Calculate OI Delta (Phase 20) ---
+	if oiData != nil && len(oiHistory) >= 2 {
+		// oiHistory is map[string]interface{}, convert values
+		// Assume sorted by time (Binance API sorts ascending)
+		latest := oiHistory[len(oiHistory)-1]
+		prev := oiHistory[len(oiHistory)-2]
+
+		latestVal, _ := latest["sumOpenInterest"].(float64)
+		prevVal, _ := prev["sumOpenInterest"].(float64)
+
+		oiData.Delta15m = latestVal - prevVal // Simple Delta
+
+		// 1H Delta (4 candles ago)
+		if len(oiHistory) >= 5 {
+			prev1h := oiHistory[len(oiHistory)-5]
+			prev1hVal, _ := prev1h["sumOpenInterest"].(float64)
+			oiData.Delta1H = latestVal - prev1hVal
+		}
+	}
+
 	// Phase 19: VWAP
 	vwap := calculateVWAP(klines15m)
 
@@ -259,26 +294,6 @@ func Get(symbol string, provider DataProvider, le *LiquidityEngine) (*Data, erro
 	var macro *MacroData
 	if err == nil && len(klines1d) > 50 {
 		macro = calculateMacroContext(klines1d)
-	}
-
-	// --- Upgrade: Calculate OI Delta (Phase 20) ---
-	if oiData != nil && len(oiHistory) >= 2 {
-		// oiHistory is map[string]interface{}, convert values
-		// Assume sorted by time (Binance API sorts ascending)
-		latest := oiHistory[len(oiHistory)-1]
-		prev := oiHistory[len(oiHistory)-2]
-
-		latestVal, _ := latest["sumOpenInterest"].(float64)
-		prevVal, _ := prev["sumOpenInterest"].(float64)
-
-		oiData.Delta15m = latestVal - prevVal // Simple Delta
-
-		// 1H Delta (4 candles ago)
-		if len(oiHistory) >= 5 {
-			prev1h := oiHistory[len(oiHistory)-5]
-			prev1hVal, _ := prev1h["sumOpenInterest"].(float64)
-			oiData.Delta1H = latestVal - prev1hVal
-		}
 	}
 
 	return &Data{
@@ -664,20 +679,35 @@ func calculateHourlyData(klines []Kline) *HourlyData {
 	data.EMA50 = calculateEMA(klines, 50)
 
 	// 计算ATR
-	data.ATR3 = calculateATR(klines, 3)
-	data.ATR14 = calculateATR(klines, 14)
+	// 🔧 修正：使用已收盘 K 线计算 ATR3 / ATR14，避免未走完的 K 线导致 ATR 严重失真 (ATR3 会被拉低 30%~50%)
+	atrKlines := klines
+	if len(klines) > 1 {
+		atrKlines = klines[:len(klines)-1]
+	}
+	data.ATR3 = calculateATR(atrKlines, 3)
+	data.ATR14 = calculateATR(atrKlines, 14)
 
 	// 计算成交量
-	if len(klines) > 0 {
-		data.CurrentVolume = klines[len(klines)-1].Volume
+	// 🔧 修正（v5.6.0）：使用倒数第2根已收盘的 K 线计算 Z-Score，而非当前未走完的 K 线。
+	// 原因：当前 K 线可能只走了 10~30 分钟，成交量天然只有完整 K 线的 1/6 ~ 1/2，
+	// 直接与已收盘均量比较会导致 Z-Score 系统性偏低（常态 < -2.0），
+	// 触发 filters.md 的「强制禁止开仓」规则，导致全市场被错误锁定。
+	if len(klines) > 1 {
+		data.CurrentVolume = klines[len(klines)-2].Volume // 使用已收盘的完整 K 线
 		// 改用 10% 去尾平均数，以剔除极端成交量尖峰与冷清噪音
-		data.AverageVolume = calculateTrimmedMean(klines, 0.10)
-		trimmedStdDev := calculateTrimmedStdDev(klines, 0.10, data.AverageVolume)
+		// 注意：均值计算排除最后一根未收盘 K 线
+		closedKlines := klines[:len(klines)-1]
+		data.AverageVolume = calculateTrimmedMean(closedKlines, 0.10)
+		trimmedStdDev := calculateTrimmedStdDev(closedKlines, 0.10, data.AverageVolume)
 		if trimmedStdDev > 0 {
 			data.VolumeZScore = (data.CurrentVolume - data.AverageVolume) / trimmedStdDev
 		} else {
 			data.VolumeZScore = 0
 		}
+	} else if len(klines) > 0 {
+		data.CurrentVolume = klines[len(klines)-1].Volume
+		data.AverageVolume = data.CurrentVolume
+		data.VolumeZScore = 0
 	}
 
 	// 计算MACD和RSI序列
@@ -720,20 +750,29 @@ func calculateLongerTermData(klines []Kline) *LongerTermData {
 	data.EMA50 = calculateEMA(klines, 50)
 
 	// 计算ATR
-	data.ATR3 = calculateATR(klines, 3)
-	data.ATR14 = calculateATR(klines, 14)
+	// 🔧 修正：使用已收盘 K 线计算 ATR
+	atrKlines := klines
+	if len(klines) > 1 {
+		atrKlines = klines[:len(klines)-1]
+	}
+	data.ATR3 = calculateATR(atrKlines, 3)
+	data.ATR14 = calculateATR(atrKlines, 14)
 
-	// 计算成交量
-	if len(klines) > 0 {
-		data.CurrentVolume = klines[len(klines)-1].Volume
-		// 改用 10% 去尾平均数，以剔除极端成交量尖峰与冷清噪音
-		data.AverageVolume = calculateTrimmedMean(klines, 0.10)
-		trimmedStdDev := calculateTrimmedStdDev(klines, 0.10, data.AverageVolume)
+	// 计算成交量（同第一处修正：使用已收盘 K 线）
+	if len(klines) > 1 {
+		data.CurrentVolume = klines[len(klines)-2].Volume
+		closedKlines := klines[:len(klines)-1]
+		data.AverageVolume = calculateTrimmedMean(closedKlines, 0.10)
+		trimmedStdDev := calculateTrimmedStdDev(closedKlines, 0.10, data.AverageVolume)
 		if trimmedStdDev > 0 {
 			data.VolumeZScore = (data.CurrentVolume - data.AverageVolume) / trimmedStdDev
 		} else {
 			data.VolumeZScore = 0
 		}
+	} else if len(klines) > 0 {
+		data.CurrentVolume = klines[len(klines)-1].Volume
+		data.AverageVolume = data.CurrentVolume
+		data.VolumeZScore = 0
 	}
 
 	// 计算MACD和RSI序列
@@ -1054,17 +1093,19 @@ func identifyCandlePattern(klines []Kline, bodyRatio, upperWickRatio, lowerWickR
 	// 看跌Pinbar/Shooting Star（长上影线）
 	if upperWickRatio > 0.6 && upperWick > bodySize*2 {
 		if isBullish {
-			return "Bearish Pinbar (Shooting Star)" // 上涨趋势中更有效
+			return "Bearish Pinbar (Shooting Star)" // 上涨趋势中更有效看跌
 		}
-		return "Bearish Pinbar (Inverted Hammer)" // 下跌趋势中
+		// 🔧 修正（IND-01）：下跌趋势中长上影线是倒锤头（Inverted Hammer），属于看涨探底反转信号
+		return "Bullish Inverted Hammer"
 	}
 
 	// 看涨Pinbar/Hammer（长下影线）
 	if lowerWickRatio > 0.6 && lowerWick > bodySize*2 {
 		if !isBullish {
-			return "Bullish Pinbar (Hammer)" // 下跌趋势中更有效
+			return "Bullish Pinbar (Hammer)" // 下跌趋势中看涨见底
 		}
-		return "Bullish Pinbar (Hanging Man Signal)" // 上涨趋势中可能是警告
+		// 🔧 修正（IND-01）：上涨趋势中出现长下影高位吊线（Hanging Man），属于高位筹码松动的看跌见顶警告
+		return "Bearish Hanging Man"
 	}
 
 	// ========== 3. 十字星类形态 ==========
@@ -1209,14 +1250,15 @@ func calculateTechnicalAnalysis(price, ema, macd, rsi, vol, avgVol float64, pa *
 	if pa != nil {
 		candleType := pa.CandleType
 		if strings.Contains(candleType, "Bullish") {
-			// 如果是强反转形态 (Pinbar, Engulfing)
-			if strings.Contains(candleType, "Engulfing") || strings.Contains(candleType, "Pinbar") {
+			// 如果是强反转形态 (Pinbar, Engulfing, Inverted Hammer)
+			if strings.Contains(candleType, "Engulfing") || strings.Contains(candleType, "Pinbar") || strings.Contains(candleType, "Hammer") {
 				bullScore += 15
 			} else {
 				bullScore += 5
 			}
 		} else if strings.Contains(candleType, "Bearish") {
-			if strings.Contains(candleType, "Engulfing") || strings.Contains(candleType, "Pinbar") {
+			// 如果是强反转形态 (Pinbar, Engulfing, Hanging Man)
+			if strings.Contains(candleType, "Engulfing") || strings.Contains(candleType, "Pinbar") || strings.Contains(candleType, "Hanging Man") {
 				bearScore += 15
 			} else {
 				bearScore += 5

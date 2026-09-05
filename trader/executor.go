@@ -129,9 +129,8 @@ func (de *DecisionExecutor) executeOpenLongWithRecord(decision *decision.Decisio
 
 	if totalRequired > availableBalance {
 		// ✅ 自动调整仓位大小
-		// 公式: size * (1/leverage + feeRate) <= availableBalance
-		// feeRate = 0.0004 (taker) + 0.0002 (buffer) = 0.0006
-		maxSizeUSD := availableBalance / (1.0/float64(decision.Leverage) + 0.0006)
+		// 預留 15% 現金安全緩衝 (0.85)，防止滑點、手續費與瞬時強平
+		maxSizeUSD := (availableBalance * 0.85) / (1.0/float64(decision.Leverage) + 0.0006)
 
 		// 检查调整后的金额是否过小 (例如小于 5 USDT)
 		if maxSizeUSD < 5.0 {
@@ -354,9 +353,8 @@ func (de *DecisionExecutor) executeOpenShortWithRecord(decision *decision.Decisi
 
 	if totalRequired > availableBalance {
 		// ✅ 自动调整仓位大小
-		// 公式: size * (1/leverage + feeRate) <= availableBalance
-		// feeRate = 0.0004 (taker) + 0.0002 (buffer) = 0.0006
-		maxSizeUSD := availableBalance / (1.0/float64(decision.Leverage) + 0.0006)
+		// 預留 15% 現金安全緩衝 (0.85)，防止滑點、手續費與瞬時強平
+		maxSizeUSD := (availableBalance * 0.85) / (1.0/float64(decision.Leverage) + 0.0006)
 
 		// 检查调整后的金额是否过小 (例如小于 5 USDT)
 		if maxSizeUSD < 5.0 {
@@ -524,21 +522,7 @@ func (de *DecisionExecutor) executeCloseLongWithRecord(decision *decision.Decisi
 	}
 	actionRecord.Price = marketData.CurrentPrice
 
-	// 1. 获取平仓前的持仓均价（用于计算盈亏）
-	var entryPrice float64
-	positions, err := de.trader.GetPositions()
-	if err == nil {
-		for _, pos := range positions {
-			if pos["symbol"] == decision.Symbol && pos["side"] == "long" {
-				if price, ok := pos["entryPrice"].(float64); ok {
-					entryPrice = price
-				}
-				break
-			}
-		}
-	}
-
-	// 2. 平仓
+	// 平仓
 	order, err := de.trader.CloseLong(decision.Symbol, 0) // 0 = 全部平仓
 	if err != nil {
 		return err
@@ -551,19 +535,10 @@ func (de *DecisionExecutor) executeCloseLongWithRecord(decision *decision.Decisi
 
 	log.Printf("  ✓ 平仓成功")
 
-	// 3. 记录交易结果（更新连续亏损）
-	if entryPrice > 0 && marketData.CurrentPrice > 0 {
-		// 做多：平仓价 > 入场价 * (1 + 费率) = 真实盈利
-		// Taker费率约 0.05% * 2 = 0.1%。使用 0.15% 作为安全缓冲
-		isProfitable := marketData.CurrentPrice > entryPrice*1.0015
-		de.contextBuilder.RecordTrade(true, isProfitable)
-
-		resultStr := "亏损"
-		if isProfitable {
-			resultStr = "盈利"
-		}
-		log.Printf("  📊 交易结果记录: %s (均价: %.4f -> 平仓: %.4f)", resultStr, entryPrice, marketData.CurrentPrice)
-	}
+	// 🔧 关键修复（EXE-02）：平仓成功后清理开仓记忆与孤儿时间戳
+	posKey := decision.Symbol + "_long"
+	de.contextBuilder.RemoveEntryReason(posKey)
+	de.contextBuilder.DeletePositionFirstSeenTime(posKey)
 
 	return nil
 }
@@ -579,21 +554,7 @@ func (de *DecisionExecutor) executeCloseShortWithRecord(decision *decision.Decis
 	}
 	actionRecord.Price = marketData.CurrentPrice
 
-	// 1. 获取平仓前的持仓均价（用于计算盈亏）
-	var entryPrice float64
-	positions, err := de.trader.GetPositions()
-	if err == nil {
-		for _, pos := range positions {
-			if pos["symbol"] == decision.Symbol && pos["side"] == "short" {
-				if price, ok := pos["entryPrice"].(float64); ok {
-					entryPrice = price
-				}
-				break
-			}
-		}
-	}
-
-	// 2. 平仓
+	// 平仓
 	order, err := de.trader.CloseShort(decision.Symbol, 0) // 0 = 全部平仓
 	if err != nil {
 		return err
@@ -606,19 +567,10 @@ func (de *DecisionExecutor) executeCloseShortWithRecord(decision *decision.Decis
 
 	log.Printf("  ✓ 平仓成功")
 
-	// 3. 记录交易结果（更新连续亏损）
-	if entryPrice > 0 && marketData.CurrentPrice > 0 {
-		// 做空：平仓价 < 入场价 * (1 - 费率) = 真实盈利
-		// Taker费率约 0.05% * 2 = 0.1%。使用 0.15% 作为安全缓冲
-		isProfitable := marketData.CurrentPrice < entryPrice*0.9985
-		de.contextBuilder.RecordTrade(true, isProfitable)
-
-		resultStr := "亏损"
-		if isProfitable {
-			resultStr = "盈利"
-		}
-		log.Printf("  📊 交易结果记录: %s (均价: %.4f -> 平仓: %.4f)", resultStr, entryPrice, marketData.CurrentPrice)
-	}
+	// 🔧 关键修复（EXE-02）：平仓成功后清理开仓记忆与孤儿时间戳
+	posKey := decision.Symbol + "_short"
+	de.contextBuilder.RemoveEntryReason(posKey)
+	de.contextBuilder.DeletePositionFirstSeenTime(posKey)
 
 	return nil
 }
@@ -859,22 +811,14 @@ func (de *DecisionExecutor) executePartialCloseWithRecord(decision *decision.Dec
 				log.Printf("  ⚠️ 同步止盈失败 (请手动检查): %v", err)
 			}
 		}
+
+		// 🛡️ 重置持仓首次检测时间（给予 60 秒宽限期），防止孤儿检测在订单同步过渡期突发市价平仓
+		nowMs := time.Now().UnixMilli()
+		posKey := decision.Symbol + "_" + strings.ToLower(positionSide)
+		de.contextBuilder.SetPositionFirstSeenTime(posKey, nowMs)
 	}
 
-	// 4. Record Trade (Treat Partial Profit Taking as a "Win" update?)
-	// If it's partial, we might not want to reset the streak completely, or maybe we do.
-	// Let's assume ANY profit taking is good.
-	// Use simplified profitability check since entryPrice is available from targetPosition context if we extracted it.
-	// But targetPosition is generic map.
-	isProfitable := false
-	if ePrice, ok := targetPosition["entryPrice"].(float64); ok {
-		if positionSide == "LONG" {
-			isProfitable = marketData.CurrentPrice > ePrice
-		} else {
-			isProfitable = marketData.CurrentPrice < ePrice
-		}
-	}
-	de.contextBuilder.RecordTrade(true, isProfitable)
+	// ⚠️ RecordTrade 已移至 RunCycle 中統一處理，此處移除重複記錄以維持交易統計與連勝連敗指標準確
 
 	return nil
 }

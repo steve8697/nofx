@@ -28,6 +28,7 @@ type WSMonitor struct {
 	symbolStats        sync.Map // 存储币种统计信息
 	FilterSymbol       []string //经过筛选的币种
 	liquidityEngineMap sync.Map // Map[symbol]*LiquidityEngine (新增 Phase 3)
+	lastKlineTimeMap   sync.Map // 记录各交易对各周期最近一次收到WS更新的时间戳 (symbol_time -> int64 unix ms)
 }
 type SymbolStats struct {
 	LastActiveTime   time.Time
@@ -61,7 +62,7 @@ func (m *WSMonitor) Initialize(coins []string) error {
 		// 筛选永续合约交易对 --仅测试时使用
 		//exchangeInfo.Symbols = exchangeInfo.Symbols[0:2]
 		for _, symbol := range exchangeInfo.Symbols {
-			if symbol.Status == "TRADING" && symbol.ContractType == "PERPETUAL" && strings.ToUpper(symbol.Symbol[len(symbol.Symbol)-4:]) == "USDT" {
+			if symbol.Status == "TRADING" && symbol.ContractType == "PERPETUAL" && strings.HasSuffix(strings.ToUpper(symbol.Symbol), "USDT") {
 				m.symbols = append(m.symbols, symbol.Symbol)
 				m.filterSymbols.Store(symbol.Symbol, true)
 			}
@@ -272,11 +273,20 @@ func (m *WSMonitor) processKlineUpdate(symbol string, wsData KlineWSData, _time 
 	kline.TakerBuyBaseVolume, _ = parseFloat(wsData.Kline.TakerBuyBaseVolume)
 	kline.TakerBuyQuoteVolume, _ = parseFloat(wsData.Kline.TakerBuyQuoteVolume)
 	// 更新K线数据
+	normSymbol := strings.ToUpper(symbol)
+	m.lastKlineTimeMap.Store(fmt.Sprintf("%s_%s", normSymbol, _time), time.Now().UnixMilli())
+
 	var klineDataMap = m.getKlineDataMap(_time)
-	value, exists := klineDataMap.Load(symbol)
+	value, exists := klineDataMap.Load(normSymbol)
+	if !exists {
+		value, exists = klineDataMap.Load(symbol)
+	}
 	var klines []Kline
 	if exists {
-		klines = value.([]Kline)
+		oldKlines := value.([]Kline)
+		// 🔒 Copy-On-Write: 複製底層數組切片，確保讀取協程 (GetCurrentKlines) 不會發生並發數據競態
+		klines = make([]Kline, len(oldKlines))
+		copy(klines, oldKlines)
 
 		// 检查是否是新的K线
 		if len(klines) > 0 && klines[len(klines)-1].OpenTime == kline.OpenTime {
@@ -358,8 +368,21 @@ func (m *WSMonitor) GetCurrentKlines(symbol string, _time string) ([]Kline, erro
 				threshold = 5 * 60 * 1000 // 5m
 			}
 
-			if time.Now().UnixMilli() > lastKline.CloseTime+threshold {
-				log.Printf("⚠️ %s %s K线数据过期 (CloseTime: %d, Now: %d), 强制刷新", symbol, _time, lastKline.CloseTime, time.Now().UnixMilli())
+			now := time.Now().UnixMilli()
+			isExpired := now > lastKline.CloseTime+threshold
+			if !isExpired {
+				if lastUpdateVal, ok := m.lastKlineTimeMap.Load(fmt.Sprintf("%s_%s", normSymbol, _time)); ok {
+					lastUpdate := lastUpdateVal.(int64)
+					// 判定 WebSocket 断流超时 (如 3m 超过 2 分钟无任何推送)
+					streamTimeout := threshold * 4
+					if now-lastUpdate > streamTimeout {
+						isExpired = true
+					}
+				}
+			}
+
+			if isExpired {
+				log.Printf("⚠️ %s %s K线数据过期 (CloseTime: %d, Now: %d), 强制刷新", symbol, _time, lastKline.CloseTime, now)
 				exists = false
 				m.getKlineDataMap(_time).Delete(normSymbol)
 				m.getKlineDataMap(_time).Delete(symbol)
@@ -404,11 +427,16 @@ func (m *WSMonitor) Close() {
 	close(m.alertsChan)
 }
 
+// 🔧 修正（IND-03）：显式指定10秒超时客户端，避免 Binance API 偶发假死导致 sync.WaitGroup 永久阻塞死锁
+var binanceHTTPClient = &http.Client{
+	Timeout: 10 * time.Second,
+}
+
 // GetOpenInterest retrieves the latest Open Interest data.
 func (m *WSMonitor) GetOpenInterest(symbol string) (*OIData, error) {
 	url := fmt.Sprintf("https://fapi.binance.com/fapi/v1/openInterest?symbol=%s", symbol)
 
-	resp, err := http.Get(url)
+	resp, err := binanceHTTPClient.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -433,7 +461,7 @@ func (m *WSMonitor) GetOpenInterest(symbol string) (*OIData, error) {
 
 	return &OIData{
 		Latest:  oi,
-		Average: oi * 0.999, // 近似平均值
+		Average: oi, // 🔧 修正（IND-14）：真实填入，拒绝硬编码 0.999 伪造平均值
 	}, nil
 }
 
@@ -441,7 +469,7 @@ func (m *WSMonitor) GetOpenInterest(symbol string) (*OIData, error) {
 func (m *WSMonitor) GetOpenInterestHistory(symbol string, period string, limit int) ([]map[string]interface{}, error) {
 	url := fmt.Sprintf("https://fapi.binance.com/futures/data/openInterestHist?symbol=%s&period=%s&limit=%d", symbol, period, limit)
 
-	resp, err := http.Get(url)
+	resp, err := binanceHTTPClient.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -481,7 +509,7 @@ func (m *WSMonitor) GetOpenInterestHistory(symbol string, period string, limit i
 func (m *WSMonitor) GetFundingRate(symbol string) (float64, error) {
 	url := fmt.Sprintf("https://fapi.binance.com/fapi/v1/premiumIndex?symbol=%s", symbol)
 
-	resp, err := http.Get(url)
+	resp, err := binanceHTTPClient.Get(url)
 	if err != nil {
 		return 0, err
 	}

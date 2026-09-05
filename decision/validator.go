@@ -97,6 +97,15 @@ func validateDecisions(decisions []Decision, accountEquity float64, btcEthLevera
 // validateCrossDecisions 跨决策交叉验证
 // 检测：1.同币种冲突 2.总风险累积 3.总开仓金额是否超过可用保证金 4.最大持仓数量限制
 func validateCrossDecisions(decisions []Decision, accountEquity float64, maxPositions int, currentPositions []PositionInfo) error {
+	// 🔧 修正（RSK-03）：负净值（穿仓/强平）硬熔断，严禁任何新开仓决策
+	if accountEquity <= 0 {
+		for _, d := range decisions {
+			if isOpenAction(d.Action) {
+				return fmt.Errorf("账户净值异常(%.2f <= 0)，已触发穿仓硬熔断，禁止任何新开仓", accountEquity)
+			}
+		}
+	}
+
 	symbolActions := make(map[string][]string) // symbol -> actions
 	totalRiskUSD := 0.0
 	totalOpenPositionUSD := 0.0
@@ -228,13 +237,34 @@ func validateCrossDecisions(decisions []Decision, accountEquity float64, maxPosi
 		}
 	}
 
-	// 预留 2% 缓冲，防止手续费或滑点导致余额不足
-	// 使用 accountEquity 作 AvailableBalance 的近似值（假设无其他持仓占用）
-	availableMargin := accountEquity * 0.98
+	// 🔧 修正（v5.6.1）：扣除现有未平仓部位占用的保证金，避免高估可用额度
+	existingMarginUsed := 0.0
+	for _, p := range currentPositions {
+		willBeClosed := false
+		for _, d := range decisions {
+			if d.Symbol == p.Symbol && (d.Action == "close_long" || d.Action == "close_short") {
+				willBeClosed = true
+				break
+			}
+		}
+		if !willBeClosed {
+			if p.MarginUsed > 0 {
+				existingMarginUsed += p.MarginUsed
+			} else if p.Leverage > 0 && p.MarkPrice > 0 {
+				existingMarginUsed += (p.Quantity * p.MarkPrice) / float64(p.Leverage)
+			}
+		}
+	}
+
+	// 预留 5% 缓冲，防止手续费或滑点导致余额不足
+	availableMargin := (accountEquity - existingMarginUsed) * 0.95
+	if availableMargin < 0 {
+		availableMargin = 0
+	}
 
 	if totalMarginRequired > availableMargin {
-		return fmt.Errorf("保证金不足: 需要 $%.2f, 可用(估算) $%.2f (杠杆過低或倉位過大)",
-			totalMarginRequired, availableMargin)
+		return fmt.Errorf("保证金不足: 需要 $%.2f, 可用(扣除现有持仓后) $%.2f (现有占用: $%.2f)",
+			totalMarginRequired, availableMargin, existingMarginUsed)
 	}
 
 	if totalOpenPositionUSD > accountEquity*3 {
@@ -247,6 +277,22 @@ func validateCrossDecisions(decisions []Decision, accountEquity float64, maxPosi
 
 // validateDecision 验证单个决策的有效性
 func validateDecision(d *Decision, accountEquity float64, btcEthLeverage, altcoinLeverage int, positions []PositionInfo, marketDataMap map[string]*market.Data, minRiskRewardRatio float64, feeInfo *TradingFeeInfo) error {
+	// 智能兼容：若模型输出了通用的 "close"，根据现有持仓智能推导为 close_long 或 close_short
+	if d.Action == "close" {
+		for _, pos := range positions {
+			if pos.Symbol == d.Symbol {
+				if pos.Side == "long" {
+					d.Action = "close_long"
+					log.Printf("ℹ️ 智能推导: %s close 映射为 close_long", d.Symbol)
+				} else if pos.Side == "short" {
+					d.Action = "close_short"
+					log.Printf("ℹ️ 智能推导: %s close 映射为 close_short", d.Symbol)
+				}
+				break
+			}
+		}
+	}
+
 	// 验证action
 	if err := validateAction(d); err != nil {
 		return err
@@ -272,6 +318,11 @@ func validateDecision(d *Decision, accountEquity float64, btcEthLeverage, altcoi
 
 	// 验证开仓字段（仅对 open_long/open_short）
 	if d.Action == "open_long" || d.Action == "open_short" {
+		// 关键容错：若模型未显式输出 entry_price，自动以当前市场最新价格兜底补全
+		if d.EntryPrice <= 0 && marketDataMap[d.Symbol] != nil && marketDataMap[d.Symbol].CurrentPrice > 0 {
+			d.EntryPrice = marketDataMap[d.Symbol].CurrentPrice
+			log.Printf("ℹ️ 决策未显式提供入场价，自动采用当前市价兜底: %.4f", d.EntryPrice)
+		}
 		if err := validateOpenFields(d, accountEquity, btcEthLeverage, altcoinLeverage); err != nil {
 			return err
 		}
@@ -797,6 +848,29 @@ func validateStopLossDistance(d *Decision, positions []PositionInfo, marketDataM
 		d.Reasoning += fmt.Sprintf(" [系统自动修正: 止损距离 %.2f%% < 最小要求 %.2f%%, 止损已调整 %.4f→%.4f (entry:%.4f)]",
 			stopLossDistancePct, minDistance, originalStopLoss, correctedStopLoss, entryPrice)
 
+		// 🔧 修正（v5.6.1）：止损调宽时，同步等比例微调止盈（TakeProfit），避免好心调宽止损却导致 R:R 跌破门槛而死锁
+		if (d.Action == "open_long" || d.Action == "open_short") && d.TakeProfit > 0 && stopLossDistancePct > 0 {
+			origSLDist := stopLossDistancePct
+			origTPDist := 0.0
+			if isLong {
+				origTPDist = (d.TakeProfit - referencePrice) / referencePrice * 100
+			} else {
+				origTPDist = (referencePrice - d.TakeProfit) / referencePrice * 100
+			}
+			if origTPDist > 0 {
+				expansionFactor := minDistance / origSLDist
+				if expansionFactor > 1.0 && expansionFactor <= 2.5 {
+					newTPDist := origTPDist * expansionFactor
+					if isLong {
+						d.TakeProfit = referencePrice * (1 + newTPDist/100)
+					} else {
+						d.TakeProfit = referencePrice * (1 - newTPDist/100)
+					}
+					d.Reasoning += fmt.Sprintf(" [止盈同步微调: %.4f以保持R:R]", d.TakeProfit)
+				}
+			}
+		}
+
 		// ⚠️ 关键修复：自动修正止损后，重新验证风险回报比
 		// 防止止损调宽后 R:R 低于要求 但未被拦截的问题
 		if d.Action == "open_long" || d.Action == "open_short" {
@@ -848,8 +922,9 @@ func validateRiskRewardRatioAfterCorrection(d *Decision, entryPrice, minRiskRewa
 		netRiskRewardRatio = netRewardPercent / netRiskPercent
 	}
 
-	// 硬约束: 使用配置的最小风险回报比 (带 0.05 容差)
-	threshold := minRiskRewardRatio - 0.05
+	// 🔧 修正（v5.6.1）：手续费双向计入（分子减手续费、分母加手续费）会导致标准毛 2:1 策略在净值上缩水至 ~1.85:1。
+	// 为避免预期差误杀合格策略，将净 R:R 容差门槛设为 minRiskRewardRatio * 0.88（对于 2.0 即 1.76）
+	threshold := minRiskRewardRatio * 0.88
 	if netRiskRewardRatio < threshold {
 		if feeInfo != nil {
 			return fmt.Errorf("修正后淨R:R=%.2f:1 < %.1f [入场:%.4f 止损:%.4f 止盈:%.4f | 净利%.3f%% / 净险%.3f%% (含手续费%.3f%%)]",
@@ -910,8 +985,8 @@ func validateRiskRewardRatio(d *Decision, minRiskRewardRatio float64, feeInfo *T
 		netRiskRewardRatio = netRewardPercent / netRiskPercent
 	}
 
-	// 硬约束: 使用配置的最小风险回报比 (带 0.05 容差)
-	threshold := minRiskRewardRatio - 0.05
+	// 硬约束: 使用配置的最小风险回报比 (允许双向手续费压缩容差，净 R:R 门槛 = min * 0.88，对于 2.0 即 1.76)
+	threshold := minRiskRewardRatio * 0.88
 	if netRiskRewardRatio < threshold {
 		if feeInfo != nil {
 			return fmt.Errorf("淨風險回報比過低(%.2f:1)，必須≥%.1f:1 [入場:%.4f 止損:%.4f 止盈:%.4f | 净利%.3f%% / 净险%.3f%% (含手续费%.3f%%)]",
@@ -942,8 +1017,8 @@ func validateMaxLoss(d *Decision, accountEquity float64) error {
 
 	riskPercent := (riskAmount / accountEquity) * 100
 	maxLossLimit := 3.05
-	if accountEquity < 10.0 {
-		maxLossLimit = 5.5 // 💰 自适应放宽：微型资金模式（净值 < 10 USDT）放宽至 5.5% 净值，以包容合理的 ATR 波动
+	if accountEquity < 50.0 {
+		maxLossLimit = 5.5 // 💰 自适应放宽：微型资金模式（净值 < 50 USDT）放宽至 5.5% 净值，以包容合理的 ATR 波动
 	}
 	if riskPercent > maxLossLimit {
 		return fmt.Errorf("单笔最大亏损过大(%.2f%%)，必须≤%.1f%%账户净值", riskPercent, maxLossLimit)

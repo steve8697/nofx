@@ -165,11 +165,13 @@ func (t *AsterTrader) getPrecision(symbol string) (SymbolPrecision, error) {
 
 		t.symbolPrecision[s.Symbol] = prec
 	}
-	t.mu.Unlock()
 
+	// 🔧 关键修复（EXE-05）：在互斥锁保护内读取，防止并发 map 读写导致 fatal error crash
 	if prec, ok := t.symbolPrecision[symbol]; ok {
+		t.mu.Unlock()
 		return prec, nil
 	}
+	t.mu.Unlock()
 
 	return SymbolPrecision{}, fmt.Errorf("未找到交易对 %s 的精度信息", symbol)
 }
@@ -211,18 +213,26 @@ func (t *AsterTrader) formatQuantity(symbol string, quantity float64) (float64, 
 		return 0, err
 	}
 
-	// 优先使用step size，确保数量是step size的整数倍
-	if prec.StepSize > 0 {
-		return roundToTickSize(quantity, prec.StepSize), nil
+	// 🔧 关键修复（EXE-03）：数量必须严格向下取整 (Floor)，严禁向上四舍五入！
+	// 向上取整会导致开仓所需保证金超过余额 (-2019) 或平仓超出当前持仓被 ReduceOnly 拒单 (-2022)
+	stepSize := prec.StepSize
+	if stepSize <= 0 {
+		stepSize = math.Pow10(-prec.QuantityPrecision)
+	}
+	if stepSize > 0 {
+		steps := math.Floor((quantity + 1e-9) / stepSize)
+		return steps * stepSize, nil
 	}
 
-	// 如果没有step size，则按精度四舍五入
 	multiplier := math.Pow10(prec.QuantityPrecision)
-	return math.Round(quantity*multiplier) / multiplier, nil
+	return math.Floor(quantity*multiplier) / multiplier, nil
 }
 
 // formatFloatWithPrecision 将浮点数格式化为指定精度的字符串（去除末尾的0）
 func (t *AsterTrader) formatFloatWithPrecision(value float64, precision int) string {
+	if value <= 0 {
+		return "0"
+	}
 	// 使用指定精度格式化
 	formatted := strconv.FormatFloat(value, 'f', precision, 64)
 
@@ -230,6 +240,9 @@ func (t *AsterTrader) formatFloatWithPrecision(value float64, precision int) str
 	formatted = strings.TrimRight(formatted, "0")
 	formatted = strings.TrimRight(formatted, ".")
 
+	if formatted == "" {
+		return "0"
+	}
 	return formatted
 }
 

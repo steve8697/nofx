@@ -377,7 +377,7 @@ function App() {
       />
 
       {/* Main Content */}
-      <main className="max-w-[1920px] mx-auto px-6 py-6 pt-24 relative z-10">
+      <main className="max-w-[1920px] mx-auto px-3 sm:px-6 py-4 sm:py-6 pt-20 sm:pt-24 relative z-10">
         {currentPage === 'competition' ? (
           <CompetitionPage />
         ) : currentPage === 'traders' ? (
@@ -545,15 +545,15 @@ function TraderDetailsPage({
             </span>
           </div>
           
-          <div className="flex items-baseline gap-4">
+          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
             <h1 className="text-3xl md:text-5xl font-playfair font-normal text-[#ECEBE6] tracking-tight">
               {selectedTrader.trader_name}
             </h1>
-            <span className="text-xs font-mono uppercase tracking-widest text-[#7C7A75]">
+            <span className="text-xs font-mono uppercase tracking-widest text-[#7C7A75] break-all max-w-full">
               [{getModelShowName(selectedTrader.ai_model)}]
             </span>
             {(status?.consecutive_wait || 0) >= 5 && (
-              <span className="text-[10px] font-mono uppercase px-2 py-0.5 border border-white/10 text-[#7C7A75] bg-white/[0.02]">
+              <span className="text-[10px] font-mono uppercase px-2 py-0.5 border border-white/10 text-[#7C7A75] bg-white/[0.02] whitespace-nowrap">
                 WAIT {status?.consecutive_wait} CYCLES
               </span>
             )}
@@ -561,14 +561,14 @@ function TraderDetailsPage({
         </div>
 
         {/* Right side: Switcher & Telemetry stats */}
-        <div className="flex items-center gap-4 text-xs font-mono text-[#7C7A75]">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs font-mono text-[#7C7A75]">
           {traders && traders.length > 1 && (
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-inter uppercase tracking-wider text-[#5E5D58]">SELECT:</span>
               <select
                 value={selectedTraderId}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onTraderSelect(e.target.value)}
-                className="bg-[#17181D] border border-white/10 px-3 py-1 text-xs font-mono text-[#ECEBE6] cursor-pointer"
+                className="bg-[#17181D] border border-white/10 px-3 py-1 text-xs font-mono text-[#ECEBE6] cursor-pointer max-w-[140px] truncate"
               >
                 {traders.map((trader) => (
                   <option key={trader.trader_id} value={trader.trader_id}>
@@ -579,7 +579,7 @@ function TraderDetailsPage({
             </div>
           )}
           {status && (
-            <div className="flex items-center gap-3 border-l border-white/10 pl-4 text-[11px]">
+            <div className="flex items-center gap-2 sm:gap-3 border-l border-white/10 pl-3 sm:pl-4 text-[11px]">
               <span>CYCLES: <strong className="text-[#ECEBE6] font-normal">{status.call_count}</strong></span>
               <span>•</span>
               <span>RUNTIME: <strong className="text-[#ECEBE6] font-normal">{status.runtime_minutes}m</strong></span>
@@ -838,7 +838,7 @@ function StatCard({
 }) {
   const pureValue = value.replace(' USDT', '')
   return (
-    <div className="p-6 relative bg-transparent flex flex-col justify-between h-full group transition-all duration-300 hover:bg-white/[0.015]">
+    <div className="p-6 relative overflow-hidden stat-card-pane bg-transparent flex flex-col justify-between h-full group transition-all duration-300 hover:bg-white/[0.015]">
       <div>
         <div className="text-[10px] uppercase font-inter font-medium tracking-[0.28em] text-[#7C7A75] mb-2.5">
           {title}
@@ -908,20 +908,12 @@ function DecisionCard({
 
   return (
     <div
-      className="sharp-card bracket-corners p-6 transition-all duration-300 border border-white/5 relative"
+      className="sharp-card bracket-corners p-4 sm:p-6 transition-all duration-300 border border-white/5 relative"
     >
-      {/* 右上角極小直角亮點指示 */}
-      <div className="absolute top-4 right-4 flex items-center gap-1.5 px-2.5 py-1 border border-white/5 bg-black/50 font-mono text-[9px] tracking-[0.2em] uppercase">
-        <span className={`w-1.5 h-1.5 ${decision.success ? 'bg-[#00DC82]' : 'bg-[#F43F5E]'}`}></span>
-        <span style={{ color: decision.success ? '#F4F3EE' : '#9E9EA8' }}>
-          {decision.success ? 'CYCLE_SUCCESS' : 'CYCLE_FAILURE'}
-        </span>
-      </div>
-
-      {/* Header */}
-      <div className="mb-6 flex items-baseline justify-between border-b border-white/[0.06] pb-4">
+      {/* Header with responsive badge */}
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] pb-4">
         <div>
-          <div className="text-xl text-[#ECEBE6] font-playfair flex items-baseline gap-2.5">
+          <div className="text-lg sm:text-xl text-[#ECEBE6] font-playfair flex items-baseline gap-2">
             <span className="tracking-tight">Cycle Record <span className="luxury-gold-italic">#{decision.cycle_number}</span></span>
             <span className="text-[9px] font-inter font-medium text-[#7C7A75] tracking-luxury uppercase">[{t('cycle', language)}]</span>
           </div>
@@ -929,16 +921,24 @@ function DecisionCard({
             TIMESTAMP: {new Date(decision.timestamp).toLocaleString()}
           </div>
         </div>
+
+        {/* 狀態指示標籤（自適應流式排列，避免小螢幕遮擋標題） */}
+        <div className="flex items-center gap-1.5 px-2.5 py-1 border border-white/5 bg-black/50 font-mono text-[9px] tracking-[0.2em] uppercase shrink-0">
+          <span className={`w-1.5 h-1.5 ${decision.success ? 'bg-[#00DC82]' : 'bg-[#F43F5E]'}`}></span>
+          <span style={{ color: decision.success ? '#F4F3EE' : '#9E9EA8' }}>
+            {decision.success ? 'CYCLE_SUCCESS' : 'CYCLE_FAILURE'}
+          </span>
+        </div>
       </div>
 
       {/* Account State Summary */}
       {decision.account_state && (
-        <div className="border border-white/[0.06] bg-transparent p-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono mb-6 text-[#9C9B96] divide-x divide-white/[0.04]">
+        <div className="border border-white/[0.06] bg-transparent p-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono mb-6 text-[#9C9B96] sm:divide-x divide-white/[0.04]">
           <div className="pl-1">
             <div className="text-[9px] text-[#7C7A75] font-inter uppercase tracking-[0.25em]">NET_WORTH</div>
             <div className="font-playfair font-normal text-[#ECEBE6] mt-1 text-lg">{decision.account_state.total_balance.toFixed(2)} <span className="text-[#5E5D58] text-[10px] font-mono">USDT</span></div>
           </div>
-          <div className="pl-3">
+          <div className="pl-1 sm:pl-3">
             <div className="text-[9px] text-[#7C7A75] font-inter uppercase tracking-[0.25em]">AVAILABLE</div>
             <div className="font-playfair font-normal text-[#ECEBE6] mt-1 text-lg">{decision.account_state.available_balance.toFixed(2)} <span className="text-[#5E5D58] text-[10px] font-mono">USDT</span></div>
           </div>
@@ -956,20 +956,20 @@ function DecisionCard({
       {/* AI Core Thesis / Observation Reason Banner */}
       {isAllWait && (primaryReasoning || parsedDecisionList.length > 0) && (
         <div className="mb-5 p-4 rounded-xl bg-white/[0.03] backdrop-blur-md border-l-2 border-emerald-500/50 border-t border-r border-b border-white/10 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] space-y-2.5">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-medium text-[#B4B0A5] tracking-[0.2em] uppercase font-mono">CURATED OBSERVATION DISCIPLINE</span>
-            <span className="px-2 py-0.5 bg-white/[0.03] border border-white/10 text-[#9C9B96] text-[9px] font-mono tracking-wider rounded-md">CAPITAL DISCIPLINE</span>
+          <div className="flex flex-wrap items-center justify-between gap-1.5">
+            <span className="text-[10px] font-medium text-[#B4B0A5] tracking-wider uppercase font-mono">CURATED OBSERVATION DISCIPLINE</span>
+            <span className="px-2 py-0.5 bg-white/[0.03] border border-white/10 text-[#9C9B96] text-[9px] font-mono tracking-wider rounded-md shrink-0">CAPITAL DISCIPLINE</span>
           </div>
-          <div className="space-y-2 text-xs font-mono text-[#C5C4BE] leading-relaxed">
+          <div className="space-y-2 text-xs font-mono text-[#C5C4BE] leading-relaxed break-words">
             {parsedDecisionList.length > 0 ? (
               parsedDecisionList.map((p: any, idx: number) => (
-                <div key={idx} className="flex items-start gap-2 bg-white/[0.02] p-2.5 rounded-lg border border-white/[0.06]">
+                <div key={idx} className="flex items-start gap-2 bg-white/[0.02] p-2.5 rounded-lg border border-white/[0.06] break-words">
                   <span className="font-medium text-[#ECEBE6] shrink-0">[{p.symbol}]:</span>
-                  <span className="text-[#C5C4BE]">{p.reasoning || '觀望等待確認信號'}</span>
+                  <span className="text-[#C5C4BE] break-words">{p.reasoning || '觀望等待確認信號'}</span>
                 </div>
               ))
             ) : (
-              <div className="bg-white/[0.02] p-2.5 rounded-lg border border-white/[0.06]">{primaryReasoning}</div>
+              <div className="bg-white/[0.02] p-2.5 rounded-lg border border-white/[0.06] break-words">{primaryReasoning}</div>
             )}
           </div>
         </div>
@@ -978,7 +978,7 @@ function DecisionCard({
       {/* Scanned Candidates Radar */}
       {decision.candidate_coins && decision.candidate_coins.length > 0 && (
         <div className="mb-5 rounded-xl bg-white/[0.03] backdrop-blur-md border border-white/10 p-4 font-mono shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]">
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
             <div className="text-[9px] text-[#5E5D58] uppercase tracking-[0.2em] flex items-center gap-2">
               <span className="text-[#ECEBE6] font-medium">SCANNED ASSETS SPECTRUM</span>
               <span className="px-1.5 py-0.5 bg-white/5 text-[#9C9B96] text-[9px]">

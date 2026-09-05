@@ -135,7 +135,7 @@ function AITraderCard({
         <div className="flex items-start justify-between mb-5">
           <div className="flex items-center gap-3">
             <div
-              className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-500 ${
+              className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-500 ${
                 isRunning 
                   ? 'bg-white border border-white text-black' 
                   : 'bg-white/5 border border-white/10 text-gray-400'
@@ -1297,8 +1297,7 @@ function SignalSourceModal({
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
       <div
-        className="rounded-xl p-6 w-full max-w-lg relative border border-white/10"
-        style={{ background: '#161A1E' }}
+        className="modal-content p-6 w-full max-w-lg relative border border-white/10"
       >
         <h3 className="text-xl font-bold mb-4" style={{ color: '#EAECEF' }}>
           📡 {t('signalSourceConfig', language)}
@@ -1499,8 +1498,7 @@ function ModelConfigModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div
-        className="bg-gray-800 rounded-lg p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto"
-        style={{ background: '#1E2329' }}
+        className="modal-content p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold" style={{ color: '#EAECEF' }}>
@@ -1830,8 +1828,7 @@ function ExchangeConfigModal({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div
-        className="bg-gray-800 rounded-lg p-6 w-full max-w-lg relative"
-        style={{ background: '#1E2329' }}
+        className="modal-content p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold" style={{ color: '#EAECEF' }}>
@@ -2353,8 +2350,7 @@ function ExchangeConfigModal({
           onClick={() => setShowGuide(false)}
         >
           <div
-            className="bg-gray-800 rounded-lg p-6 w-full max-w-4xl relative"
-            style={{ background: '#1E2329' }}
+            className="modal-content p-6 w-full max-w-4xl relative max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">

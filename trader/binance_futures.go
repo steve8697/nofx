@@ -187,6 +187,17 @@ func (t *FuturesTrader) GetPositions() ([]map[string]interface{}, error) {
 	return result, nil
 }
 
+// InvalidateCache 主动使持仓与余额缓存失效（开仓/平仓后必须立即调用，防止500ms后验证持仓读到旧缓存）
+func (t *FuturesTrader) InvalidateCache() {
+	t.positionsCacheMutex.Lock()
+	t.cachedPositions = nil
+	t.positionsCacheMutex.Unlock()
+
+	t.balanceCacheMutex.Lock()
+	t.cachedBalance = nil
+	t.balanceCacheMutex.Unlock()
+}
+
 // SetMarginMode 设置仓位模式
 func (t *FuturesTrader) SetMarginMode(symbol string, isCrossMargin bool) error {
 	var marginType futures.MarginType
@@ -331,6 +342,9 @@ func (t *FuturesTrader) OpenLong(symbol string, quantity float64, leverage int) 
 	log.Printf("✓ 开多仓成功: %s 数量: %s", symbol, quantityStr)
 	log.Printf("  订单ID: %d", order.OrderID)
 
+	// 🔧 关键修复（EXE-01）：开仓成功后立即失效持仓与余额缓存，确保后续验证与设置SL/TP获取到最新持仓
+	t.InvalidateCache()
+
 	result := make(map[string]interface{})
 	result["orderId"] = order.OrderID
 	result["symbol"] = order.Symbol
@@ -384,6 +398,9 @@ func (t *FuturesTrader) OpenShort(symbol string, quantity float64, leverage int)
 
 	log.Printf("✓ 开空仓成功: %s 数量: %s", symbol, quantityStr)
 	log.Printf("  订单ID: %d", order.OrderID)
+
+	// 🔧 关键修复（EXE-01）：开仓成功后立即失效持仓与余额缓存
+	t.InvalidateCache()
 
 	result := make(map[string]interface{})
 	result["orderId"] = order.OrderID
@@ -439,6 +456,9 @@ func (t *FuturesTrader) CloseLong(symbol string, quantity float64) (map[string]i
 		log.Printf("  ⚠ 取消挂单失败: %v", err)
 	}
 
+	// 🔧 关键修复（EXE-01）：平仓成功后立即失效持仓与余额缓存
+	t.InvalidateCache()
+
 	result := make(map[string]interface{})
 	result["orderId"] = order.OrderID
 	result["symbol"] = order.Symbol
@@ -492,6 +512,9 @@ func (t *FuturesTrader) CloseShort(symbol string, quantity float64) (map[string]
 	if err := t.CancelAllOrders(symbol); err != nil {
 		log.Printf("  ⚠ 取消挂单失败: %v", err)
 	}
+
+	// 🔧 关键修复（EXE-01）：平仓成功后立即失效持仓与余额缓存
+	t.InvalidateCache()
 
 	result := make(map[string]interface{})
 	result["orderId"] = order.OrderID

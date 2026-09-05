@@ -135,9 +135,9 @@ export default function AILearning({ traderId }: AILearningProps) {
       </div>
 
       {/* 核心指标 - Luxury Horizontal Minimal Strip */}
-      <div className="border-y border-white/[0.08] bg-[#17181C]/90 grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-white/[0.08]">
+      <div className="telemetry-strip border-y border-white/[0.08] bg-[#17181C]/90 grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-white/[0.08]">
         {/* 总交易数 */}
-        <div className="p-6">
+        <div className="stat-card-pane relative overflow-hidden p-6 transition-all duration-300 hover:bg-white/[0.015]">
           <div className="text-[10px] font-inter font-medium uppercase tracking-[0.28em] text-[#7C7A75] mb-2.5">
             {t('totalTrades', language)}
           </div>
@@ -150,7 +150,7 @@ export default function AILearning({ traderId }: AILearningProps) {
         </div>
 
         {/* 胜率 */}
-        <div className="p-6">
+        <div className="stat-card-pane relative overflow-hidden p-6 transition-all duration-300 hover:bg-white/[0.015]">
           <div className="text-[10px] font-inter font-medium uppercase tracking-[0.28em] text-[#7C7A75] mb-2.5">
             WIN RATE
           </div>
@@ -163,7 +163,7 @@ export default function AILearning({ traderId }: AILearningProps) {
         </div>
 
         {/* 平均盈利 */}
-        <div className="p-6">
+        <div className="stat-card-pane relative overflow-hidden p-6 transition-all duration-300 hover:bg-white/[0.015]">
           <div className="text-[10px] font-inter font-medium uppercase tracking-[0.28em] text-[#7C7A75] mb-2.5">
             {t('avgWin', language)}
           </div>
@@ -176,7 +176,7 @@ export default function AILearning({ traderId }: AILearningProps) {
         </div>
 
         {/* 平均亏损 */}
-        <div className="p-6">
+        <div className="stat-card-pane relative overflow-hidden p-6 transition-all duration-300 hover:bg-white/[0.015]">
           <div className="text-[10px] font-inter font-medium uppercase tracking-[0.28em] text-[#7C7A75] mb-2.5">
             {t('avgLoss', language)}
           </div>
@@ -199,7 +199,7 @@ export default function AILearning({ traderId }: AILearningProps) {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div
-                className="w-10 h-10 flex items-center justify-center bg-[#17181D] border border-white/10"
+                className="w-10 h-10 rounded-lg flex items-center justify-center bg-[#17181D] border border-white/10"
               >
                 <Sparkles className="w-5 h-5 text-[#ECEBE6]" />
               </div>
@@ -320,7 +320,7 @@ export default function AILearning({ traderId }: AILearningProps) {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div
-                className="w-10 h-10 flex items-center justify-center bg-[#17181D] border border-white/10"
+                className="w-10 h-10 rounded-lg flex items-center justify-center bg-[#17181D] border border-white/10"
               >
                 <Coins className="w-5 h-5 text-[#ECEBE6]" />
               </div>

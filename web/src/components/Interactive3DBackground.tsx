@@ -110,31 +110,87 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
     }
     const texture = new THREE.CanvasTexture(canvas)
 
-    // 5. Zero-CPU GPU Vertex Shader
+    // 5. Zero-CPU GPU Vertex Shader with Screen-Space Dynamic Liquid Ripples
     const customShaderMaterial = new THREE.ShaderMaterial({
       precision: 'mediump',
       uniforms: {
         uTime: { value: 0 },
         uPointTexture: { value: texture },
+        uMouseNDC: { value: new THREE.Vector2(0, 0) },
+        uAspect: { value: window.innerWidth / window.innerHeight },
+        uMouseStrength: { value: 0.0 },
+        uClickPosNDC: { value: new THREE.Vector2(-999, -999) },
+        uClickTime: { value: -999.0 },
+        uClickStrength: { value: 0.0 },
       },
       vertexShader: `
         precision mediump float;
         attribute vec2 aGrid;
         varying vec3 vColor;
         uniform float uTime;
+        uniform vec2 uMouseNDC;
+        uniform float uAspect;
+        uniform float uMouseStrength;
+        uniform vec2 uClickPosNDC;
+        uniform float uClickTime;
+        uniform float uClickStrength;
 
         void main() {
           vColor = color;
           
-          // GPU-native dual sine wave modulation
-          float yOffset = sin((aGrid.x + uTime) * 0.3) * 65.0 + sin((aGrid.y + uTime) * 0.5) * 65.0;
-          vec3 transformed = vec3(position.x, position.y + yOffset, position.z);
+          // 1. Natural ambient dual sine waves
+          float baseWave = sin((aGrid.x + uTime) * 0.3) * 65.0 + sin((aGrid.y + uTime) * 0.5) * 65.0;
+
+          // 2. Project particle to Viewport Screen Space (NDC) for 100% accurate cursor tracking
+          vec4 baseMv = modelViewMatrix * vec4(position.x, position.y + baseWave, position.z, 1.0);
+          vec4 baseClip = projectionMatrix * baseMv;
+          vec2 ndc = baseClip.xy / baseClip.w;
+
+          // Correct for screen aspect ratio so wave ripples are circular in viewport
+          vec2 ndcAspect = vec2(ndc.x * uAspect, ndc.y);
+          vec2 mouseAspect = vec2(uMouseNDC.x * uAspect, uMouseNDC.y);
+          float distScreen = distance(ndcAspect, mouseAspect);
+
+          // 3. Continuous Fluid Bow Wave (Naturally generated as cursor moves)
+          float wavePhase1 = distScreen * 14.0 - uTime * 3.2;
+          float wavePhase2 = distScreen * 24.0 - uTime * 4.8;
+          float harmonicRipple = (sin(wavePhase1) * 0.70 + sin(wavePhase2) * 0.30) * exp(-distScreen * 2.5) * 60.0 * uMouseStrength;
+
+          // Smooth surface tension buoyancy lift:
+          float lift = smoothstep(0.48, 0.0, distScreen) * 36.0 * uMouseStrength;
+
+          // 4. Click Water Shockwave (Pure GPU continuous propagation - Zero DOM Jank)
+          vec2 clickAspect = vec2(uClickPosNDC.x * uAspect, uClickPosNDC.y);
+          float distClick = distance(ndcAspect, clickAspect);
+          float timeSinceClick = max(0.0, uTime - uClickTime);
+          float clickWave = 0.0;
+
+          if (timeSinceClick < 3.0 && uClickStrength > 0.01) {
+            float waveRadius = timeSinceClick * 0.75;
+            float distFromFront = abs(distClick - waveRadius);
+            clickWave = sin(distFromFront * 20.0) * smoothstep(0.35, 0.0, distFromFront) * exp(-distClick * 1.8) * exp(-timeSinceClick * 1.5) * 88.0 * uClickStrength;
+            
+            // Subtle emerald radiance along the shockwave crest
+            if (distFromFront < 0.25) {
+              float crestGlow = (1.0 - distFromFront / 0.25) * exp(-timeSinceClick * 1.5) * uClickStrength;
+              vColor += vec3(0.12, 0.50, 0.38) * crestGlow;
+            }
+          }
+
+          vec3 transformed = vec3(position.x, position.y + baseWave + harmonicRipple + lift + clickWave, position.z);
+
+          // Subtle emerald luminescence when mouse touches particles (diffuse aurora)
+          if (uMouseStrength > 0.01 && distScreen < 0.50) {
+            float glowFactor = (1.0 - distScreen / 0.50) * uMouseStrength;
+            vColor += vec3(0.08, 0.38, 0.28) * glowFactor;
+          }
 
           vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);
           gl_Position = projectionMatrix * mvPosition;
 
           // Point attenuation calibrated for clean, visible depth
-          gl_PointSize = clamp(5200.0 / -mvPosition.z, 3.2, 10.5);
+          float sizeBoost = (distScreen < 0.32) ? (1.0 + (1.0 - distScreen / 0.32) * 0.5 * uMouseStrength) : 1.0;
+          gl_PointSize = clamp((5200.0 / -mvPosition.z) * sizeBoost, 3.2, 13.0);
         }
       `,
       fragmentShader: `
@@ -158,11 +214,14 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
     particles.position.set(0, 0, -100)
     scene.add(particles)
 
-    // 6. User Pointer Tracking & Reactive Loops
+    // 6. User Pointer Tracking & Screen-Space Wave Raycasting
     let mouseX = 0
     let mouseY = 0
     let targetMouseX = 0
     let targetMouseY = 0
+
+    const currentMouseNDC = new THREE.Vector2(0, 0)
+    const targetMouseNDC = new THREE.Vector2(0, 0)
 
     let animationFrameId: number
     let isVisible = true
@@ -179,8 +238,38 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
     }
     document.addEventListener('visibilitychange', onVisibilityChange)
 
-    let lastStyleTime = 0
     let isRunning = true
+    let lastCardRippleTime = 0
+    let lastCardElement: HTMLElement | null = null
+
+    const triggerCardRipple = (card: HTMLElement, clientX: number, clientY: number, isStrong: boolean = false) => {
+      const rect = card.getBoundingClientRect()
+      const x = clientX - rect.left
+      const y = clientY - rect.top
+
+      const createRing = (className: string, delayMs: number = 0) => {
+        setTimeout(() => {
+          const ripple = document.createElement('div')
+          ripple.className = className
+          ripple.style.left = `${x}px`
+          ripple.style.top = `${y}px`
+          card.appendChild(ripple)
+          setTimeout(() => {
+            if (ripple.parentNode === card) {
+              card.removeChild(ripple)
+            }
+          }, 1100)
+        }, delayMs)
+      }
+
+      // Primary wave crest
+      createRing(isStrong ? 'liquid-water-ripple liquid-water-ripple-strong' : 'liquid-water-ripple', 0)
+
+      // Natural secondary trailing rebound ripple (干涉餘波, 80ms delay)
+      if (isStrong) {
+        createRing('liquid-water-ripple liquid-water-ripple-secondary', 80)
+      }
+    }
 
     const onPointerMove = (event: MouseEvent) => {
       const now = performance.now()
@@ -188,17 +277,59 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
       targetMouseX = event.clientX - window.innerWidth / 2
       targetMouseY = event.clientY - window.innerHeight / 2
 
+      // Viewport Normalized Coordinates [-1, 1]
+      targetMouseNDC.x = (event.clientX / window.innerWidth) * 2 - 1
+      targetMouseNDC.y = -(event.clientY / window.innerHeight) * 2 + 1
+
+      // Gentle water ripple on entering or gliding across card panes (zero reflow, using event.target)
+      const targetCard = (event.target as HTMLElement)?.closest?.(
+        '.sharp-card, .glass-card, .binance-card, .modal-content, [role="dialog"], .stat-card-pane, .telemetry-strip'
+      ) as HTMLElement | null
+      if (targetCard) {
+        const isNewCard = targetCard !== lastCardElement
+        if (isNewCard || now - lastCardRippleTime > 450) {
+          lastCardRippleTime = now
+          lastCardElement = targetCard
+          triggerCardRipple(targetCard, event.clientX, event.clientY, false)
+        }
+      } else {
+        lastCardElement = null
+      }
+
       if (!isRunning && isVisible) {
         isRunning = true
         lastFrameTime = now
         animationFrameId = requestAnimationFrame(animate)
       }
+    }
 
-      // Throttle CSS variable updates to max 30 times per second
-      if (now - lastStyleTime > 33) {
-        lastStyleTime = now
-        document.documentElement.style.setProperty('--mouse-x', `${event.clientX}px`)
-        document.documentElement.style.setProperty('--mouse-y', `${event.clientY}px`)
+    const onPointerDown = (event: MouseEvent) => {
+      const now = performance.now()
+      lastInteractionTime = now
+      
+      // Calculate Normalized Device Coordinates [-1, 1] for click
+      const clickNDC = new THREE.Vector2(
+        (event.clientX / window.innerWidth) * 2 - 1,
+        -(event.clientY / window.innerHeight) * 2 + 1
+      )
+      
+      customShaderMaterial.uniforms.uClickPosNDC.value.copy(clickNDC)
+      customShaderMaterial.uniforms.uClickTime.value = timeAccumulator
+      customShaderMaterial.uniforms.uClickStrength.value = 1.0
+
+      // Trigger strong shockwave water ripple on clicked card
+      const targetCard = (event.target as HTMLElement)?.closest?.(
+        '.sharp-card, .glass-card, .binance-card, .modal-content, [role="dialog"], .stat-card-pane, .telemetry-strip'
+      ) as HTMLElement | null
+      if (targetCard) {
+        lastCardRippleTime = now
+        triggerCardRipple(targetCard, event.clientX, event.clientY, true)
+      }
+      
+      if (!isRunning && isVisible) {
+        isRunning = true
+        lastFrameTime = now
+        animationFrameId = requestAnimationFrame(animate)
       }
     }
 
@@ -206,12 +337,14 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
       camera.aspect = window.innerWidth / window.innerHeight
       camera.updateProjectionMatrix()
       renderer.setSize(window.innerWidth, window.innerHeight)
+      customShaderMaterial.uniforms.uAspect.value = window.innerWidth / window.innerHeight
     }
 
     window.addEventListener('pointermove', onPointerMove, { passive: true })
+    window.addEventListener('pointerdown', onPointerDown, { passive: true })
     window.addEventListener('resize', onResize)
 
-    // 7. Dynamic Progressive Power-Saver Loop
+    // 7. Dynamic Progressive Power-Saver Loop (Active 60fps for butter-smooth fluidity)
     let timeAccumulator = 0
 
     const animate = (now: number = 0) => {
@@ -221,24 +354,25 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
       }
 
       // Progressive Energy Tiers:
-      // - Active user movement (<2s): 30 FPS
-      // - Soft Settle (2s ~ 4s): 12 FPS
-      // - Deep Sleep (>4s): 0 FPS (Completely stop requesting animation frames)
       const idleTime = now - lastInteractionTime
-      if (idleTime > 4000) {
+      if (idleTime > 5000 && customShaderMaterial.uniforms.uClickStrength.value <= 0.01) {
         isRunning = false
         return
       }
 
+      // 60 FPS when interacting (16ms) for fluid motion, smoothly throttle down when idle
+      const targetInterval = idleTime > 2500 ? 60 : 16
+      const elapsed = now - lastFrameTime
+
+      if (elapsed < targetInterval) {
+        animationFrameId = requestAnimationFrame(animate)
+        return
+      }
+
+      lastFrameTime = now - (elapsed % targetInterval)
       animationFrameId = requestAnimationFrame(animate)
 
-      const currentInterval = idleTime > 2000 ? 1000 / 12 : 1000 / 30
-
-      const delta = now - lastFrameTime
-      if (delta < currentInterval) return
-      lastFrameTime = now - (delta % currentInterval)
-
-      // Smooth camera parallax
+      // Smooth camera interpolation
       mouseX += (targetMouseX - mouseX) * 0.05
       mouseY += (targetMouseY - mouseY) * 0.05
 
@@ -259,6 +393,21 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
       camera.position.z += (targetCamZ - camera.position.z) * 0.05
       camera.lookAt(0, 40, 0)
 
+      // Fluid screen-space mouse tracking & wave decay
+      currentMouseNDC.x += (targetMouseNDC.x - currentMouseNDC.x) * 0.16
+      currentMouseNDC.y += (targetMouseNDC.y - currentMouseNDC.y) * 0.16
+      const waveStrength = idleTime < 800 ? 1.0 : Math.max(0.0, 1.0 - (idleTime - 800) / 1400)
+
+      customShaderMaterial.uniforms.uMouseNDC.value.copy(currentMouseNDC)
+      customShaderMaterial.uniforms.uMouseStrength.value = waveStrength
+
+      // Click shockwave smooth exponential decay
+      if (customShaderMaterial.uniforms.uClickStrength.value > 0.005) {
+        customShaderMaterial.uniforms.uClickStrength.value *= 0.965
+      } else {
+        customShaderMaterial.uniforms.uClickStrength.value = 0.0
+      }
+
       // Zero-CPU Sine calculation: offloaded entirely to GPU shader!
       timeAccumulator += 0.06
       customShaderMaterial.uniforms.uTime.value = timeAccumulator
@@ -273,6 +422,7 @@ export function Interactive3DBackground({ currentPage = 'trader' }: Interactive3
       cancelAnimationFrame(animationFrameId)
       document.removeEventListener('visibilitychange', onVisibilityChange)
       window.removeEventListener('pointermove', onPointerMove)
+      window.removeEventListener('pointerdown', onPointerDown)
       window.removeEventListener('resize', onResize)
       if (container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement)

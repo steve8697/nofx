@@ -213,6 +213,11 @@ func extractDecisions(response string) ([]Decision, error) {
 func applySmartFieldMapping(decisions []Decision) {
 	for i := range decisions {
 		d := &decisions[i]
+		// 别名字段映射: profit_target -> take_profit
+		if d.TakeProfit == 0 && d.ProfitTarget > 0 {
+			d.TakeProfit = d.ProfitTarget
+			log.Printf("  🔧 智能映射: %s 使用 profit_target=%.2f 填充 take_profit", d.Symbol, d.ProfitTarget)
+		}
 		if d.Action == "update_stop_loss" {
 			if d.NewStopLoss == 0 && d.StopLoss > 0 {
 				d.NewStopLoss = d.StopLoss
@@ -223,6 +228,9 @@ func applySmartFieldMapping(decisions []Decision) {
 			if d.NewTakeProfit == 0 && d.TakeProfit > 0 {
 				d.NewTakeProfit = d.TakeProfit
 				log.Printf("  🔧 智能映射: update_take_profit 使用 take_profit=%.2f 填充 new_take_profit", d.TakeProfit)
+			} else if d.NewTakeProfit == 0 && d.ProfitTarget > 0 {
+				d.NewTakeProfit = d.ProfitTarget
+				log.Printf("  🔧 智能映射: update_take_profit 使用 profit_target=%.2f 填充 new_take_profit", d.ProfitTarget)
 			}
 		}
 	}
@@ -272,37 +280,65 @@ func validateJSONFormat(jsonStr string) error {
 
 	// 检查是否在数值字段中包含范围符号 ~（LLM 常见错误）
 	// 允许在字符串值（如reasoning字段）中使用~符号，但禁止在数值字段中使用
-	// 使用正则表达式检查：~ 符号前后是数字的情况（数值范围）
-	reNumericRange := regexp.MustCompile(`["\s](-?\d+\.?\d*)\s*~\s*(-?\d+\.?\d*)`)
-	if reNumericRange.MatchString(jsonStr) {
-		return fmt.Errorf("JSON 数值字段中不可包含范围符号 ~，所有数字必须是精确的单一值（reasoning字段中的文本描述可以使用~）")
+	// 🔧 修正（v5.6.1）：仅当 ~ 符号出现在字符串值外部的键值位置（冒号后）才视为错误，避免 reasoning 中正常的 "79000~80000" 误触
+	reNumericRange := regexp.MustCompile(`:\s*(-?\d+\.?\d*)\s*~\s*(-?\d+\.?\d*)`)
+	if matches := reNumericRange.FindAllStringIndex(jsonStr, -1); matches != nil {
+		for _, match := range matches {
+			colonPos := match[0]
+			// 检查是否位于字符串内部
+			quoteCount := 0
+			for i := 0; i < colonPos; i++ {
+				if jsonStr[i] == '"' && (i == 0 || jsonStr[i-1] != '\\') {
+					quoteCount++
+				}
+			}
+			if quoteCount%2 == 1 {
+				continue // 位于字符串内，允许
+			}
+
+			// 检查冒号后是否是引号
+			valueStart := colonPos + 1
+			for valueStart < len(jsonStr) && (jsonStr[valueStart] == ' ' || jsonStr[valueStart] == '\t') {
+				valueStart++
+			}
+			if valueStart < len(jsonStr) && jsonStr[valueStart] == '"' {
+				continue
+			}
+
+			return fmt.Errorf("JSON 数值字段中不可包含范围符号 ~，所有数字必须是精确的单一值（reasoning字段中的文本描述可以使用~）")
+		}
 	}
 
 	// 检查是否在数值字段中包含千位分隔符（如 98,000）
 	// ⚠️ 重要：只检查数值字段中的千位分隔符，字符串值（如reasoning字段）中的千位分隔符是允许的
-	// 使用正则表达式匹配：冒号后直接跟着数字+逗号+3位数字的模式（这是数值字段的特征）
-	// 匹配模式：": 数字,三位数字" 或 ":数字,三位数字"（不在引号内）
-	// 注意：这个正则只匹配冒号后直接是数字的情况，不会匹配字符串值中的数字
-	// 例如："price": 100,000 会被匹配（错误），但 "reasoning": "价格100,000" 不会被匹配（正确）
+	// 🔧 修正（v5.6.1）：同样增加字符串上下文判断，防止 reasoning 内部的 ":80,000" 触发误报
 	reNumericComma := regexp.MustCompile(`:\s*(-?\d+),(\d{3})([,\s\]\}])`)
 	if matches := reNumericComma.FindAllStringIndex(jsonStr, -1); matches != nil {
 		for _, match := range matches {
 			colonPos := match[0] // 冒号的位置
 
-			// 检查冒号后是否有引号：如果有引号，说明是字符串值，跳过；如果没有引号，说明是数值字段，检查千位分隔符
-			// 跳过冒号后的空白字符
+			// 检查是否位于字符串内部
+			quoteCount := 0
+			for i := 0; i < colonPos; i++ {
+				if jsonStr[i] == '"' && (i == 0 || jsonStr[i-1] != '\\') {
+					quoteCount++
+				}
+			}
+			if quoteCount%2 == 1 {
+				continue // 位于字符串内，跳过
+			}
+
+			// 检查冒号后是否有引号：如果有引号，说明是字符串值，跳过
 			valueStart := colonPos + 1
 			for valueStart < len(jsonStr) && (jsonStr[valueStart] == ' ' || jsonStr[valueStart] == '\t') {
 				valueStart++
 			}
 
-			// 如果冒号后是引号，说明这是字符串值，跳过（允许字符串值中的千位分隔符）
 			if valueStart < len(jsonStr) && jsonStr[valueStart] == '"' {
 				continue
 			}
 
-			// 如果冒号后是数字，说明这是数值字段，检查是否有千位分隔符
-			// 这里已经匹配到了数字+逗号+3位数字的模式，说明是数值字段中的千位分隔符，报错
+			// 这里已经匹配到了数值字段中的千位分隔符，报错
 			return fmt.Errorf("JSON 数值字段中不可包含千位分隔符逗号，发现: %s", jsonStr[colonPos:min(colonPos+15, len(jsonStr))])
 		}
 	}
@@ -311,11 +347,31 @@ func validateJSONFormat(jsonStr string) error {
 	// 这是 AI 常见错误：在 JSON 数值字段中输出计算过程而不是最终结果
 	// 匹配模式：冒号后跟着数字和算术运算符（+, -, *, /, (, )）的组合
 	// 例如："position_size_usd": 26.42 * (3/5) 或 "stop_loss": 3056.67 - (3056.67 * 0.01)
+	//
+	// 🔧 修正（v5.6.0）：旧版本仅简单跳过「冒号后紧跟引号」的情况，但 reasoning 字段中的文本
+	// 如 "XPLUSDT做多:7/8多空确认一致" 中的冒号不是 JSON key-value 分隔符，而是字符串内容。
+	// 旧正则会误将其匹配为数值字段的算术表达式，导致合法交易被拦截。
+	// 新方案：通过追踪 JSON 引号开闭状态（lexer），确保只检查真正位于字符串外部的冒号。
 	reArithmeticExpr := regexp.MustCompile(`:\s*(-?\d+\.?\d*)\s*[\+\-\*/\(]`)
 	if matches := reArithmeticExpr.FindAllStringIndex(jsonStr, -1); matches != nil {
 		for _, match := range matches {
 			colonPos := match[0] // 冒号的位置
 
+			// 🔧 关键修正：检查该冒号是否位于 JSON 字符串值内部
+			// 通过计算 colonPos 之前的未转义引号数量来判断
+			// 奇数个引号 = 在字符串内部（跳过），偶数个 = 在字符串外部（需要检查）
+			quoteCount := 0
+			for i := 0; i < colonPos; i++ {
+				if jsonStr[i] == '"' && (i == 0 || jsonStr[i-1] != '\\') {
+					quoteCount++
+				}
+			}
+			if quoteCount%2 == 1 {
+				// 该冒号位于 JSON 字符串值内部（如 reasoning 字段），跳过
+				continue
+			}
+
+			// 冒号位于字符串外部，这是 JSON key-value 分隔符
 			// 检查冒号后是否有引号：如果有引号，说明是字符串值，跳过
 			valueStart := colonPos + 1
 			for valueStart < len(jsonStr) && (jsonStr[valueStart] == ' ' || jsonStr[valueStart] == '\t') {

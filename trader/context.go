@@ -31,12 +31,14 @@ type ContextBuilder struct {
 	consecutiveWait int         // 连续wait次数（用于触发 analysis paralysis 规则）
 	persistence     *PersistenceManager
 	liquidityEngine *market.LiquidityEngine // 🔥 持续化流动性引擎
-	dailyPnL        float64                 // 🔥 当日累计盈亏 (持久化)
-	lastResetTime   time.Time               // 🔥 上次重置日盈亏时间 (持久化)
-	callCount       int
-	decisionHistory []decision.FullDecision
-	peakPnLCache    map[string]float64
-	stopUntil       time.Time
+	dailyPnL           float64                 // 🔥 当日累计盈亏 (持久化)
+	lastResetTime      time.Time               // 🔥 上次重置日盈亏时间 (持久化)
+	callCount          int
+	decisionHistory    []decision.FullDecision
+	peakPnLCache       map[string]float64
+	peakEquity         float64 // 账户历史最高净值 (High-Water Mark)
+	stopUntil          time.Time
+	activeTradeReasons map[string]string // 🔧 内存持久化开仓理由 (Symbol_Side -> Reason)
 }
 
 // NewContextBuilder 创建ContextBuilder
@@ -53,6 +55,8 @@ func NewContextBuilder(trader Trader, decisionLogger *logger.DecisionLogger, con
 	var decisionHistory []decision.FullDecision
 	var peakPnLCache map[string]float64
 	var stopUntil time.Time
+	peakEquity := 0.0
+	activeTradeReasons := make(map[string]string)
 
 	if err != nil {
 		log.Printf("⚠️ 加载持仓状态失败: %v", err)
@@ -71,12 +75,20 @@ func NewContextBuilder(trader Trader, decisionLogger *logger.DecisionLogger, con
 		callCount = loadedState.CallCount
 		decisionHistory = loadedState.DecisionHistory
 		peakPnLCache = loadedState.PeakPnLCache
+		peakEquity = loadedState.PeakEquity
 		if loadedState.StopUntil > 0 {
 			stopUntil = time.Unix(loadedState.StopUntil, 0)
 		}
+		if loadedState.ActiveTradeReasons != nil {
+			activeTradeReasons = loadedState.ActiveTradeReasons
+		}
 
-		log.Printf("✓ 已加载历史状态: %d个持仓记录, 连续亏损%d次, 今日盈亏%.2f, 上次平仓%s, 周期#%d, 历史决策%d个, peak快取%d個",
-			len(firstSeenTimes), consecutiveLoss, dailyPnL, formatTimeAgo(lastCloseTime), callCount, len(decisionHistory), len(peakPnLCache))
+		log.Printf("✓ 已加载历史状态: %d个持仓记录, 连续亏损%d次, 今日盈亏%.2f, 上次平仓%s, 周期#%d, 历史决策%d个, peak快取%d個, 活跃开仓理由%d个, 历史最高净值%.2f",
+			len(firstSeenTimes), consecutiveLoss, dailyPnL, formatTimeAgo(lastCloseTime), callCount, len(decisionHistory), len(peakPnLCache), len(activeTradeReasons), peakEquity)
+	}
+
+	if peakEquity <= 0 && config.InitialBalance > 0 {
+		peakEquity = config.InitialBalance
 	}
 
 	if decisionHistory == nil {
@@ -104,18 +116,26 @@ func NewContextBuilder(trader Trader, decisionLogger *logger.DecisionLogger, con
 		callCount:             callCount,
 		decisionHistory:       decisionHistory,
 		peakPnLCache:          peakPnLCache,
+		peakEquity:            peakEquity,
 		stopUntil:             stopUntil,
+		activeTradeReasons:    activeTradeReasons,
 	}
 }
 
 // ReconcileOfflineCloses 启动时对账：检查离线期间的平仓 (The "Coma" Fix)
 func (cb *ContextBuilder) ReconcileOfflineCloses() {
-	state, err := cb.persistence.LoadPositionState()
-	if err != nil || state.ActiveTradeReasons == nil || len(state.ActiveTradeReasons) == 0 {
+	cb.mu.RLock()
+	keysToCheck := make(map[string]string)
+	for k, v := range cb.activeTradeReasons {
+		keysToCheck[k] = v
+	}
+	cb.mu.RUnlock()
+
+	if len(keysToCheck) == 0 {
 		return
 	}
 
-	log.Printf("🔍 启动对账 (Startup Reconciliation): 检查 %d 个记忆中的持仓...", len(state.ActiveTradeReasons))
+	log.Printf("🔍 启动对账 (Startup Reconciliation): 检查 %d 个记忆中的持仓...", len(keysToCheck))
 
 	// 获取当前实际持仓
 	positions, err := cb.trader.GetPositions()
@@ -132,34 +152,26 @@ func (cb *ContextBuilder) ReconcileOfflineCloses() {
 
 	// 检查记忆中存在但实际不存在的持仓
 	reconciledCount := 0
-	stateModified := false
-
-	for key, reason := range state.ActiveTradeReasons {
+	for key, reason := range keysToCheck {
 		if !currentHoldings[key] {
 			log.Printf("👻 发现离线平仓 (Offline Close): %s (原理由: %s)", key, reason)
 
 			parts := strings.Split(key, "_")
 			if len(parts) == 2 {
 				symbol := parts[0]
-				// side := parts[1]
-
-				// 尝试获取成交历史 (过去24小时)
-				cb.detectAndLogPassiveClose(symbol, key, reason, 24*60) // 24小时窗口
-
-				// 从记忆中移除
-				delete(state.ActiveTradeReasons, key)
-				// delete(cb.positionFirstSeenTime, key) // Reconcile runs before Build/init loop maybe?
-				// positionFirstSeenTime is init in NewContextBuilder, so it might be empty or loaded.
-				// We should clean it if loaded.
-				stateModified = true
-				reconciledCount++
+				// 尝试获取成交历史 (过去24小时) 并同步累计至 dailyPnL
+				cb.detectAndLogPassiveClose(symbol, key, reason, 24*60)
 			}
+
+			// 确保无论是否匹配到成交历史，都彻底清除记忆并持久化最新真实状态
+			cb.RemoveEntryReason(key)
+			cb.DeletePositionFirstSeenTime(key)
+			reconciledCount++
 		}
 	}
 
-	if stateModified {
-		cb.persistence.SavePositionState(state)
-		log.Printf("✅ 启动对账完成: 修复了 %d 个离线平仓记录", reconciledCount)
+	if reconciledCount > 0 {
+		log.Printf("✅ 启动对账完成: 修复并清理了 %d 个离线平仓记录", reconciledCount)
 	} else {
 		log.Printf("✅ 启动对账完成: 无异常")
 	}
@@ -279,7 +291,7 @@ func (cb *ContextBuilder) Build(callCount int, recentDecisions []decision.FullDe
 			StopLoss:         stopLoss,
 			TakeProfit:       takeProfit,
 
-			EntryReasoning: cb.getEntryReason(symbol, side), // 注入开仓理由
+			EntryReasoning: cb.GetEntryReason(symbol, side), // 注入开仓理由
 		})
 	}
 
@@ -332,7 +344,7 @@ func (cb *ContextBuilder) Build(callCount int, recentDecisions []decision.FullDe
 			if len(parts) == 2 {
 				symbol := parts[0]
 				side := parts[1]
-				reason := cb.getEntryReason(symbol, side)
+				reason := cb.GetEntryReason(symbol, side)
 
 				// 偵測並記錄被動平倉
 				cb.detectAndLogPassiveClose(symbol, key, reason, 60)
@@ -359,11 +371,24 @@ func (cb *ContextBuilder) Build(callCount int, recentDecisions []decision.FullDe
 		return nil, fmt.Errorf("获取候选币种失败: %w", err)
 	}
 
-	// 4. 计算总盈亏
+	// 4. 计算总盈亏与高水位峰值回撤
 	totalPnL := totalEquity - cb.config.InitialBalance
 	totalPnLPct := 0.0
 	if cb.config.InitialBalance > 0 {
 		totalPnLPct = (totalPnL / cb.config.InitialBalance) * 100
+	}
+
+	cb.mu.Lock()
+	if totalEquity > cb.peakEquity {
+		cb.peakEquity = totalEquity
+		go cb.saveState()
+	}
+	currentPeak := cb.peakEquity
+	cb.mu.Unlock()
+
+	peakDrawdownPct := 0.0
+	if currentPeak > 0 {
+		peakDrawdownPct = ((totalEquity - currentPeak) / currentPeak) * 100
 	}
 
 	marginUsedPct := 0.0
@@ -397,6 +422,8 @@ func (cb *ContextBuilder) Build(callCount int, recentDecisions []decision.FullDe
 			AvailableBalance: availableBalance,
 			TotalPnL:         totalPnL,
 			TotalPnLPct:      totalPnLPct,
+			PeakEquity:       currentPeak,
+			PeakDrawdownPct:  peakDrawdownPct,
 			MarginUsed:       totalMarginUsed,
 			MarginUsedPct:    marginUsedPct,
 			PositionCount:    len(positionInfos),
@@ -511,16 +538,28 @@ func (cb *ContextBuilder) saveState() error {
 	for k, v := range cb.peakPnLCache {
 		peakPnLCopy[k] = v
 	}
+	reasonsCopy := make(map[string]string)
+	for k, v := range cb.activeTradeReasons {
+		reasonsCopy[k] = v
+	}
 	callCount := cb.callCount
+	peakEquity := cb.peakEquity
+
+	var lastResetUnix int64
+	if !cb.lastResetTime.IsZero() {
+		lastResetUnix = cb.lastResetTime.Unix()
+	}
 	cb.mu.RUnlock()
 
 	state := &PositionState{
 		FirstSeenTimes:     firstSeenCopy,
+		ActiveTradeReasons: reasonsCopy, // 🔧 关键修复（RSK-05）：保存活跃持仓开仓理由，修复杂项覆盖为null的问题
 		ConsecutiveLosses:  cb.consecutiveLoss,
 		LastTradeTime:      lastTradeTime,
 		DailyLoss:          cb.dailyPnL, // ✅ 修复: 保存真实的 DailyLoss
-		LastResetTime:      cb.lastResetTime.Unix(),
+		LastResetTime:      lastResetUnix, // 🔧 修复零值时间负数问题
 		CallCount:          callCount,
+		PeakEquity:         peakEquity,
 		PeakPnLCache:       peakPnLCopy,
 		DecisionHistory:    historyCopy,
 		StopUntil:          unixStopUntil(cb.stopUntil),
@@ -751,19 +790,11 @@ func (cb *ContextBuilder) DeletePositionFirstSeenTime(posKey string) {
 // RecordEntryReason 记录开仓理由 (Trade Memory)
 func (cb *ContextBuilder) RecordEntryReason(symbol, side, reason string) {
 	posKey := symbol + "_" + side
+	cb.mu.Lock()
+	cb.activeTradeReasons[posKey] = reason
+	cb.mu.Unlock()
 
-	state, err := cb.persistence.LoadPositionState()
-	if err != nil {
-		log.Printf("⚠️ 无法加载状态以保存理由: %v", err)
-		return
-	}
-
-	if state.ActiveTradeReasons == nil {
-		state.ActiveTradeReasons = make(map[string]string)
-	}
-
-	state.ActiveTradeReasons[posKey] = reason
-	if err := cb.persistence.SavePositionState(state); err != nil {
+	if err := cb.saveState(); err != nil {
 		log.Printf("⚠️ 保存开仓理由失败: %v", err)
 	} else {
 		log.Printf("🧠 [Trade Memory] 已记忆开仓理由 (%s): %s", posKey, reason)
@@ -772,27 +803,30 @@ func (cb *ContextBuilder) RecordEntryReason(symbol, side, reason string) {
 
 // RemoveEntryReason 移除开仓理由 (平仓后调用)
 func (cb *ContextBuilder) RemoveEntryReason(posKey string) {
-	state, err := cb.persistence.LoadPositionState()
-	if err != nil {
-		return
-	}
-	if state.ActiveTradeReasons != nil {
-		if _, exists := state.ActiveTradeReasons[posKey]; exists {
-			delete(state.ActiveTradeReasons, posKey)
-			cb.persistence.SavePositionState(state)
-			log.Printf("🧠 [Trade Memory] 已移除开仓理由 (%s)", posKey)
-		}
+	cb.mu.Lock()
+	delete(cb.activeTradeReasons, posKey)
+	cb.mu.Unlock()
+
+	// 🔧 关键修复（EXE-02）：平仓后同步清理持仓首次出现时间，防止下次再开同币种时被孤儿监控秒平
+	cb.DeletePositionFirstSeenTime(posKey)
+
+	if err := cb.saveState(); err != nil {
+		log.Printf("⚠️ 更新平仓记忆失败: %v", err)
+	} else {
+		log.Printf("🧠 [Trade Memory] 已移除开仓理由并清理时间戳 (%s)", posKey)
 	}
 }
 
-// getEntryReason 获取开仓理由
-func (cb *ContextBuilder) getEntryReason(symbol, side string) string {
-	posKey := symbol + "_" + side
-	state, err := cb.persistence.LoadPositionState()
-	if err != nil || state.ActiveTradeReasons == nil {
-		return ""
+// GetEntryReason 获取开仓理由 (支持大小写标准化)
+func (cb *ContextBuilder) GetEntryReason(symbol, side string) string {
+	posKey := symbol + "_" + strings.ToLower(side)
+	cb.mu.RLock()
+	defer cb.mu.RUnlock()
+	if reason, ok := cb.activeTradeReasons[posKey]; ok && reason != "" {
+		return reason
 	}
-	return state.ActiveTradeReasons[posKey]
+	posKeyUpper := symbol + "_" + strings.ToUpper(side)
+	return cb.activeTradeReasons[posKeyUpper]
 }
 
 // detectAndLogPassiveClose 侦测并记录被动平仓
@@ -888,6 +922,14 @@ func (cb *ContextBuilder) detectAndLogPassiveClose(symbol, key, originalReason s
 				cb.consecutiveLoss = 0
 			}
 
+			// 🔧 关键修复（RSK-01）：被动平仓（止损/止盈/强平）同步累计至 dailyPnL
+			cb.dailyPnL += pnl
+
+			// 🔧 关键修复（EXE-02）：被动平仓成功后清理开仓理由与孤儿时间戳
+			cb.RemoveEntryReason(key)
+			cb.DeletePositionFirstSeenTime(key)
+			cb.saveState()
+
 			cb.lastCloseTime = cb.timeProvider.Now()
 			foundPassiveTrade = true
 			break // 只處理最近的一筆
@@ -896,6 +938,9 @@ func (cb *ContextBuilder) detectAndLogPassiveClose(symbol, key, originalReason s
 
 	if !foundPassiveTrade {
 		log.Printf("ℹ️ 持倉 %s 消失，但未檢測到近期成交 (可能過期或手動平倉)", key)
+		cb.RemoveEntryReason(key)
+		cb.DeletePositionFirstSeenTime(key)
+		cb.saveState()
 	}
 }
 
@@ -977,11 +1022,15 @@ func (cb *ContextBuilder) RecoverTradeHistory() {
 				}
 
 				closePrice := action.Price
+				qty := action.Quantity
+				if qty <= 0 {
+					qty = 1.0 // 兼容未记录数量的历史数据回退
+				}
 				var pnl float64
 				if side == "long" {
-					pnl = closePrice - openPrice // 多仓：平仓价 - 开仓价
+					pnl = (closePrice - openPrice) * qty // 多仓：(平仓价 - 开仓价) * 数量
 				} else {
-					pnl = openPrice - closePrice // 空仓：开仓价 - 平仓价
+					pnl = (openPrice - closePrice) * qty // 空仓：(开仓价 - 平仓价) * 数量
 				}
 
 				// 只在完全平仓时记录（partial_close 不计入连续亏损）
@@ -1146,4 +1195,11 @@ func (cb *ContextBuilder) UpdatePeakPnLCache(cache map[string]float64) error {
 	
 	cb.mu.Unlock()
 	return cb.saveState()
+}
+
+// GetPeakEquity 获取历史最高净值
+func (cb *ContextBuilder) GetPeakEquity() float64 {
+	cb.mu.RLock()
+	defer cb.mu.RUnlock()
+	return cb.peakEquity
 }

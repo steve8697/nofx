@@ -25,6 +25,7 @@ type PositionState struct {
 	LastTradeTime      int64                   `json:"last_trade_time"`      // 上次交易时间戳
 	LastResetTime      int64                   `json:"last_reset_time"`      // 上次重置日盈亏时间戳
 	CallCount          int                     `json:"call_count"`           // AI调用次数 / AI决策周期
+	PeakEquity         float64                 `json:"peak_equity,omitempty"` // 账户历史最高净值 (High-Water Mark)
 	PeakPnLCache       map[string]float64      `json:"peak_pnl_cache"`       // 各币种盈亏峰值缓存
 	DecisionHistory    []decision.FullDecision `json:"decision_history"`     // 决策历史记录（最近5次）
 	StopUntil          int64                   `json:"stop_until,omitempty"` // 风控暂停截止（unix 秒）
@@ -54,8 +55,15 @@ func (pm *PersistenceManager) SavePositionState(state *PositionState) error {
 		return fmt.Errorf("序列化持仓状态失败: %w", err)
 	}
 
-	if err := os.WriteFile(pm.filePath, data, 0644); err != nil {
-		return fmt.Errorf("写入持仓状态文件失败: %w", err)
+	// 🔧 修正（RSK-04）：原子化文件写入（Write to Temp File + Rename）
+	// 避免在容器重启或意外断电时产生 0 字节空文件导致状态彻底丢失
+	tmpPath := pm.filePath + ".tmp"
+	if err := os.WriteFile(tmpPath, data, 0644); err != nil {
+		return fmt.Errorf("写入临时持仓状态文件失败: %w", err)
+	}
+
+	if err := os.Rename(tmpPath, pm.filePath); err != nil {
+		return fmt.Errorf("重命名替换持仓状态文件失败: %w", err)
 	}
 
 	return nil

@@ -178,15 +178,21 @@ func (c *CombinedStreamsClient) handleCombinedMessage(message []byte) {
 
 	c.mu.RLock()
 	ch, exists := c.subscribers[combinedMsg.Stream]
-	c.mu.RUnlock()
-
-	if exists {
-		select {
-		case ch <- combinedMsg.Data:
-		default:
-			log.Printf("订阅者通道已满: %s", combinedMsg.Stream)
-		}
+	if exists && ch != nil {
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					// 订阅通道在并发移除时被关闭，静默捕获防止程序崩溃
+				}
+			}()
+			select {
+			case ch <- combinedMsg.Data:
+			default:
+				log.Printf("订阅者通道已满: %s", combinedMsg.Stream)
+			}
+		}()
 	}
+	c.mu.RUnlock()
 }
 
 func (c *CombinedStreamsClient) AddSubscriber(stream string, bufferSize int) <-chan []byte {

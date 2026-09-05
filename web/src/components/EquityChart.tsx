@@ -370,11 +370,13 @@ export function EquityChart({ traderId }: EquityChartProps) {
             <XAxis
               dataKey="time"
               stroke="rgba(255, 255, 255, 0.08)"
-              tick={{ fill: 'rgba(255, 255, 255, 0.25)', fontSize: 10, fontFamily: 'monospace' }}
+              tick={{ fill: 'rgba(255, 255, 255, 0.35)', fontSize: 9, fontFamily: 'monospace' }}
               tickLine={{ stroke: 'rgba(255, 255, 255, 0.03)' }}
-              interval={Math.max(1, Math.floor(chartData.length / 5))}
-              height={40}
-              dy={10}
+              interval="preserveStartEnd"
+              minTickGap={28}
+              tickFormatter={(time: string) => (time === 'START' ? 'START' : time.length > 5 ? time.slice(0, 5) : time)}
+              height={32}
+              dy={8}
             />
 
             <YAxis

@@ -21,6 +21,9 @@ func calculateVPVR(klines []Kline, buckets int) VolumeProfileResponse {
 	if len(klines) == 0 {
 		return VolumeProfileResponse{}
 	}
+	if buckets <= 0 {
+		buckets = 24
+	}
 
 	// 1. Find Range (High/Low)
 	minPrice := klines[0].Low
@@ -38,7 +41,7 @@ func calculateVPVR(klines []Kline, buckets int) VolumeProfileResponse {
 	}
 
 	// Avoid division by zero
-	if minPrice == maxPrice {
+	if maxPrice <= minPrice || (maxPrice-minPrice) < 1e-8 {
 		return VolumeProfileResponse{
 			POC:         minPrice,
 			VAHigh:      minPrice,

@@ -45,6 +45,8 @@ type AccountInfo struct {
 	MarginUsedPct    float64 `json:"margin_used_pct"`   // 保证金使用率
 	PositionCount    int     `json:"position_count"`    // 持仓数量
 	UnrealizedPnL    float64 `json:"unrealized_pnl"`    // 未实现盈亏 (Floating PnL)
+	PeakEquity       float64 `json:"peak_equity,omitempty"`        // 账户历史峰值净值 (High-Water Mark)
+	PeakDrawdownPct  float64 `json:"peak_drawdown_pct,omitempty"`   // 峰值回撤百分比 (HWM Drawdown)
 }
 
 // CandidateCoin 候选币种（来自币种池）
@@ -116,6 +118,7 @@ type Decision struct {
 	EntryPrice      float64 `json:"entry_price,omitempty"` // 入场价格（当前市价）- 用于准确计算风险回报比
 	StopLoss        float64 `json:"stop_loss,omitempty"`
 	TakeProfit      float64 `json:"take_profit,omitempty"`
+	ProfitTarget    float64 `json:"profit_target,omitempty"` // 兼容别名 (映射至 take_profit)
 
 	// 调整参数（新增）
 	NewStopLoss     float64 `json:"new_stop_loss,omitempty"`    // 用于 update_stop_loss
@@ -453,7 +456,7 @@ func buildSystemPrompt(accountEquity float64, btcEthLeverage, altcoinLeverage in
 	// 确保promptRules不为nil（必须在使用前检查）
 	if promptRules == nil {
 		promptRules = &config.PromptRules{
-			RiskRewardRatio:        "1:3",
+			RiskRewardRatio:        "2:1", // 🔧 统一默认值为 2:1（赚2冒1），避免未配置时被 3:1 严苛卡死
 			MaxPositions:           3,
 			MaxPositionSizeAltcoin: 1.2,
 			MaxPositionSizeBTCETH:  8.0,
@@ -469,7 +472,10 @@ func buildSystemPrompt(accountEquity float64, btcEthLeverage, altcoinLeverage in
 	}
 
 	// 💰 動態計算自適應上限，避免「上限小於下限」的空集矛盾
-	isMicroEquityMode := accountEquity < 10.0
+	// 🔧 修正（v5.6.0）：微型资金门槛从 10 USDT 提高至 50 USDT
+	// 原因：22 USDT 账户在旧门槛下未触发放宽，单笔最大亏损被限制在 3.05%（$0.67），
+	// 导致 BTC/ETH 止损空间仅 2.23%，几乎不可能通过 ATR 止损修正与 R:R 验证。
+	isMicroEquityMode := accountEquity < 50.0
 	maxAltcoinSize := accountEquity * promptRules.MaxPositionSizeAltcoin
 	if maxAltcoinSize < promptRules.MinPositionSize {
 		maxAltcoinSize = promptRules.MinPositionSize
@@ -482,36 +488,23 @@ func buildSystemPrompt(accountEquity float64, btcEthLeverage, altcoinLeverage in
 	if isProbePhase {
 		log.Printf("⚠️ 检测到连续 %d 次wait（探测阶段 %d/7），正在动态调整System Prompt阈值...", consecutiveWait, cyclePos)
 
-		// 替换技术评分门槛（关键：仅放宽拒绝门槛，不改变高分定义，避免风险放大）
-		// 1. 放宽拒绝门槛
-		templateContent = strings.ReplaceAll(templateContent, "技术评分 < 70", "技术评分 < 60")
-		templateContent = strings.ReplaceAll(templateContent, "**< 70**：Wait", "**< 60**：Wait")
-
-		// 2. 调整微仓位区间（允许60-70分段进入微仓位或中等仓位）
-		templateContent = strings.ReplaceAll(templateContent, "**70-79**：微仓位", "**60-79**：微仓位")
-
-		// 3. 消除 60-69 分段的仓位矛盾（原定义75%，恢复期强制微仓位）
-		templateContent = strings.ReplaceAll(templateContent, "| 60-69 | 75% |", "| 60-69 | 微(恢复) |")
-		templateContent = strings.ReplaceAll(templateContent, "→ 75% 仓位", "→ 微仓位(恢复期)")
-
-		// 注意：不要替换 "技术评分 ≥ 70"，保留它作为强力信号的标准
-		// 这样 60-69 分将自然落入 "中等信号" (60-69) 或 "微仓位" 区间，而不是被当做强力信号
-
-		// 替换信心度门槛（信心度可以整体下调，因為它是主觀評估）
-		templateContent = strings.ReplaceAll(templateContent, "信心度≥80", "信心度≥75")
-		templateContent = strings.ReplaceAll(templateContent, "信心度 80-85", "信心度 75-85")
+		// 动态放宽开仓信心度门槛（由65分微调至55分，允许微仓位试探）
+		templateContent = strings.ReplaceAll(templateContent, "信心度 <65", "信心度 <55")
+		templateContent = strings.ReplaceAll(templateContent, "信心度 65-74", "信心度 55-65")
+		templateContent = strings.ReplaceAll(templateContent, "信心度 ≥65", "信心度 ≥55")
 		templateContent = strings.ReplaceAll(templateContent, "信心度 <70", "信心度 <60")
-		templateContent = strings.ReplaceAll(templateContent, "信心度 70-79", "信心度 60-75")
-		templateContent = strings.ReplaceAll(templateContent, "评分≥80", "评分≥75") // 针对行41
+		templateContent = strings.ReplaceAll(templateContent, "信心度 70-79", "信心度 60-70")
+		templateContent = strings.ReplaceAll(templateContent, "信心度≥80", "信心度≥75")
 
-		// 在开头添加显式说明
-		extraNotice := fmt.Sprintf("# ⚠️ 特殊模式：分析瘫痪周期性探测 (连续Wait: %d | 阶段: %d/7)\n**评分门槛暂降至60，信心度门槛暂降至75。此调整将在本轮探测结束（阶段>7）后自动恢复正常。**\n**强制风控：在恢复期内，所有 60-75 分段的信号（无论是技术评分还是信心度）都必须严格执行微仓位（1%% Risk）风控，禁止大仓位博弈。**\n\n", consecutiveWait, cyclePos)
+		extraNotice := fmt.Sprintf("# ⚠️ 特殊模式：分析瘫痪周期性探测 (连续Wait: %d | 阶段: %d/7)\n**开仓信心度门槛暂降至 55（微仓试探）。此调整将在本轮探测结束（阶段>7）后自动恢复正常。**\n**强制风控：在探测期内，所有开仓必须严格执行微仓位（0.5%%-1%% Risk）试探，禁止重仓。**\n\n", consecutiveWait, cyclePos)
 		templateContent = extraNotice + templateContent
 	} else if consecutiveWait >= 8 {
-		// 非探测阶段，且wait时间较长，恢复正常标准并提醒
+		// 非探测阶段，且wait时间较长，提供中性描述避免正反馈循环
 		log.Printf("ℹ️ 连续wait已达 %d 周期，处于正常标准观察期 (下一次探测在 +%d 周期后)",
 			consecutiveWait, 15-cyclePos+5)
-		extraNotice := fmt.Sprintf("# ℹ️ 市场观望期 (连续Wait: %d)\n**已恢复正常评分标准。当前市场可能确实缺乏良好机会，请保持耐心等待高质量信号。**\n(下一次低门槛探测将在 %d 个周期后自动触发)\n\n",
+		// 🔧 修正（v5.6.0）：移除"市场可能缺乏良好机会"的暗示性语言，
+		// 避免 AI 将系统提示解读为权威判断而形成 wait → 更 wait 的正反馈死循环。
+		extraNotice := fmt.Sprintf("# ℹ️ 连续观察中 (连续Wait: %d)\n**请以正常评分标准独立评估当前市场。每个周期都是独立决策，不受之前 wait 次数影响。**\n**如果指标达标且信心度≥65，应正常开仓，不要因为之前连续 wait 就降低开仓意愿。**\n(下一次低门槛探测将在 %d 个周期后自动触发)\n\n",
 			consecutiveWait, (15-cyclePos+5)%15)
 		templateContent = extraNotice + templateContent
 	}
@@ -522,13 +515,13 @@ func buildSystemPrompt(accountEquity float64, btcEthLeverage, altcoinLeverage in
 	sb.WriteString("# 硬约束（风险控制）\n\n")
 	if isMicroEquityMode {
 		sb.WriteString("⚠️ **【自適應微型資金風控模式已啟動 (Micro-Equity Mode)】**\n")
-		sb.WriteString(fmt.Sprintf("   - 當前賬戶淨值極低（%.2f USDT < 10 USDT）。\n", accountEquity))
+		sb.WriteString(fmt.Sprintf("   - 當前賬戶淨值極低（%.2f USDT < 50 USDT）。\n", accountEquity))
 		sb.WriteString(fmt.Sprintf("   - 為避免開倉「名義價值上限小於下限」的數學空集死鎖，系統已將單幣名義價值上限與開倉下限對齊（山寨幣 %.0f USDT，BTC/ETH %.0f USDT）。\n", promptRules.MinPositionSize, minPositionSizeHighPrice))
 		sb.WriteString("   - 單筆最大風險 (risk_usd) 已放寬至淨值的 4%-5.5%，以容納正常的 ATR 波動空間。請使用最低槓桿（2x-5x）進行極小額度開倉嘗試。\n\n")
 	}
 
-	sb.WriteString(fmt.Sprintf("1. 风险回报比: 必须 ≥ %s（格式說明：X:1 表示賺X冒1的風險，例如 3:1 表示賺3冒1）\n", promptRules.RiskRewardRatio))
-	sb.WriteString(fmt.Sprintf("2. 最多持仓: %d个币种（质量>数量）\n", promptRules.MaxPositions))
+	sb.WriteString(fmt.Sprintf("1. 风险回报比: 必须 ≥ %s（格式說明：X:1 表示賺X冒1的風險，例如 2:1 表示賺2冒1）\n", promptRules.RiskRewardRatio))
+	sb.WriteString(fmt.Sprintf("2. 最多持仓: %d个币种（质量>数量；同方向如多单或空单最多同时持有 2 个，防范单边系统性风险）\n", promptRules.MaxPositions))
 	sb.WriteString(fmt.Sprintf("3. 单币仓位（名義價值上限）: **山寨币 ≤%.0f USDT** | **BTC/ETH ≤%.0f USDT**\n",
 		maxAltcoinSize, maxBtcEthSize))
 	sb.WriteString("   ⚠️ **重要**：position_size_usd 是名義價值（包含槓桿），必須遵守上述上限！\n")
@@ -592,18 +585,21 @@ func buildSystemPrompt(accountEquity float64, btcEthLeverage, altcoinLeverage in
 		examplePositionSizeAltcoin = promptRules.MinPositionSize
 	}
 
+	demoRiskBtc := math.Max(0.5, examplePositionSizeHighPrice*0.015)
+	demoRiskAlt := math.Max(0.5, examplePositionSizeAltcoin*0.015)
+
 	sb.WriteString("```json\n[\n")
-	sb.WriteString(fmt.Sprintf("  {\"symbol\": \"DEMO_BTCUSDT\", \"action\": \"open_short\", \"leverage\": %d, \"position_size_usd\": %.0f, \"stop_loss\": 97000, \"take_profit\": 91000, \"confidence\": 85, \"risk_usd\": 300, \"reasoning\": \"下跌趋势+MACD死叉（示例数据，禁止复制）\"},\n", btcEthLeverage, examplePositionSizeHighPrice))
-	sb.WriteString(fmt.Sprintf("  {\"symbol\": \"DEMO_SOLUSDT\", \"action\": \"open_long\", \"leverage\": %d, \"position_size_usd\": %.0f, \"stop_loss\": 150, \"take_profit\": 165, \"confidence\": 80, \"risk_usd\": 50, \"reasoning\": \"突破阻力位（示例数据，禁止复制）\"},\n", altcoinLeverage, examplePositionSizeAltcoin))
+	sb.WriteString(fmt.Sprintf("  {\"symbol\": \"DEMO_BTCUSDT\", \"action\": \"open_short\", \"leverage\": %d, \"position_size_usd\": %.0f, \"entry_price\": 94000, \"stop_loss\": 95000, \"take_profit\": 92000, \"confidence\": 85, \"risk_usd\": %.2f, \"reasoning\": \"下跌趋势+MACD死叉（示例数据，禁止复制）\"},\n", btcEthLeverage, examplePositionSizeHighPrice, demoRiskBtc))
+	sb.WriteString(fmt.Sprintf("  {\"symbol\": \"DEMO_SOLUSDT\", \"action\": \"open_long\", \"leverage\": %d, \"position_size_usd\": %.0f, \"entry_price\": 155, \"stop_loss\": 152, \"take_profit\": 161, \"confidence\": 80, \"risk_usd\": %.2f, \"reasoning\": \"突破阻力位（示例数据，禁止复制）\"},\n", altcoinLeverage, examplePositionSizeAltcoin, demoRiskAlt))
 	sb.WriteString("  {\"symbol\": \"DEMO_ETHUSDT\", \"action\": \"close_long\", \"reasoning\": \"止盈离场（示例数据，禁止复制）\"}\n")
 	sb.WriteString("]\n```\n\n")
 	sb.WriteString("字段说明:\n")
 	sb.WriteString("- `action`: open_long | open_short | close_long | close_short | hold | wait\n")
 	sb.WriteString("- `confidence`: 0-100（开仓建议≥75）\n")
-	sb.WriteString("- 开仓时必填: leverage, position_size_usd, stop_loss, take_profit, confidence, risk_usd, reasoning\n")
+	sb.WriteString("- 开仓时必填: leverage, position_size_usd, entry_price, stop_loss, take_profit, confidence, risk_usd, reasoning\n")
 	sb.WriteString(fmt.Sprintf("- ⚠️ **重要**：示例中的position_size_usd仅供参考，实际值必须遵守上限（山寨币≤%.0f USDT，BTC/ETH≤%.0f USDT）和下限（山寨币≥%.0f USDT，BTC/ETH≥%.0f USDT）\n",
 		maxAltcoinSize, maxBtcEthSize, promptRules.MinPositionSize, minPositionSizeHighPrice))
-	sb.WriteString("- ⚠️ **JSON格式要求**：所有数值字段（leverage, position_size_usd, stop_loss, take_profit, confidence, risk_usd）必须是精确的单一数字，不可使用范围符号~。reasoning字段是文本描述，可以使用~符号（如\"夏普比率-0.07在-0.5~0区间\"）\n\n")
+	sb.WriteString("- ⚠️ **JSON格式要求**：所有数值字段（leverage, position_size_usd, entry_price, stop_loss, take_profit, confidence, risk_usd）必须是精确的单一数字，不可使用范围符号~。reasoning字段是文本描述，可以使用~符号（如\"夏普比率-0.07在-0.5~0区间\"）\n\n")
 
 	return sb.String()
 }
@@ -718,11 +714,17 @@ func buildUserPrompt(ctx *Context) string {
 		distance := math.Abs(price - nearestRound)
 		distancePct := (distance / nearestRound) * 100
 
-		if distancePct <= 0.6 {
-			sb.WriteString(fmt.Sprintf("⚠️ **BTC整数关口警告：距离%.0f仅%.2f%%（≤0.6%%），高度不确定，建议wait**\n\n",
+		// 🔧 修正（v5.6.0）：整数关口提示改为参考性信息，不再强制建议 wait。
+		// 旧版 0.6% 阈值 + "建议wait" 措辞导致 BTC 在 80000 附近长期横盘时 AI 被锁死 12+ 小时。
+		// 新版：缩小阈值至 0.3%，且仅提示「需注意」而非「建议wait」，允许微仓位试探。
+		if distancePct <= 0.3 {
+			sb.WriteString(fmt.Sprintf("⚠️ **BTC整数关口提醒：距离%.0f仅%.2f%%（≤0.3%%），波动可能加大，建议使用微仓位并设置更宽止损**\n\n",
+				nearestRound, distancePct))
+		} else if distancePct <= 1.0 {
+			sb.WriteString(fmt.Sprintf("💡 BTC整数关口：%.0f，当前距离%.2f%%，处于关口附近区域，注意突破方向\n\n",
 				nearestRound, distancePct))
 		} else {
-			sb.WriteString(fmt.Sprintf("💡 BTC整数关口：%.0f，当前距离%.2f%%（>0.6%%，处于安全区域）\n\n",
+			sb.WriteString(fmt.Sprintf("💡 BTC整数关口：%.0f，当前距离%.2f%%（>1.0%%，处于安全区域）\n\n",
 				nearestRound, distancePct))
 		}
 	}

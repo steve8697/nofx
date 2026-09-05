@@ -30,6 +30,21 @@ func TestEvaluateRiskHaltDrawdown(t *testing.T) {
 	}
 }
 
+func TestEvaluateRiskHaltPeakDrawdown(t *testing.T) {
+	// Account started at 500, peaked at 1000, now at 750 (TotalPnLPct is +50%, but Drawdown from peak is -25%)
+	kind, reason, halt := EvaluateRiskHalt(RiskHaltInput{
+		DailyPnL:        0,
+		InitialBalance:  500,
+		TotalPnLPct:     50,  // Still in net profit!
+		PeakDrawdownPct: -25, // Dropped 25% from 1000 peak
+		MaxDailyLossPct: 10,
+		MaxDrawdownPct:  20,
+	})
+	if !halt || kind != HaltDrawdown {
+		t.Fatalf("expected peak drawdown halt, got kind=%v halt=%v, reason=%s", kind, halt, reason)
+	}
+}
+
 func TestEvaluateRiskHaltDisabledLimits(t *testing.T) {
 	_, _, halt := EvaluateRiskHalt(RiskHaltInput{
 		DailyPnL:       -100,
